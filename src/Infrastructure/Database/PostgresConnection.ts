@@ -1,19 +1,35 @@
+import dotenv from "dotenv";
+import { Pool } from "pg";
 
-import 'dotenv/config';
-import { Pool } from 'pg';
+dotenv.config();
 
 export class PostgresConnection {
-    private static instancia: Pool | undefined;
+    private static pool: Pool | undefined;
 
-    static obtenerPool(): Pool {
-        if (!PostgresConnection.instancia) {
-            PostgresConnection.instancia = new Pool({
-                host: process.env.DB_HOST ?? "localhost",
-                port: Number(process.env.DB_PORT ?? 5432),
-                database: process.env.DB_NAME ?? "bancofuego",
-                user: process.env.DB_USER ?? 'postgres',
-                password: process.env.DB_PASSWORD ?? 'Admin123456',
+    public static obtenerPool(): Pool {
+        if (!this.pool) {
+            this.pool = new Pool({
+                connectionString:
+                    process.env.DATABASE_URL
             });
         }
-        return PostgresConnection.instancia; }
+
+        return this.pool;
+    }
+
+    public static async verificarConexion(): Promise<void> {
+        const pool = this.obtenerPool();
+
+        await pool.query("SELECT 1");
+    }
+
+    public static async cerrarConexion(): Promise<void> {
+        if (!this.pool) {
+            return;
+        }
+
+        await this.pool.end();
+
+        this.pool = undefined;
+    }
 }

@@ -1,9 +1,13 @@
-import { Evento } from "../../shared/events/Evento";
-import { IEventSubscriber } from "../../Application/interfaces/IEventSubscriber";
-import { Consola } from "../../shared/utils/Consola";
+import { Evento } from "../../../Shared/Events/Evento";
+import { IEventSubscriber } from "../../../Shared/Events/IEventSubscriber";
+import logger from "../../../Shared/Logging/Logger";
 
-export class LogSubscriber implements IEventSubscriber {
+export class LogSubscriber
+    implements IEventSubscriber {
+
     public manejar(evento: Evento): void {
-        Consola.informacion(`[LOG] Evento recibido: ${evento.nombre}`);
+        logger.info(
+            `[EVENTO] Evento recibido: ${evento.nombre}`
+        );
     }
 }

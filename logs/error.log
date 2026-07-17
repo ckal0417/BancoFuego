@@ -1,0 +1,1 @@
+{"level":"error","message":"No fue posible iniciar la API: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string","service":"BancoFuego","timestamp":"2026-07-17 15:08:49"}

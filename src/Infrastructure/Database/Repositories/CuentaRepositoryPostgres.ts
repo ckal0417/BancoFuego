@@ -5,7 +5,7 @@ import { NumeroCuenta } from "../../../Domain/ValueObjects/NumeroCuenta";
 import { TipoCuenta } from "../../../Domain/Enums/TipoCuenta";
 import { PostgresConnection } from "../PostgresConnection";
 import { CuentaQueries } from "../Queries/CuentaQueries";
-
+import { QueryExecutor } from "../QueryExecutor";
 
 
 interface FilaCuenta {
@@ -20,10 +20,16 @@ interface FilaCuenta {
 }
 
 export class CuentaRepositoryPostgres implements ICuentaRepository {
-    private readonly pool = PostgresConnection.obtenerPool();
+
+    private readonly executor: QueryExecutor;
+    constructor(
+        executor: QueryExecutor = PostgresConnection.obtenerPool()
+    ) {
+        this.executor = executor;
+    }
 
     async buscarPorId(id: number): Promise<Cuenta | null> {
-        const resultado = await this.pool.query<FilaCuenta>(
+        const resultado = await this.executor.query<FilaCuenta>(
             CuentaQueries.BUSCAR_POR_ID,
             [id],
         );
@@ -32,7 +38,7 @@ export class CuentaRepositoryPostgres implements ICuentaRepository {
     }
 
     async crear(cuenta: Cuenta): Promise<number> {
-        const resultado = await this.pool.query<{ id_cuenta: number }>(
+        const resultado = await this.executor.query<{ id_cuenta: number }>(
             CuentaQueries.CREAR,
             [
                 cuenta.obtenerNumeroCuenta().toString(),
@@ -50,7 +56,7 @@ export class CuentaRepositoryPostgres implements ICuentaRepository {
         if (id === undefined) {
             throw new Error("No se puede actualizar una cuenta sin id");
         }
-        await this.pool.query(CuentaQueries.ACTUALIZAR, [
+        await this.executor.query(CuentaQueries.ACTUALIZAR, [
             cuenta.obtenerSaldo().toNumber(),
             cuenta.estaActiva(),
             id,

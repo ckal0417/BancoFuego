@@ -1,6 +1,11 @@
-// Application/Ports/IMovimientoRepository.ts
 import { Movimiento } from "../../Domain/Entities/Movimiento";
 
 export interface IMovimientoRepository {
-    guardar(movimiento: Movimiento): Promise<void>;
+    crear(
+        movimiento: Movimiento
+    ): Promise<number>;
+
+    buscarPorCuentaId(
+        idCuenta: number
+    ): Promise<Movimiento[]>;
 }

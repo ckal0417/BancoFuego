@@ -1,7 +1,21 @@
 // Application/Ports/ITarjetaRepository.ts
 import { Tarjeta } from "../../Domain/Entities/Tarjeta";
-import { NumeroTarjeta } from "../../Domain/Value-Objects/NumeroTarjeta";
+import { NumeroTarjeta } from "../../Domain/ValueObjects/NumeroTarjeta";
 
 export interface ITarjetaRepository {
-    buscarPorNumero(numero: NumeroTarjeta): Promise<Tarjeta | null>;
+    buscarPorNumero(
+        numeroTarjeta: NumeroTarjeta
+    ): Promise<Tarjeta | null>;
+
+    buscarPorId(
+        id: number
+    ): Promise<Tarjeta | null>;
+
+    crear(
+        tarjeta: Tarjeta
+    ): Promise<number>;
+
+    actualizar(
+        tarjeta: Tarjeta
+    ): Promise<void>;
 }

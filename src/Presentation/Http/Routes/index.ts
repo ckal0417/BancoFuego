@@ -1,0 +1,36 @@
+import { Router } from "express";
+import { authRoutes } from "./AuthRoutes";
+import { cuentaRoutes } from "./CuentaRoutes";
+import { operacionRoutes } from "./OperacionRoutes";
+import { transferenciaRoutes } from "./TransferenciaRoutes";
+import { historialRoutes } from "./HistorialRoutes";
+
+
+const apiRoutes = Router();
+
+apiRoutes.use(
+    "/auth",
+    authRoutes
+);
+
+apiRoutes.use(
+    "/cuentas",
+    cuentaRoutes
+);
+
+apiRoutes.use(
+    "/operaciones",
+    operacionRoutes
+);
+
+apiRoutes.use(
+    "/transferencias",
+    transferenciaRoutes
+);
+
+apiRoutes.use(
+    "/historial",
+    historialRoutes
+);
+
+export { apiRoutes };

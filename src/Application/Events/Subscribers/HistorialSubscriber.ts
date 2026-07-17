@@ -1,14 +1,13 @@
-import { Evento } from "../../shared/events/Evento";
-import { IEventSubscriber } from "../../Application/interfaces/IEventSubscriber";
-import { TransaccionRepository } from "../../Infrastructure/repositories/TransaccionRepository";
-import { Transaccion } from "../../Domain/Entities/Transaccion";
+import { Evento } from "../../../Shared/Events/Evento";
+import { IEventSubscriber } from "../../../Shared/Events/IEventSubscriber";
+import logger from "../../../Shared/Logging/Logger";
 
-export class HistorialSubscriber implements IEventSubscriber<Transaccion> {
-    constructor(
-        private transaccionRepository: TransaccionRepository
-    ) {}
+export class HistorialSubscriber
+    implements IEventSubscriber {
 
-    public manejar(evento: Evento<Transaccion>): void {
-        this.transaccionRepository.guardar(evento.datos);
+    public manejar(evento: Evento): void {
+        logger.info(
+            `[HISTORIAL] Operación disponible en el historial: ${evento.nombre}`
+        );
     }
 }
