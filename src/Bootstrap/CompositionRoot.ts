@@ -19,10 +19,13 @@ import { OperacionController } from "../Presentation/Http/Controllers/OperacionC
 import { TransferenciaController } from "../Presentation/Http/Controllers/TransferenciaController";
 import { SubscriberFactory } from "../Application/Events/SubscriberFactory";
 import { EventBus } from "../Shared/Events/EventBus";
+import { JwtTokenService } from "../Infrastructure/Security/JwtTokenService";
+import { AuthMiddleware } from "../Presentation/Http/Middleware/AuthMiddleware";
+import { IdempotenciaService } from "../Application/Services/IdempotenciaService";
 
 
 // Repositories usados fuera de una transacción SQL
-   const eventBus =
+const eventBus =
     new EventBus();
 
 SubscriberFactory.crear(eventBus);
@@ -53,6 +56,14 @@ const redBancariaClient =
 const pinHasher =
     new PinHasherBcrypt();
 
+// Servcios de autenticación
+const tokenService =
+    new JwtTokenService();
+
+//
+const idempotenciaService =
+    new IdempotenciaService();
+
 // Servicios de aplicación
 const cuentaService =
     new CuentaService(
@@ -64,27 +75,34 @@ const autenticacionService =
         tarjetaRepository,
         autenticacionRepository,
         cuentaRepository,
-        pinHasher
+        pinHasher,
+        eventBus,
+        tokenService
     );
 
 const depositoService =
     new DepositoService(
         unidadDeTrabajo,
-        eventBus
+        eventBus,
+        idempotenciaService
     );
 
 const retiroService =
     new RetiroService(
         unidadDeTrabajo,
-        eventBus
+        eventBus,
+        idempotenciaService
     );
 
 const transferenciaService =
     new TransferenciaService(
         unidadDeTrabajo,
         redBancariaClient,
-        eventBus
+        eventBus,
+        idempotenciaService
     );
+
+    
 const historialService =
     new HistorialService(
         movimientoRepository,
@@ -116,6 +134,11 @@ export const transferenciaController =
 export const historialController =
     new HistorialController(
         historialService
+    );
+
+export const authMiddleware =
+    new AuthMiddleware(
+        tokenService
     );
 
  

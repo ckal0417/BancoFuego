@@ -1,11 +1,26 @@
-import { TransferenciaRequestDto, TransferenciaResponseDto} from "../DTOs/TransferenciaDto";
+import {
+    TransferenciaRequestDto,
+    TransferenciaResponseDto
+} from "../DTOs/TransferenciaDto";
+
+import { TiposEvento } from "../Events/TiposEvento";
+
 import { IRedBancariaClient } from "../Ports/IRedBancariaClient";
 import { IUnidadDeTrabajo } from "../Ports/IUnidadDeTrabajo";
+
+import { IdempotenciaService } from "./IdempotenciaService";
+
 import { Movimiento } from "../../Domain/Entities/Movimiento";
 import { Transaccion } from "../../Domain/Entities/Transaccion";
-import { BusinessRuleError, CuentaNoEncontradaError, ValidationError} from "../../Domain/Errors/DomainErrors";
+
+import {
+    BusinessRuleError,
+    CuentaNoEncontradaError,
+    ValidationError
+} from "../../Domain/Errors/DomainErrors";
+
 import { Dinero } from "../../Domain/ValueObjects/Dinero";
-import { TiposEvento } from "../Events/TiposEvento";
+
 import { EventBus } from "../../Shared/Events/EventBus";
 import { Evento } from "../../Shared/Events/Evento";
 
@@ -18,7 +33,10 @@ export class TransferenciaService {
             IRedBancariaClient,
 
         private readonly eventBus:
-            EventBus
+            EventBus,
+
+        private readonly idempotenciaService:
+            IdempotenciaService
     ) {}
 
     public async ejecutar(
@@ -27,15 +45,52 @@ export class TransferenciaService {
         const monto =
             Dinero.desde(datos.monto);
 
+        const clave =
+            this.idempotenciaService.normalizarClave(
+                datos.idempotencyKey
+            );
+
+        const hashSolicitud =
+            clave
+                ? this.idempotenciaService.crearHash({
+                    cuentaOrigenId:
+                        datos.cuentaOrigenId,
+
+                    cuentaDestinoId:
+                        datos.cuentaDestinoId,
+
+                    numeroCuentaDestino:
+                        datos.numeroCuentaDestino,
+
+                    codigoBancoDestino:
+                        datos.codigoBancoDestino,
+
+                    monto:
+                        datos.monto,
+
+                    operacion:
+                        "TRANSFERENCIA"
+                })
+                : undefined;
+
+        let operacionNueva = true;
+
         let respuesta:
             TransferenciaResponseDto;
 
-        if (datos.cuentaDestinoId !== undefined) {
+        if (
+            datos.cuentaDestinoId !== undefined
+        ) {
             respuesta =
                 await this.transferirInternamente(
                     datos.cuentaOrigenId,
                     datos.cuentaDestinoId,
-                    monto
+                    monto,
+                    clave,
+                    hashSolicitud,
+                    () => {
+                        operacionNueva = false;
+                    }
                 );
         } else if (
             datos.numeroCuentaDestino &&
@@ -46,7 +101,12 @@ export class TransferenciaService {
                     datos.cuentaOrigenId,
                     datos.numeroCuentaDestino,
                     datos.codigoBancoDestino,
-                    monto
+                    monto,
+                    clave,
+                    hashSolicitud,
+                    () => {
+                        operacionNueva = false;
+                    }
                 );
         } else {
             throw new ValidationError(
@@ -54,12 +114,18 @@ export class TransferenciaService {
             );
         }
 
-        this.eventBus.publicar(
-            new Evento(
-                TiposEvento.TRANSFERENCIA_REALIZADA,
-                respuesta
-            )
-        );
+        /*
+         * Una petición idempotente repetida no debe publicar
+         * otra vez el evento, porque la transferencia ya ocurrió.
+         */
+        if (operacionNueva) {
+            this.eventBus.publicar(
+                new Evento(
+                    TiposEvento.TRANSFERENCIA_REALIZADA,
+                    respuesta
+                )
+            );
+        }
 
         return respuesta;
     }
@@ -67,9 +133,14 @@ export class TransferenciaService {
     private async transferirInternamente(
         cuentaOrigenId: number,
         cuentaDestinoId: number,
-        monto: Dinero
+        monto: Dinero,
+        clave: string | undefined,
+        hashSolicitud: string | undefined,
+        marcarComoRepetida: () => void
     ): Promise<TransferenciaResponseDto> {
-        if (cuentaOrigenId === cuentaDestinoId) {
+        if (
+            cuentaOrigenId === cuentaDestinoId
+        ) {
             throw new BusinessRuleError(
                 "La cuenta origen y destino no pueden ser la misma",
                 "MISMA_CUENTA_TRANSFERENCIA"
@@ -78,17 +149,84 @@ export class TransferenciaService {
 
         return this.unidadDeTrabajo.ejecutar(
             async repositorios => {
+                /*
+                 * Primero reservamos o consultamos la clave.
+                 * Todo ocurre dentro de la misma transacción SQL.
+                 */
+                if (
+                    clave &&
+                    hashSolicitud
+                ) {
+                    const inicio =
+                        await repositorios
+                            .idempotencias
+                            .iniciar(
+                                cuentaOrigenId,
+                                "TRANSFERENCIA",
+                                clave,
+                                hashSolicitud
+                            );
+
+                    if (
+                        inicio.tipo === "REPETIDA"
+                    ) {
+                        marcarComoRepetida();
+
+                        return inicio
+                            .cuerpoRespuesta as
+                            TransferenciaResponseDto;
+                    }
+
+                    if (
+                        inicio.tipo === "CONFLICTO"
+                    ) {
+                        throw new BusinessRuleError(
+                            inicio.mensaje,
+                            "IDEMPOTENCIA_CONFLICTO"
+                        );
+                    }
+                }
+
+                /*
+                 * Bloqueamos las dos cuentas siempre en el mismo
+                 * orden para reducir el riesgo de deadlocks.
+                 */
+                const [
+                    primerId,
+                    segundoId
+                ] = [
+                    cuentaOrigenId,
+                    cuentaDestinoId
+                ].sort(
+                    (a, b) => a - b
+                );
+
+                const primeraCuenta =
+                    await repositorios.cuentas
+                        .buscarPorIdParaActualizar(
+                            primerId
+                        );
+
+                const segundaCuenta =
+                    await repositorios.cuentas
+                        .buscarPorIdParaActualizar(
+                            segundoId
+                        );
+
                 const cuentaOrigen =
-                    await repositorios.cuentas.buscarPorId(
-                        cuentaOrigenId
-                    );
+                    primerId === cuentaOrigenId
+                        ? primeraCuenta
+                        : segundaCuenta;
 
                 const cuentaDestino =
-                    await repositorios.cuentas.buscarPorId(
-                        cuentaDestinoId
-                    );
+                    primerId === cuentaDestinoId
+                        ? primeraCuenta
+                        : segundaCuenta;
 
-                if (!cuentaOrigen || !cuentaDestino) {
+                if (
+                    !cuentaOrigen ||
+                    !cuentaDestino
+                ) {
                     throw new CuentaNoEncontradaError(
                         "No se encontró la cuenta origen o destino"
                     );
@@ -104,25 +242,31 @@ export class TransferenciaService {
                     Transaccion.crear({
                         tipo:
                             "TRANSFERENCIAINTERNA",
+
                         monto,
+
                         descripcion:
                             "Transferencia interna"
                     });
 
                 const transaccionId =
-                    await repositorios.transacciones.crear(
-                        transaccion
-                    );
+                    await repositorios
+                        .transacciones
+                        .crear(transaccion);
 
                 const movimientoOrigen =
                     Movimiento.crear({
                         monto,
+
                         saldoAnterior:
                             retiro.saldoAnterior,
+
                         saldoPosterior:
                             retiro.saldoNuevo,
+
                         idCuenta:
                             cuentaOrigenId,
+
                         idTransaccion:
                             transaccionId
                     });
@@ -130,64 +274,88 @@ export class TransferenciaService {
                 const movimientoDestino =
                     Movimiento.crear({
                         monto,
+
                         saldoAnterior:
                             deposito.saldoAnterior,
+
                         saldoPosterior:
                             deposito.saldoNuevo,
+
                         idCuenta:
                             cuentaDestinoId,
+
                         idTransaccion:
                             transaccionId
                     });
 
-                await repositorios.movimientos.crear(
-                    movimientoOrigen
-                );
+                await repositorios
+                    .movimientos
+                    .crear(movimientoOrigen);
 
-                await repositorios.movimientos.crear(
-                    movimientoDestino
-                );
+                await repositorios
+                    .movimientos
+                    .crear(movimientoDestino);
 
-                await repositorios.cuentas.actualizar(
-                    cuentaOrigen
-                );
+                await repositorios
+                    .cuentas
+                    .actualizar(cuentaOrigen);
 
-                await repositorios.cuentas.actualizar(
-                    cuentaDestino
-                );
+                await repositorios
+                    .cuentas
+                    .actualizar(cuentaDestino);
 
-                return {
-                    tipo:
-                        "TRANSFERENCIAINTERNA",
+                const resultadoFinal:
+                    TransferenciaResponseDto = {
+                        tipo:
+                            "TRANSFERENCIAINTERNA",
 
-                    origen: {
-                        cuentaId:
+                        origen: {
+                            cuentaId:
+                                cuentaOrigenId,
+
+                            saldoAnterior:
+                                retiro.saldoAnterior
+                                    .toNumber(),
+
+                            saldoNuevo:
+                                retiro.saldoNuevo
+                                    .toNumber()
+                        },
+
+                        destino: {
+                            cuentaId:
+                                cuentaDestinoId,
+
+                            saldoAnterior:
+                                deposito.saldoAnterior
+                                    .toNumber(),
+
+                            saldoNuevo:
+                                deposito.saldoNuevo
+                                    .toNumber()
+                        },
+
+                        transaccionId
+                    };
+
+                /*
+                 * Guardamos la respuesta antes del COMMIT.
+                 * Si algo falla después, también se revierte
+                 * este registro de idempotencia.
+                 */
+                if (clave) {
+                    await repositorios
+                        .idempotencias
+                        .completar(
                             cuentaOrigenId,
+                            "TRANSFERENCIA",
+                            clave,
+                            201,
+                            resultadoFinal
+                        );
+                }
 
-                        saldoAnterior:
-                            retiro.saldoAnterior
-                                .toNumber(),
-
-                        saldoNuevo:
-                            retiro.saldoNuevo
-                                .toNumber()
-                    },
-
-                    destino: {
-                        cuentaId:
-                            cuentaDestinoId,
-
-                        saldoAnterior:
-                            deposito.saldoAnterior
-                                .toNumber(),
-
-                        saldoNuevo:
-                            deposito.saldoNuevo
-                                .toNumber()
-                    },
-
-                    transaccionId
-                };
+                return resultadoFinal;
             }
         );
     }
@@ -196,14 +364,60 @@ export class TransferenciaService {
         cuentaOrigenId: number,
         numeroCuentaDestino: string,
         codigoBancoDestino: string,
-        monto: Dinero
+        monto: Dinero,
+        clave: string | undefined,
+        hashSolicitud: string | undefined,
+        marcarComoRepetida: () => void
     ): Promise<TransferenciaResponseDto> {
         return this.unidadDeTrabajo.ejecutar(
             async repositorios => {
+                /*
+                 * Verificamos primero la idempotencia para impedir
+                 * enviar dos veces la misma solicitud a la red.
+                 */
+                if (
+                    clave &&
+                    hashSolicitud
+                ) {
+                    const inicio =
+                        await repositorios
+                            .idempotencias
+                            .iniciar(
+                                cuentaOrigenId,
+                                "TRANSFERENCIA",
+                                clave,
+                                hashSolicitud
+                            );
+
+                    if (
+                        inicio.tipo === "REPETIDA"
+                    ) {
+                        marcarComoRepetida();
+
+                        return inicio
+                            .cuerpoRespuesta as
+                            TransferenciaResponseDto;
+                    }
+
+                    if (
+                        inicio.tipo === "CONFLICTO"
+                    ) {
+                        throw new BusinessRuleError(
+                            inicio.mensaje,
+                            "IDEMPOTENCIA_CONFLICTO"
+                        );
+                    }
+                }
+
+                /*
+                 * También bloqueamos la cuenta origen para impedir
+                 * que dos operaciones gasten el mismo saldo.
+                 */
                 const cuentaOrigen =
-                    await repositorios.cuentas.buscarPorId(
-                        cuentaOrigenId
-                    );
+                    await repositorios.cuentas
+                        .buscarPorIdParaActualizar(
+                            cuentaOrigenId
+                        );
 
                 if (!cuentaOrigen) {
                     throw new CuentaNoEncontradaError();
@@ -220,10 +434,13 @@ export class TransferenciaService {
                             monto
                         });
 
-                if (!resultadoExterno.aprobada) {
+                if (
+                    !resultadoExterno.aprobada
+                ) {
                     throw new BusinessRuleError(
                         resultadoExterno.mensaje ??
                             "La transferencia fue rechazada por la red bancaria",
+
                         "TRANSFERENCIA_RECHAZADA"
                     );
                 }
@@ -232,59 +449,80 @@ export class TransferenciaService {
                     Transaccion.crear({
                         tipo:
                             "TRANSFERENCIAINTERBANCARIA",
+
                         monto,
+
                         descripcion:
                             `Transferencia hacia ${codigoBancoDestino}`
                     });
 
                 const transaccionId =
-                    await repositorios.transacciones.crear(
-                        transaccion
-                    );
+                    await repositorios
+                        .transacciones
+                        .crear(transaccion);
 
                 const movimiento =
                     Movimiento.crear({
                         monto,
+
                         saldoAnterior:
                             retiro.saldoAnterior,
+
                         saldoPosterior:
                             retiro.saldoNuevo,
+
                         idCuenta:
                             cuentaOrigenId,
+
                         idTransaccion:
                             transaccionId
                     });
 
-                await repositorios.movimientos.crear(
-                    movimiento
-                );
+                await repositorios
+                    .movimientos
+                    .crear(movimiento);
 
-                await repositorios.cuentas.actualizar(
-                    cuentaOrigen
-                );
+                await repositorios
+                    .cuentas
+                    .actualizar(cuentaOrigen);
 
-                return {
-                    tipo:
-                        "TRANSFERENCIAINTERBANCARIA",
+                const resultadoFinal:
+                    TransferenciaResponseDto = {
+                        tipo:
+                            "TRANSFERENCIAINTERBANCARIA",
 
-                    origen: {
-                        cuentaId:
+                        origen: {
+                            cuentaId:
+                                cuentaOrigenId,
+
+                            saldoAnterior:
+                                retiro.saldoAnterior
+                                    .toNumber(),
+
+                            saldoNuevo:
+                                retiro.saldoNuevo
+                                    .toNumber()
+                        },
+
+                        transaccionId,
+
+                        referenciaExterna:
+                            resultadoExterno.referencia
+                    };
+
+                if (clave) {
+                    await repositorios
+                        .idempotencias
+                        .completar(
                             cuentaOrigenId,
+                            "TRANSFERENCIA",
+                            clave,
+                            201,
+                            resultadoFinal
+                        );
+                }
 
-                        saldoAnterior:
-                            retiro.saldoAnterior
-                                .toNumber(),
-
-                        saldoNuevo:
-                            retiro.saldoNuevo
-                                .toNumber()
-                    },
-
-                    transaccionId,
-
-                    referenciaExterna:
-                        resultadoExterno.referencia
-                };
+                return resultadoFinal;
             }
         );
     }

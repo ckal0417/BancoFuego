@@ -1,25 +1,67 @@
-import { NextFunction, Request, Response } from "express";
-import { TransferenciaRequestDto } from "../../../Application/DTOs/TransferenciaDto";
+import {
+    NextFunction,
+    Request,
+    Response
+} from "express";
+
 import { TransferenciaService } from "../../../Application/Services/TransferenciaService";
+
+interface TransferenciaBody {
+    cuentaDestinoId?: number;
+    numeroCuentaDestino?: string;
+    codigoBancoDestino?: string;
+    monto: number;
+}
+
+interface DatosAutenticacion {
+    cuentaId: number;
+    numeroCuenta: string;
+}
 
 export class TransferenciaController {
     constructor(
-        private readonly transferenciaService: TransferenciaService
+        private readonly transferenciaService:
+            TransferenciaService
     ) {}
 
     public transferir = async (
         req: Request<
             Record<string, never>,
             unknown,
-            TransferenciaRequestDto
+            TransferenciaBody
         >,
         res: Response,
         next: NextFunction
     ): Promise<void> => {
         try {
-            const resultado = await this.transferenciaService.ejecutar(
-                req.body
-            );
+            const autenticacion =
+                res.locals.autenticacion as
+                    DatosAutenticacion;
+
+            const idempotencyKey =
+                req.header(
+                    "Idempotency-Key"
+                ) ?? undefined;
+
+            const resultado =
+                await this.transferenciaService.ejecutar({
+                    cuentaOrigenId:
+                        autenticacion.cuentaId,
+
+                    cuentaDestinoId:
+                        req.body.cuentaDestinoId,
+
+                    numeroCuentaDestino:
+                        req.body.numeroCuentaDestino,
+
+                    codigoBancoDestino:
+                        req.body.codigoBancoDestino,
+
+                    monto:
+                        req.body.monto,
+
+                    idempotencyKey
+                });
 
             res.status(201).json(resultado);
         } catch (error) {

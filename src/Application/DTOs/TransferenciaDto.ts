@@ -4,6 +4,7 @@ export interface TransferenciaRequestDto {
     numeroCuentaDestino?: string;
     codigoBancoDestino?: string;
     monto: number;
+    idempotencyKey?: string;
 }
 
 export interface CuentaTransferenciaDto {

@@ -1,10 +1,18 @@
 import { Router } from "express";
-import { transferenciaController } from "../../../Bootstrap/CompositionRoot";
+import { authMiddleware, transferenciaController } from "../../../Bootstrap/CompositionRoot";
+import { ValidacionMiddleware } from "../Middleware/ValidacionMiddleware";
 
 const transferenciaRoutes = Router();
 
+transferenciaRoutes.use(
+    authMiddleware.verificar
+);
+
 transferenciaRoutes.post(
     "/",
+    ValidacionMiddleware.validarIdempotencyKey,
+    ValidacionMiddleware.validarMonto,
+    ValidacionMiddleware.validarTransferencia,
     transferenciaController.transferir
 );
 

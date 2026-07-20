@@ -13,6 +13,20 @@ export class CuentaQueries {
         WHERE id_cuenta = $1
     `;
 
+    public static readonly BUSCAR_POR_ID_PARA_ACTUALIZAR = `
+        SELECT
+            id_cuenta,
+            numero_cuenta,
+            tipo,
+            moneda,
+            saldo,
+            estado,
+            id_cliente
+        FROM BancoFuego.Cuenta
+        WHERE id_cuenta = $1
+        FOR UPDATE
+    `;
+
     public static readonly CREAR = `
         INSERT INTO BancoFuego.Cuenta (
             numero_cuenta,
@@ -32,4 +46,6 @@ export class CuentaQueries {
             activa = $2
         WHERE id_cuenta = $3
     `;
+
+
 }

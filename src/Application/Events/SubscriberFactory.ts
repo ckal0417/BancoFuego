@@ -1,5 +1,4 @@
 import { EventBus } from "../../Shared/Events/EventBus";
-
 import { TiposEvento } from "./TiposEvento";
 import { AuditoriaSubscriber } from "./Subscribers/AuditoriaSubscriber";
 import { CorreoSubscriber } from "./Subscribers/CorreoSubscriber";
@@ -25,7 +24,8 @@ export class SubscriberFactory {
         const eventos = [
             TiposEvento.DEPOSITO_REALIZADO,
             TiposEvento.RETIRO_REALIZADO,
-            TiposEvento.TRANSFERENCIA_REALIZADA
+            TiposEvento.TRANSFERENCIA_REALIZADA,
+            TiposEvento.LOGIN_REALIZADO
         ];
 
         for (const nombreEvento of eventos) {

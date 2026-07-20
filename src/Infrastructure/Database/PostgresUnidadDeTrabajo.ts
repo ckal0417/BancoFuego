@@ -1,6 +1,7 @@
 import { IUnidadDeTrabajo, RepositoriosTransaccionales } from "../../Application/Ports/IUnidadDeTrabajo";
 import { PostgresConnection } from "./PostgresConnection";
 import { CuentaRepositoryPostgres } from "./Repositories/CuentaRepositoryPostgres";
+import { IdempotenciaRepositoryPostgres } from "./Repositories/IdempotenciaRepositoryPostgres";
 import { MovimientoRepositoryPostgres } from "./Repositories/MovimientoRepositoryPostgres";
 import { TransaccionRepositoryPostgres } from "./Repositories/TransaccionRepositoryPostgres";
 
@@ -9,7 +10,8 @@ export class PostgresUnidadDeTrabajo
 
     public async ejecutar<T>(
         operacion: (
-            repositorios: RepositoriosTransaccionales
+            repositorios:
+                RepositoriosTransaccionales
         ) => Promise<T>
     ): Promise<T> {
         const pool =
@@ -19,7 +21,9 @@ export class PostgresUnidadDeTrabajo
             await pool.connect();
 
         try {
-            await cliente.query("BEGIN");
+            await cliente.query(
+                "BEGIN"
+            );
 
             const repositorios:
                 RepositoriosTransaccionales = {
@@ -36,17 +40,32 @@ export class PostgresUnidadDeTrabajo
                     transacciones:
                         new TransaccionRepositoryPostgres(
                             cliente
+                        ),
+
+                    idempotencias:
+                        new IdempotenciaRepositoryPostgres(
+                            cliente
                         )
                 };
 
             const resultado =
-                await operacion(repositorios);
+                await operacion(
+                    repositorios
+                );
 
-            await cliente.query("COMMIT");
+            await cliente.query(
+                "COMMIT"
+            );
 
             return resultado;
         } catch (error) {
-            await cliente.query("ROLLBACK");
+            try {
+                await cliente.query(
+                    "ROLLBACK"
+                );
+            } catch {
+                // Conservamos el error original.
+            }
 
             throw error;
         } finally {

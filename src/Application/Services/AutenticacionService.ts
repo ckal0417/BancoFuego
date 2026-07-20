@@ -1,42 +1,52 @@
-import {
-    AutenticacionRequestDto,
-    AutenticacionResponseDto
-} from "../DTOs/AutenticacionDto";
-
+import { AutenticacionRequestDto, AutenticacionResponseDto } from "../DTOs/AutenticacionDto";
+import { TiposEvento } from "../Events/TiposEvento";
 import { IAutenticacionRepository } from "../Ports/IAutenticacionRepository";
 import { ICuentaRepository } from "../Ports/ICuentaRepository";
 import { ITarjetaRepository } from "../Ports/ITarjetaRepository";
-
-import {
-    AutenticacionNoEncontradaError,
-    CuentaNoEncontradaError,
-    PinIncorrectoError,
-    TarjetaNoEncontradaError
-} from "../../Domain/Errors/DomainErrors";
-
+import { AutenticacionNoEncontradaError, CuentaNoEncontradaError, PinIncorrectoError, TarjetaNoEncontradaError } from "../../Domain/Errors/DomainErrors";
 import { IPinHasher } from "../../Domain/ValueObjects/IPinHasher";
 import { NumeroTarjeta } from "../../Domain/ValueObjects/NumeroTarjeta";
 import { PinTextoPlano } from "../../Domain/ValueObjects/PinTextoPlano";
+import { EventBus } from "../../Shared/Events/EventBus";
+import { Evento } from "../../Shared/Events/Evento";
+import { ITokenService } from "../Ports/ITokenService";
+
 
 export class AutenticacionService {
     constructor(
-        private readonly tarjetaRepository: ITarjetaRepository,
+        private readonly tarjetaRepository:
+            ITarjetaRepository,
+
         private readonly autenticacionRepository:
             IAutenticacionRepository,
-        private readonly cuentaRepository: ICuentaRepository,
-        private readonly pinHasher: IPinHasher
+
+        private readonly cuentaRepository:
+            ICuentaRepository,
+
+        private readonly pinHasher:
+            IPinHasher,
+
+        private readonly eventBus:
+            EventBus,
+
+        private readonly tokenService:
+            ITokenService
+
     ) {}
 
     public async autenticar(
         datos: AutenticacionRequestDto
     ): Promise<AutenticacionResponseDto> {
         const numeroTarjeta =
-            NumeroTarjeta.desde(datos.numeroTarjeta);
+            NumeroTarjeta.desde(
+                datos.numeroTarjeta
+            );
 
         const tarjeta =
-            await this.tarjetaRepository.buscarPorNumero(
-                numeroTarjeta
-            );
+            await this.tarjetaRepository
+                .buscarPorNumero(
+                    numeroTarjeta
+                );
 
         if (!tarjeta) {
             throw new TarjetaNoEncontradaError();
@@ -44,7 +54,8 @@ export class AutenticacionService {
 
         tarjeta.asegurarUsable();
 
-        const tarjetaId = tarjeta.obtenerId();
+        const tarjetaId =
+            tarjeta.obtenerId();
 
         if (tarjetaId === undefined) {
             throw new Error(
@@ -54,13 +65,18 @@ export class AutenticacionService {
 
         const autenticacion =
             await this.autenticacionRepository
-                .buscarPorTarjetaId(tarjetaId);
+                .buscarPorTarjetaId(
+                    tarjetaId
+                );
 
         if (!autenticacion) {
             throw new AutenticacionNoEncontradaError();
         }
 
-        const pin = PinTextoPlano.desde(datos.pin);
+        const pin =
+            PinTextoPlano.desde(
+                datos.pin
+            );
 
         const pinCorrecto =
             await autenticacion.verificarPin(
@@ -68,24 +84,27 @@ export class AutenticacionService {
                 this.pinHasher
             );
 
-        await this.autenticacionRepository.actualizar(
-            autenticacion
-        );
+        await this.autenticacionRepository
+            .actualizar(
+                autenticacion
+            );
 
         if (!pinCorrecto) {
             throw new PinIncorrectoError();
         }
 
         const cuenta =
-            await this.cuentaRepository.buscarPorId(
-                tarjeta.obtenerIdCuenta()
-            );
+            await this.cuentaRepository
+                .buscarPorId(
+                    tarjeta.obtenerIdCuenta()
+                );
 
         if (!cuenta) {
             throw new CuentaNoEncontradaError();
         }
 
-        const cuentaId = cuenta.obtenerId();
+        const cuentaId =
+            cuenta.obtenerId();
 
         if (cuentaId === undefined) {
             throw new Error(
@@ -93,13 +112,37 @@ export class AutenticacionService {
             );
         }
 
-        return {
-            token: "",
-            cuentaId,
-            numeroCuenta:
-                cuenta.obtenerNumeroCuenta().toString(),
-            saldo:
-                cuenta.obtenerSaldo().toNumber()
-        };
+        const numeroCuenta =
+            cuenta
+                .obtenerNumeroCuenta()
+                .toString();
+
+        const token =
+            this.tokenService.generar({
+                cuentaId,
+                numeroCuenta
+            });
+
+        const respuesta:
+            AutenticacionResponseDto = {
+                token,
+                cuentaId,
+                numeroCuenta,
+                saldo: cuenta
+                    .obtenerSaldo()
+                    .toNumber()
+            };
+
+        this.eventBus.publicar(
+            new Evento(
+                TiposEvento.LOGIN_REALIZADO,
+                {
+                    cuentaId,
+                    numeroCuenta: respuesta.numeroCuenta
+                }
+            )
+        );
+
+        return respuesta;
     }
 }

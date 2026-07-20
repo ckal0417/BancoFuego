@@ -1,9 +1,10 @@
 import { OperacionRequestDto, OperacionResponseDto } from "../DTOs/OperacionDto";
 import { TiposEvento } from "../Events/TiposEvento";
 import { IUnidadDeTrabajo } from "../Ports/IUnidadDeTrabajo";
+import { IdempotenciaService } from "./IdempotenciaService";
 import { Movimiento } from "../../Domain/Entities/Movimiento";
 import { Transaccion } from "../../Domain/Entities/Transaccion";
-import { CuentaNoEncontradaError } from "../../Domain/Errors/DomainErrors";
+import { BusinessRuleError, CuentaNoEncontradaError } from "../../Domain/Errors/DomainErrors";
 import { Dinero } from "../../Domain/ValueObjects/Dinero";
 import { EventBus } from "../../Shared/Events/EventBus";
 import { Evento } from "../../Shared/Events/Evento";
@@ -14,18 +15,73 @@ export class DepositoService {
             IUnidadDeTrabajo,
 
         private readonly eventBus:
-            EventBus
+            EventBus,
+
+        private readonly idempotenciaService:
+            IdempotenciaService
     ) {}
 
     public async ejecutar(
         datos: OperacionRequestDto
     ): Promise<OperacionResponseDto> {
+        const clave =
+            this.idempotenciaService.normalizarClave(
+                datos.idempotencyKey
+            );
+
+        const hashSolicitud =
+            clave
+                ? this.idempotenciaService.crearHash({
+                    cuentaId: datos.cuentaId,
+                    monto: datos.monto,
+                    operacion: "DEPOSITO"
+                })
+                : undefined;
+
+        let operacionNueva = true;
+
         const respuesta =
             await this.unidadDeTrabajo.ejecutar(
                 async repositorios => {
+                    if (
+                        clave &&
+                        hashSolicitud
+                    ) {
+                        const inicio =
+                            await repositorios
+                                .idempotencias
+                                .iniciar(
+                                    datos.cuentaId,
+                                    "DEPOSITO",
+                                    clave,
+                                    hashSolicitud
+                                );
+
+                        if (
+                            inicio.tipo ===
+                            "REPETIDA"
+                        ) {
+                            operacionNueva = false;
+
+                            return inicio
+                                .cuerpoRespuesta as
+                                OperacionResponseDto;
+                        }
+
+                        if (
+                            inicio.tipo ===
+                            "CONFLICTO"
+                        ) {
+                            throw new BusinessRuleError(
+                                inicio.mensaje,
+                                "IDEMPOTENCIA_CONFLICTO"
+                            );
+                        }
+                    }
+
                     const cuenta =
                         await repositorios.cuentas
-                            .buscarPorId(
+                            .buscarPorIdParaActualizar(
                                 datos.cuentaId
                             );
 
@@ -73,27 +129,46 @@ export class DepositoService {
                     await repositorios.cuentas
                         .actualizar(cuenta);
 
-                    return {
-                        saldoAnterior:
-                            resultado.saldoAnterior
-                                .toNumber(),
+                    const resultadoFinal:
+                        OperacionResponseDto = {
+                            saldoAnterior:
+                                resultado
+                                    .saldoAnterior
+                                    .toNumber(),
 
-                        saldoNuevo:
-                            resultado.saldoNuevo
-                                .toNumber(),
+                            saldoNuevo:
+                                resultado
+                                    .saldoNuevo
+                                    .toNumber(),
 
-                        transaccionId,
-                        movimientoId
-                    };
+                            transaccionId,
+                            movimientoId
+                        };
+
+                    if (clave) {
+                        await repositorios
+                            .idempotencias
+                            .completar(
+                                datos.cuentaId,
+                                "DEPOSITO",
+                                clave,
+                                201,
+                                resultadoFinal
+                            );
+                    }
+
+                    return resultadoFinal;
                 }
             );
 
-        this.eventBus.publicar(
-            new Evento(
-                TiposEvento.DEPOSITO_REALIZADO,
-                respuesta
-            )
-        );
+        if (operacionNueva) {
+            this.eventBus.publicar(
+                new Evento(
+                    TiposEvento.DEPOSITO_REALIZADO,
+                    respuesta
+                )
+            );
+        }
 
         return respuesta;
     }

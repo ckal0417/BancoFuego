@@ -1,11 +1,16 @@
 import { Router } from "express";
-import { historialController } from "../../../Bootstrap/CompositionRoot";
+
+import { authMiddleware, historialController } from "../../../Bootstrap/CompositionRoot";
 
 const historialRoutes = Router();
 
+historialRoutes.use(
+    authMiddleware.verificar
+);
+
 historialRoutes.get(
-    "/cuentas/:cuentaId",
-    historialController.obtenerPorCuenta
+    "/me",
+    historialController.obtenerPropio
 );
 
 export { historialRoutes };
