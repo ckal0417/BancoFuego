@@ -21,12 +21,13 @@ import { RetiroService } from '../../Application/Services/RetiroService';
 import { HistorialService } from '../../Application/Services/HistorialService';
 import { IdempotenciaService } from '../../Application/Services/IdempotenciaService';
 
-type Pantalla = 'LOGIN_TARJETA' | 'LOGIN_PIN' | 'MENU_PRINCIPAL' | 'DEPOSITO' | 'RETIRO' | 'SALDO' | 'HISTORIAL' | 'MENSAJE';
+type Pantalla = 'LOGIN_TARJETA' | 'LOGIN_PIN' | 'MENU_PRINCIPAL' | 'DEPOSITO' | 'RETIRO' | 'SALDO' | 'HISTORIAL' | 'MENSAJE' | 'CONFIRMAR_SALIDA' | 'DESPEDIDA' | 'CAMBIAR_PIN';
+
 
 export const App: React.FC = () => {
     const { exit } = useApp();
     const [pantalla, setPantalla] = useState<Pantalla>('LOGIN_TARJETA');
-    
+
     // Contenedor de Servicios instanciados limpiamente en React
     const services = useMemo(() => {
         const eventBus = new EventBus();
@@ -54,12 +55,18 @@ export const App: React.FC = () => {
     const [pin, setPin] = useState('');
     const [sesion, setSesion] = useState<{ token: string; cuentaId: number; numeroCuenta: string; saldo: number; nombreCliente?: string; correoCliente?: string } | null>(null);
 
+    // Estado para Cambio de PIN
+    const [pinNuevoInput, setPinNuevoInput] = useState('');
+    const [pasoPin, setPasoPin] = useState<'PIN_ACTUAL' | 'PIN_NUEVO'>('PIN_ACTUAL');
 
     // Inputs de operaciones
     const [montoInput, setMontoInput] = useState('');
     const [mensaje, setMensaje] = useState<{ titulo: string; contenido: string; error?: boolean }>({ titulo: '', contenido: '' });
+    const [pantallaSiguiente, setPantallaSiguiente] = useState<Pantalla>('LOGIN_TARJETA');
     const [cargando, setCargando] = useState(false);
     const [historialItems, setHistorialItems] = useState<any[]>([]);
+
+
 
     const handleTarjetaSubmit = () => {
         if (numeroTarjeta.trim().length >= 16) {
@@ -80,17 +87,20 @@ export const App: React.FC = () => {
             const esBloqueo = err?.name === 'TarjetaBloqueadaError' || (err?.message && err.message.toLowerCase().includes('bloqueada'));
             setMensaje({
                 titulo: esBloqueo ? '🔒 TARJETA BLOQUEADA' : '⚠️ FALLO DE AUTENTICACIÓN',
-                contenido: esBloqueo 
-                    ? 'La tarjeta ha sido bloqueada por acumular 3 intentos fallidos de PIN. Acuda a una agencia bancaria para desbloquearla.' 
+                contenido: esBloqueo
+                    ? 'La tarjeta ha sido bloqueada por acumular 3 intentos fallidos de PIN. Acuda a una agencia bancaria para desbloquearla.'
                     : (err?.message || 'PIN o Tarjeta incorrectos'),
                 error: true
             });
             setPin('');
+            setPantallaSiguiente(esBloqueo ? 'LOGIN_TARJETA' : 'LOGIN_PIN');
             setPantalla('MENSAJE');
         } finally {
             setCargando(false);
         }
     };
+
+
 
 
     const handleMenuSelect = async (item: { value: string }) => {
@@ -119,13 +129,68 @@ export const App: React.FC = () => {
                 setCargando(false);
                 setPantalla('HISTORIAL');
             }
+        } else if (item.value === 'cambiar_pin') {
+            setPin('');
+            setPinNuevoInput('');
+            setPasoPin('PIN_ACTUAL');
+            setPantalla('CAMBIAR_PIN');
         } else if (item.value === 'salir') {
+            setPantalla('CONFIRMAR_SALIDA');
+        }
+    };
+
+    const handleCambiarPinSubmit = async () => {
+        if (!/^\d{4}$/.test(pinNuevoInput)) {
+            setMensaje({ titulo: 'PIN Inválido', contenido: 'El nuevo PIN debe tener exactamente 4 dígitos numéricos', error: true });
+            setPantallaSiguiente('CAMBIAR_PIN');
+            setPantalla('MENSAJE');
+            return;
+        }
+
+        setCargando(true);
+        try {
+            await services.authService.cambiarPin({
+                numeroTarjeta,
+                pinActual: pin,
+                pinNuevo: pinNuevoInput
+            });
+            setMensaje({ titulo: '¡PIN Cambiado!', contenido: 'Su clave secreta ha sido actualizada con éxito.' });
+            setPin('');
+            setPinNuevoInput('');
+            setPantallaSiguiente('MENU_PRINCIPAL');
+            setPantalla('MENSAJE');
+        } catch (err: any) {
+            const esBloqueo = err?.name === 'TarjetaBloqueadaError' || (err?.message && err.message.toLowerCase().includes('bloqueada'));
+            setMensaje({
+                titulo: esBloqueo ? '🔒 TARJETA BLOQUEADA' : 'Error al Cambiar PIN',
+                contenido: err?.message || 'No se pudo cambiar el PIN',
+                error: true
+            });
+            setPin('');
+            setPinNuevoInput('');
+            setPantallaSiguiente(esBloqueo ? 'LOGIN_TARJETA' : 'MENU_PRINCIPAL');
+            setPantalla('MENSAJE');
+        } finally {
+            setCargando(false);
+        }
+    };
+
+
+    const handleConfirmarSalidaSelect = (item: { value: string }) => {
+        if (item.value === 'si') {
             setSesion(null);
             setNumeroTarjeta('');
             setPin('');
-            setPantalla('LOGIN_TARJETA');
+            setPantalla('DESPEDIDA');
+        } else {
+            setPantalla('MENU_PRINCIPAL');
         }
     };
+
+    const handleDespedidaSelect = () => {
+        setPantalla('LOGIN_TARJETA');
+    };
+
 
     const handleDepositoSubmit = async () => {
         const monto = parseFloat(montoInput);
@@ -139,9 +204,11 @@ export const App: React.FC = () => {
             const res = await services.depositoService.ejecutar({ cuentaId: sesion!.cuentaId, monto });
             setSesion(prev => prev ? { ...prev, saldo: res.saldoNuevo } : null);
             setMensaje({ titulo: '¡Depósito Exitoso!', contenido: `Nuevo Saldo: $${res.saldoNuevo}` });
+            setPantallaSiguiente('MENU_PRINCIPAL');
             setPantalla('MENSAJE');
         } catch (err: any) {
             setMensaje({ titulo: 'Error en Depósito', contenido: err?.message || 'No se pudo procesar el depósito', error: true });
+            setPantallaSiguiente('MENU_PRINCIPAL');
             setPantalla('MENSAJE');
         } finally {
             setCargando(false);
@@ -160,14 +227,17 @@ export const App: React.FC = () => {
             const res = await services.retiroService.ejecutar({ cuentaId: sesion!.cuentaId, monto });
             setSesion(prev => prev ? { ...prev, saldo: res.saldoNuevo } : null);
             setMensaje({ titulo: '¡Retiro Exitoso!', contenido: `Nuevo Saldo: $${res.saldoNuevo}` });
+            setPantallaSiguiente('MENU_PRINCIPAL');
             setPantalla('MENSAJE');
         } catch (err: any) {
             setMensaje({ titulo: 'Error en Retiro', contenido: err?.message || 'Saldo insuficiente o falla en retiro', error: true });
+            setPantallaSiguiente('MENU_PRINCIPAL');
             setPantalla('MENSAJE');
         } finally {
             setCargando(false);
         }
     };
+
 
     return (
         <Box flexDirection="column" padding={1} borderStyle="single" borderColor="red" minHeight={15}>
@@ -221,10 +291,12 @@ export const App: React.FC = () => {
                                 { label: '💸 [2] Retirar Efectivo', value: 'retirar' },
                                 { label: '📊 [3] Consultar Saldo', value: 'saldo' },
                                 { label: '📜 [4] Ver Historial de Movimientos', value: 'historial' },
-                                { label: '🚪 [5] Cerrar Sesión', value: 'salir' }
+                                { label: '🔑 [5] Cambiar PIN Secreto', value: 'cambiar_pin' },
+                                { label: '🚪 [6] Cerrar Sesión', value: 'salir' }
                             ]}
                             onSelect={handleMenuSelect}
                         />
+
                     </Box>
                 </Box>
             )}
@@ -237,7 +309,7 @@ export const App: React.FC = () => {
                         <Text bold>Monto a depositar ($): </Text>
                         <TextInput value={montoInput} onChange={setMontoInput} onSubmit={handleDepositoSubmit} />
                     </Box>
-                    {cargando && <Text color="cyan">Procesando transacción atómica en BD...</Text>}
+                    {cargando && <Text color="cyan">Procesando transacción...</Text>}
                 </Box>
             )}
 
@@ -297,12 +369,66 @@ export const App: React.FC = () => {
                     <Text>{mensaje.contenido}</Text>
                     <Box marginTop={1}>
                         <SelectInput
-                            items={[{ label: '↩ Continuar', value: 'menu' }]}
-                            onSelect={() => setPantalla('MENU_PRINCIPAL')}
+                            items={[{ label: '↩ Continuar', value: 'continuar' }]}
+                            onSelect={() => setPantalla(pantallaSiguiente)}
                         />
                     </Box>
                 </Box>
             )}
+
+            {/* Pantalla: Confirmación de Salida */}
+            {pantalla === 'CONFIRMAR_SALIDA' && (
+                <Box flexDirection="column">
+                    <Text color="yellow" bold>🚪 FINALIZAR TRANSACCIÓN</Text>
+                    <Text bold>¿Desea finalizar la transacción?</Text>
+                    <Box marginTop={1}>
+                        <SelectInput
+                            items={[
+                                { label: '✅ Sí', value: 'si' },
+                                { label: '❌ No', value: 'no' }
+                            ]}
+                            onSelect={handleConfirmarSalidaSelect}
+                        />
+                    </Box>
+                </Box>
+            )}
+
+            {/* Pantalla: Despedida */}
+            {pantalla === 'DESPEDIDA' && (
+                <Box flexDirection="column">
+                    <Text color="green" bold>✨ ¡GRACIAS POR USAR NUESTROS SERVICIOS! ✨</Text>
+                    <Text color="gray">Esperamos haberte atendido de la mejor manera en Banco Fuego.</Text>
+                    <Box marginTop={1}>
+                        <SelectInput
+                            items={[{ label: '↩ Volver al Inicio', value: 'inicio' }]}
+                            onSelect={handleDespedidaSelect}
+                        />
+                    </Box>
+                </Box>
+            )}
+
+            {/* Pantalla: Cambiar PIN */}
+            {pantalla === 'CAMBIAR_PIN' && (
+                <Box flexDirection="column">
+                    <Text color="yellow" bold>🔑 CAMBIO DE PIN SECRETO</Text>
+                    {pasoPin === 'PIN_ACTUAL' ? (
+                        <Box marginTop={1} flexDirection="column">
+                            <Text bold>Ingrese su PIN Actual: </Text>
+                            <TextInput value={pin} onChange={setPin} onSubmit={() => setPasoPin('PIN_NUEVO')} mask="*" />
+                            <Text color="gray" dimColor>(Presione Enter tras ingresar sus 4 dígitos)</Text>
+                        </Box>
+                    ) : (
+                        <Box marginTop={1} flexDirection="column">
+                            <Text bold>Ingrese su NUEVO PIN Secreto: </Text>
+                            <TextInput value={pinNuevoInput} onChange={setPinNuevoInput} onSubmit={handleCambiarPinSubmit} mask="*" />
+                            <Text color="gray" dimColor>(Debe ser exactamente de 4 dígitos numéricos)</Text>
+                        </Box>
+                    )}
+                    {cargando && <Text color="cyan">Actualizando clave secreta en la base de datos...</Text>}
+                </Box>
+            )}
+
         </Box>
+
     );
 };
