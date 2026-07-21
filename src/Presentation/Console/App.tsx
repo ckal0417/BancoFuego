@@ -77,13 +77,21 @@ export const App: React.FC = () => {
             setPin('');
             setPantalla('MENU_PRINCIPAL');
         } catch (err: any) {
-            setMensaje({ titulo: 'Fallo de Autenticación', contenido: err?.message || 'Tarjeta o PIN incorrecto', error: true });
+            const esBloqueo = err?.name === 'TarjetaBloqueadaError' || (err?.message && err.message.toLowerCase().includes('bloqueada'));
+            setMensaje({
+                titulo: esBloqueo ? '🔒 TARJETA BLOQUEADA' : '⚠️ FALLO DE AUTENTICACIÓN',
+                contenido: esBloqueo 
+                    ? 'La tarjeta ha sido bloqueada por acumular 3 intentos fallidos de PIN. Acuda a una agencia bancaria para desbloquearla.' 
+                    : (err?.message || 'PIN o Tarjeta incorrectos'),
+                error: true
+            });
             setPin('');
-            setPantalla('LOGIN_TARJETA');
+            setPantalla('MENSAJE');
         } finally {
             setCargando(false);
         }
     };
+
 
     const handleMenuSelect = async (item: { value: string }) => {
         if (item.value === 'depositar') {
@@ -191,6 +199,9 @@ export const App: React.FC = () => {
                     <Box marginTop={1}>
                         <Text bold>PIN Secreto: </Text>
                         <TextInput value={pin} onChange={setPin} onSubmit={handlePinSubmit} mask="*" />
+                    </Box>
+                    <Box marginTop={1}>
+                        <Text color="magenta">⚠️ Nota: Tras 3 intentos fallidos la tarjeta será bloqueada por seguridad.</Text>
                     </Box>
                     {cargando && <Text color="cyan">Conectando...</Text>}
                 </Box>
