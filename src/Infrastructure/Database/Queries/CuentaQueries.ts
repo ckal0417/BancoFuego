@@ -18,9 +18,8 @@ export class CuentaQueries {
             id_cuenta,
             numero_cuenta,
             tipo,
-            moneda,
             saldo,
-            estado,
+            activa,
             id_cliente
         FROM BancoFuego.Cuenta
         WHERE id_cuenta = $1
