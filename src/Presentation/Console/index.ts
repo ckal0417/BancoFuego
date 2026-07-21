@@ -7,7 +7,7 @@ import { DepositarCommand } from "./Commands/DepositarCommand";
 import { HistorialCommand } from "./Commands/HistorialCommand";
 import { ICommandConsola } from "./Commands/ICommandConsola";
 import { RetirarCommand } from "./Commands/RetirarCommand";
-import { TransferirCommand } from "./Commands/TransferirCommand";
+import { TransferirCommand } from "./Commands/Transferencias/TransferirCommand";
 import { LoginMenu } from "./Menus/LoginMenu";
 import { MainMenu } from "./Menus/MainMenu";
 import { SesionCajero } from "./SesionCajero";

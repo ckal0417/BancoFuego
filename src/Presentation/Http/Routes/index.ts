@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authRoutes } from "./AuthRoutes";
 import { cuentaRoutes } from "./CuentaRoutes";
 import { operacionRoutes } from "./OperacionRoutes";
-import { transferenciaRoutes } from "./TransferenciaRoutes";
+import { transferenciaRoutes } from "../Routes/Transferencias/TransferenciaRoutes";
 import { historialRoutes } from "./HistorialRoutes";
 
 

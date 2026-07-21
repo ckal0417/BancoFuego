@@ -11,6 +11,7 @@
     "dev:api": "ts-node src/Presentation/Http/server.ts",
     "dev:all": "concurrently --kill-others-on-fail --names API,CONSOLE --prefix-colors cyan,magenta --handle-input --default-input-target 1 \"npm run dev:api\" \"npm run start:console\"",
     "start:api": "node dist/Presentation/Http/server.js",
+    "dev:console": "ts-node src/Presentation/Console/index.ts",
     "migrate": "ts-node src/Infrastructure/Database/Migrations/migrate.ts"
   },
   "keywords": [],

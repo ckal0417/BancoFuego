@@ -60,47 +60,80 @@ export class ValidacionMiddleware {
         next: NextFunction
     ): void => {
         const {
+            tipoTransferencia,
             cuentaDestinoId,
             numeroCuentaDestino,
             codigoBancoDestino
         } = req.body ?? {};
 
-        const tieneDestinoInterno = cuentaDestinoId !== undefined;
-        const tieneNumeroExterno =  typeof numeroCuentaDestino ===  "string" && numeroCuentaDestino.trim().length > 0;
-        const tieneBancoExterno = typeof codigoBancoDestino === "string" && codigoBancoDestino.trim().length > 0;
-        const tieneDestinoExterno = tieneNumeroExterno && tieneBancoExterno;
-
         if (
-
-            tieneDestinoInterno && tieneDestinoExterno
+            tipoTransferencia !== "LOCAL" &&
+            tipoTransferencia !== "INTERBANCARIA"
         ) {
             res.status(400).json({
-                mensaje: "Debes indicar un destino interno o uno interbancario, no ambos"
+                mensaje:
+                    "El tipo de transferencia debe ser LOCAL o INTERBANCARIA"
             });
-            return;
-        }
-        if (
 
-            !tieneDestinoInterno && !tieneDestinoExterno
-        ) {
-            res.status(400).json({
-                mensaje: "Debes indicar la cuenta destino o los datos del banco externo"
-            });
             return;
         }
 
+        if (tipoTransferencia === "LOCAL") {
+            if (
+                typeof cuentaDestinoId !== "number" ||
+                !Number.isInteger(cuentaDestinoId) ||
+                cuentaDestinoId <= 0
+            ) {
+                res.status(400).json({
+                    mensaje:
+                        "La cuenta destino local no es válida"
+                });
+
+                return;
+            }
+
+            if (
+                numeroCuentaDestino !== undefined ||
+                codigoBancoDestino !== undefined
+            ) {
+                res.status(400).json({
+                    mensaje:
+                        "Una transferencia local no debe contener datos interbancarios"
+                });
+
+                return;
+            }
+
+            next();
+            return;
+        }
+
+        const numeroDestinoValido =
+            typeof numeroCuentaDestino === "string" &&
+            numeroCuentaDestino.trim().length > 0;
+
+        const bancoDestinoValido =
+            typeof codigoBancoDestino === "string" &&
+            codigoBancoDestino.trim().length > 0;
+
         if (
-            tieneDestinoInterno &&
-            (
-                typeof cuentaDestinoId !=="number" ||
-                !Number.isInteger(
-                    cuentaDestinoId
-                ) || cuentaDestinoId <= 0
-            )
+            !numeroDestinoValido ||
+            !bancoDestinoValido
         ) {
             res.status(400).json({
-                mensaje: "La cuenta destino no es válida"
+                mensaje:
+                    "La cuenta y el banco destino son obligatorios para una transferencia interbancaria"
             });
+
+            return;
+        }
+
+        if (cuentaDestinoId !== undefined) {
+            res.status(400).json({
+                mensaje:
+                    "Una transferencia interbancaria no debe contener cuentaDestinoId"
+            });
+
             return;
         }
         next();
