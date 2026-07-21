@@ -11,26 +11,18 @@ import { Evento } from "../../Shared/Events/Evento";
 import { ITokenService } from "../Ports/ITokenService";
 
 
+import { IClienteRepository } from "../Ports/IClienteRepository";
+
 export class AutenticacionService {
     constructor(
-        private readonly tarjetaRepository:
-            ITarjetaRepository,
-
-        private readonly autenticacionRepository:
-            IAutenticacionRepository,
-
-        private readonly cuentaRepository:
-            ICuentaRepository,
-
-        //private readonly pinHasher:IPinHasher,
-
-        private readonly eventBus:
-            EventBus,
-
-        private readonly tokenService:
-            ITokenService
-
+        private readonly tarjetaRepository: ITarjetaRepository,
+        private readonly autenticacionRepository: IAutenticacionRepository,
+        private readonly cuentaRepository: ICuentaRepository,
+        private readonly eventBus: EventBus,
+        private readonly tokenService: ITokenService,
+        private readonly clienteRepository?: IClienteRepository
     ) {}
+
 
     public async autenticar(datos: AutenticacionRequestDto
     ): Promise<AutenticacionResponseDto> {
@@ -117,15 +109,30 @@ export class AutenticacionService {
                 numeroCuenta
             });
 
-        const respuesta:
-            AutenticacionResponseDto = {
-                token,
-                cuentaId,
-                numeroCuenta,
-                saldo: cuenta
-                    .obtenerSaldo()
-                    .toNumber()
-            };
+        let nombreCliente: string | undefined;
+        let correoCliente: string | undefined;
+
+        if (this.clienteRepository && cuenta.obtenerIdCliente()) {
+            try {
+                const cliente = await this.clienteRepository.buscarPorId(cuenta.obtenerIdCliente());
+                if (cliente) {
+                    nombreCliente = cliente.nombreCompleto();
+                    correoCliente = cliente.obtenerCorreo();
+                }
+            } catch {
+                // Si falla la consulta del cliente, se entrega la respuesta básica
+            }
+        }
+
+        const respuesta: AutenticacionResponseDto = {
+            token,
+            cuentaId,
+            numeroCuenta,
+            saldo: cuenta.obtenerSaldo().toNumber(),
+            nombreCliente,
+            correoCliente
+        };
+
 
         this.eventBus.publicar(
             new Evento(

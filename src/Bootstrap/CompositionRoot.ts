@@ -65,14 +65,20 @@ const cuentaService =
         cuentaRepository
     );
 
+import { ClienteRepositoryPostgres } from "../Infrastructure/Database/Repositories/ClienteRepositoryPostgres";
+
+const clienteRepository = new ClienteRepositoryPostgres();
+
 const autenticacionService =
     new AutenticacionService(
         tarjetaRepository,
         autenticacionRepository,
         cuentaRepository,
         eventBus,
-        tokenService
+        tokenService,
+        clienteRepository
     );
+
 
 const depositoService =
     new DepositoService(
