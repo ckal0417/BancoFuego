@@ -1,5 +1,6 @@
 import { PoolClient } from "pg";
 import { PostgresConnection } from "../PostgresConnection";
+import { AlinearEsquemaOperacionesMigration } from "./AlinearEsquemaOperacionesMigration";
 import { IdempotenciaMigration } from "./IdempotenciaMigration";
 import { IMigration } from "./IMigration";
 
@@ -7,7 +8,8 @@ import { IMigration } from "./IMigration";
 export class MigrationRunner {
     private readonly migraciones:
         IMigration[] = [
-            new IdempotenciaMigration()
+            new IdempotenciaMigration(),
+            new AlinearEsquemaOperacionesMigration()
         ];
 
     public async ejecutar():
