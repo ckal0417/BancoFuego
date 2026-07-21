@@ -256,6 +256,7 @@ export class TransferenciaService {
 
                 const movimientoOrigen =
                     Movimiento.crear({
+                        naturaleza: "DEBITO",
                         monto,
 
                         saldoAnterior:
@@ -273,6 +274,7 @@ export class TransferenciaService {
 
                 const movimientoDestino =
                     Movimiento.crear({
+                        naturaleza: "CREDITO",
                         monto,
 
                         saldoAnterior:
@@ -463,6 +465,7 @@ export class TransferenciaService {
 
                 const movimiento =
                     Movimiento.crear({
+                        naturaleza: "DEBITO",
                         monto,
 
                         saldoAnterior:

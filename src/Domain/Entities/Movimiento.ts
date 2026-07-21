@@ -1,8 +1,11 @@
 import { Dinero } from "../ValueObjects/Dinero";
 
+export type NaturalezaMovimiento = "DEBITO" | "CREDITO";
+
 export class Movimiento {
     private constructor(
         private readonly id: number | undefined,
+        private readonly naturaleza: NaturalezaMovimiento,
         private readonly monto: Dinero,
         private readonly saldoAnterior: Dinero,
         private readonly saldoPosterior: Dinero,
@@ -12,6 +15,7 @@ export class Movimiento {
     ) {}
 
     public static crear(datos: {
+        naturaleza: NaturalezaMovimiento;
         monto: Dinero;
         saldoAnterior: Dinero;
         saldoPosterior: Dinero;
@@ -20,6 +24,7 @@ export class Movimiento {
     }): Movimiento {
         return new Movimiento(
             undefined,
+            datos.naturaleza,
             datos.monto,
             datos.saldoAnterior,
             datos.saldoPosterior,
@@ -29,8 +34,29 @@ export class Movimiento {
         );
     }
 
+    public static debito(datos: {
+        monto: Dinero;
+        saldoAnterior: Dinero;
+        saldoPosterior: Dinero;
+        idCuenta: number;
+        idTransaccion: number;
+    }): Movimiento {
+        return this.crear({ naturaleza: "DEBITO", ...datos });
+    }
+
+    public static credito(datos: {
+        monto: Dinero;
+        saldoAnterior: Dinero;
+        saldoPosterior: Dinero;
+        idCuenta: number;
+        idTransaccion: number;
+    }): Movimiento {
+        return this.crear({ naturaleza: "CREDITO", ...datos });
+    }
+
     public static reconstruir(datos: {
         id: number;
+        naturaleza: NaturalezaMovimiento,
         monto: Dinero;
         saldoAnterior: Dinero;
         saldoPosterior: Dinero;
@@ -40,6 +66,7 @@ export class Movimiento {
     }): Movimiento {
         return new Movimiento(
             datos.id,
+            datos.naturaleza,
             datos.monto,
             datos.saldoAnterior,
             datos.saldoPosterior,
@@ -51,6 +78,10 @@ export class Movimiento {
 
     public obtenerId(): number | undefined {
         return this.id;
+    }
+
+    public obtenerNaturaleza(): NaturalezaMovimiento {
+        return this.naturaleza;
     }
 
     public obtenerMonto(): Dinero {
