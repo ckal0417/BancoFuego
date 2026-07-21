@@ -26,8 +26,7 @@ export class ConsultarSaldoCommand implements ICommandConsola {
 
         try {
             const cuenta = await this.apiClient.get<CuentaResponse>(
-                "/cuentas/me",
-                this.sesion.obtenerToken()
+                "/cuentas/me"
             );
 
             Consola.informacion(`Titular: ${cuenta.titular}`);

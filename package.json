@@ -4,9 +4,12 @@
   "private": true,
   "main": "index.js",
   "scripts": {
+    "start": "ts-node src/Presentation/Console/index.ts",
+    "start:console": "ts-node src/Presentation/Console/index.ts",
     "check": "tsc --noEmit",
     "build": "tsc",
     "dev:api": "ts-node src/Presentation/Http/server.ts",
+    "dev:all": "concurrently --kill-others-on-fail --names API,CONSOLE --prefix-colors cyan,magenta --handle-input --default-input-target 1 \"npm run dev:api\" \"npm run start:console\"",
     "start:api": "node dist/Presentation/Http/server.js",
     "migrate": "ts-node src/Infrastructure/Database/Migrations/migrate.ts"
   },
@@ -33,6 +36,7 @@
     "@types/node": "^26.1.1",
     "@types/pg": "^8.20.0",
     "@types/swagger-ui-express": "^4.1.8",
+    "concurrently": "^9.2.1",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
   }

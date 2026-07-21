@@ -29,8 +29,7 @@ export class HistorialCommand implements ICommandConsola {
         try {
             const transacciones =
                 await this.apiClient.get<TransaccionResponse[]>(
-                    "/transacciones/historial",
-                    this.sesion.obtenerToken()
+                    "/historial/me"
                 );
 
             if (transacciones.length === 0) {

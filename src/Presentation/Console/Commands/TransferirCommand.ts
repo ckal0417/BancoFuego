@@ -70,12 +70,12 @@ export class TransferirCommand implements ICommandConsola {
         try {
             const respuesta =
                 await this.apiClient.post<TransferenciaResponse>(
-                    "/transacciones/transferencia",
+                    "/transferencias",
                     {
                         numeroCuentaDestino: cuentaDestino,
                         monto
                     },
-                    this.sesion.obtenerToken(),
+                    undefined,
                     {
                         "Idempotency-Key": randomUUID()
                     }

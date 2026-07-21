@@ -4,7 +4,6 @@ import { IAutenticacionRepository } from "../Ports/IAutenticacionRepository";
 import { ICuentaRepository } from "../Ports/ICuentaRepository";
 import { ITarjetaRepository } from "../Ports/ITarjetaRepository";
 import { AutenticacionNoEncontradaError, CuentaNoEncontradaError, PinIncorrectoError, TarjetaNoEncontradaError } from "../../Domain/Errors/DomainErrors";
-import { IPinHasher } from "../../Domain/ValueObjects/IPinHasher";
 import { NumeroTarjeta } from "../../Domain/ValueObjects/NumeroTarjeta";
 import { PinTextoPlano } from "../../Domain/ValueObjects/PinTextoPlano";
 import { EventBus } from "../../Shared/Events/EventBus";
@@ -23,8 +22,7 @@ export class AutenticacionService {
         private readonly cuentaRepository:
             ICuentaRepository,
 
-        private readonly pinHasher:
-            IPinHasher,
+        //private readonly pinHasher:IPinHasher,
 
         private readonly eventBus:
             EventBus,
@@ -34,8 +32,7 @@ export class AutenticacionService {
 
     ) {}
 
-    public async autenticar(
-        datos: AutenticacionRequestDto
+    public async autenticar(datos: AutenticacionRequestDto
     ): Promise<AutenticacionResponseDto> {
         const numeroTarjeta =
             NumeroTarjeta.desde(
@@ -79,10 +76,7 @@ export class AutenticacionService {
             );
 
         const pinCorrecto =
-            await autenticacion.verificarPin(
-                pin,
-                this.pinHasher
-            );
+            await autenticacion.verificarPin(pin);
 
         await this.autenticacionRepository
             .actualizar(

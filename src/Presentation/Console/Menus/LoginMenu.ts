@@ -5,9 +5,9 @@ import { Consola } from "../Utils/Consola";
 
 interface LoginResponse {
     token: string;
-    titular: string;
+    cuentaId: number;
     numeroCuenta: string;
-    tipoCuenta: string;
+    saldo: number;
 }
 
 export class LoginMenu {
@@ -43,18 +43,23 @@ export class LoginMenu {
                 }
             );
 
+            this.apiClient.establecerToken(
+                respuesta.token
+            );
+
             this.sesion.iniciar({
                 token: respuesta.token,
-                titular: respuesta.titular,
                 numeroCuenta: respuesta.numeroCuenta,
-                tipoCuenta: respuesta.tipoCuenta
+                titular: "Cliente",
+                tipoCuenta: "Cuenta"
             });
 
-            Consola.exito(`Bienvenido, ${respuesta.titular}.`);
+            Consola.exito("Autenticación exitosa.");
             await this.continuar();
 
             return true;
         } catch (error) {
+            this.apiClient.limpiarToken();
             Consola.error(this.obtenerMensaje(error));
             await this.continuar();
 

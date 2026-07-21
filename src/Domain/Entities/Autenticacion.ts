@@ -46,8 +46,7 @@ export class Autenticacion {
     }
 
     public async verificarPin(
-        pin: PinTextoPlano,
-        hasher: IPinHasher
+        pin: PinTextoPlano
     ): Promise<boolean> {
         if (this.bloqueado) {
             throw new TarjetaBloqueadaError(
@@ -55,10 +54,9 @@ export class Autenticacion {
             );
         }
 
-        const esCorrecto = await hasher.verificar(
-            pin,
-            this.pinHash
-        );
+        const esCorrecto =
+            this.pinHash ===
+            pin.valorCompleto();
 
         if (esCorrecto) {
             this.intentos = 0;
@@ -82,7 +80,7 @@ export class Autenticacion {
 
     public async cambiarPin(
         pinNuevo: PinTextoPlano,
-        hasher: IPinHasher
+        _hasher?: IPinHasher
     ): Promise<void> {
         if (this.bloqueado) {
             throw new BusinessRuleError(
@@ -92,7 +90,8 @@ export class Autenticacion {
             );
         }
 
-        this.pinHash = await hasher.hashear(pinNuevo);
+        this.pinHash =
+            pinNuevo.valorCompleto();
         this.intentos = 0;
     }
 

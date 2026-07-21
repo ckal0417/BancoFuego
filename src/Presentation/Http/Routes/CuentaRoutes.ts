@@ -1,7 +1,13 @@
 import { Router } from "express";
-import { cuentaController } from "../../../Bootstrap/CompositionRoot";
+import { authMiddleware, cuentaController } from "../../../Bootstrap/CompositionRoot";
 
 const cuentaRoutes = Router();
+
+cuentaRoutes.get(
+    "/me",
+    authMiddleware.verificar,
+    cuentaController.obtenerPropia
+);
 
 cuentaRoutes.get(
     "/:id",

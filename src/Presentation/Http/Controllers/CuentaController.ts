@@ -6,6 +6,11 @@ import {
 
 import { CuentaService } from "../../../Application/Services/CuentaService";
 
+interface DatosAutenticacion {
+    cuentaId: number;
+    numeroCuenta: string;
+}
+
 export class CuentaController {
     constructor(
         private readonly cuentaService: CuentaService
@@ -30,6 +35,27 @@ export class CuentaController {
 
             const cuenta =
                 await this.cuentaService.obtenerPorId(id);
+
+            res.status(200).json(cuenta);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    public obtenerPropia = async (
+        _req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<void> => {
+        try {
+            const autenticacion =
+                res.locals.autenticacion as
+                    DatosAutenticacion;
+
+            const cuenta =
+                await this.cuentaService.obtenerPorId(
+                    autenticacion.cuentaId
+                );
 
             res.status(200).json(cuenta);
         } catch (error) {

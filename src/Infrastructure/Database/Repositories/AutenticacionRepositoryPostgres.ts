@@ -5,7 +5,7 @@ import { AutenticacionQueries } from "../Queries/AutenticacionQueries";
 
 interface FilaAutenticacion {
     id_autenticacion: number;
-    pin_hash: string;
+    pin: string;
     intentos: number;
     bloqueado: boolean;
     id_tarjeta: number;
@@ -79,7 +79,7 @@ export class AutenticacionRepositoryPostgres
     ): Autenticacion {
         return Autenticacion.reconstruir({
             id: fila.id_autenticacion,
-            pinHash: fila.pin_hash,
+            pinHash: fila.pin,
             intentos: fila.intentos,
             bloqueado: fila.bloqueado,
             idTarjeta: fila.id_tarjeta

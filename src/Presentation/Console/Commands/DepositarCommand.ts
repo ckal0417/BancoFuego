@@ -42,9 +42,9 @@ export class DepositarCommand implements ICommandConsola {
         try {
             const respuesta =
                 await this.apiClient.post<DepositoResponse>(
-                    "/transacciones/deposito",
+                    "/operaciones/depositos",
                     { monto },
-                    this.sesion.obtenerToken(),
+                    undefined,
                     {
                         "Idempotency-Key": randomUUID()
                     }

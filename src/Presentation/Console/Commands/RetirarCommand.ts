@@ -42,9 +42,9 @@ export class RetirarCommand implements ICommandConsola {
         try {
             const respuesta =
                 await this.apiClient.post<RetiroResponse>(
-                    "/transacciones/retiro",
+                    "/operaciones/retiros",
                     { monto },
-                    this.sesion.obtenerToken(),
+                    undefined,
                     {
                         "Idempotency-Key": randomUUID()
                     }

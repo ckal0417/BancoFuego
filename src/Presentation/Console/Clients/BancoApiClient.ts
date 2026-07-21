@@ -12,10 +12,20 @@ interface RespuestaErrorApi {
 }
 
 export class BancoApiClient {
+    private tokenSesion?: string;
+
     constructor(
         private readonly urlBase: string =
             process.env.API_URL ?? "http://localhost:3000/api"
     ) {}
+
+    public establecerToken(token: string): void {
+        this.tokenSesion = token;
+    }
+
+    public limpiarToken(): void {
+        this.tokenSesion = undefined;
+    }
 
     public get<T>(ruta: string, token?: string): Promise<T> {
         return this.enviar<T>(ruta, {
@@ -74,8 +84,11 @@ export class BancoApiClient {
             headers["Content-Type"] = "application/json";
         }
 
-        if (opciones.token) {
-            headers.Authorization = `Bearer ${opciones.token}`;
+        const token =
+            opciones.token ?? this.tokenSesion;
+
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
         }
 
         let respuesta: Response;

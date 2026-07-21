@@ -11,7 +11,6 @@ import { CuentaRepositoryPostgres } from "../Infrastructure/Database/Repositorie
 import { MovimientoRepositoryPostgres } from "../Infrastructure/Database/Repositories/MovimientoRepositoryPostgres";
 import { TarjetaRepositoryPostgres } from "../Infrastructure/Database/Repositories/TarjetaRepositoryPostgres";
 import { TransaccionRepositoryPostgres } from "../Infrastructure/Database/Repositories/TransaccionRepositoryPostgres";
-import { PinHasherBcrypt } from "../Infrastructure/Security/PinHasherBcrypt";
 import { AuthController } from "../Presentation/Http/Controllers/AuthController";
 import { CuentaController } from "../Presentation/Http/Controllers/CuentaController";
 import { HistorialController } from "../Presentation/Http/Controllers/HistorialController";
@@ -52,10 +51,6 @@ const unidadDeTrabajo =
 const redBancariaClient =
     new RedBancariaSimuladaClient();
 
-// Servicios de infraestructura
-const pinHasher =
-    new PinHasherBcrypt();
-
 // Servcios de autenticación
 const tokenService =
     new JwtTokenService();
@@ -75,7 +70,6 @@ const autenticacionService =
         tarjetaRepository,
         autenticacionRepository,
         cuentaRepository,
-        pinHasher,
         eventBus,
         tokenService
     );

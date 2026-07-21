@@ -1,1 +1,15 @@
 {"level":"error","message":"No fue posible iniciar la API: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string","service":"BancoFuego","timestamp":"2026-07-17 15:08:49"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-21 08:35:47"}
+{"level":"error","message":"Error no controlado en POST /api/auth/login: column \"pin_hash\" does not exist","requestId":"6f8913c2-20b2-4589-ae9f-16bd238c1178","ruta":"POST /api/auth/login","service":"BancoFuego","stack":"error: column \"pin_hash\" does not exist\n    at C:\\Users\\jefferson.veloz\\Desktop\\BancoFuego\\node_modules\\pg-pool\\index.js:45:11\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async AutenticacionRepositoryPostgres.buscarPorTarjetaId (C:\\Users\\jefferson.veloz\\Desktop\\BancoFuego\\src\\Infrastructure\\Database\\Repositories\\AutenticacionRepositoryPostgres.ts:24:13)\n    at async AutenticacionService.autenticar (C:\\Users\\jefferson.veloz\\Desktop\\BancoFuego\\src\\Application\\Services\\AutenticacionService.ts:67:13)\n    at async login (C:\\Users\\jefferson.veloz\\Desktop\\BancoFuego\\src\\Presentation\\Http\\Controllers\\AuthController.ts:27:17)","timestamp":"2026-07-21 08:38:11"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-21 08:57:44"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 08:58:07"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 08:58:07"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 08:58:07"}
+{"level":"info","message":"[CORREO] Notificación simulada por: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 08:58:07"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-21 09:08:18"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-21 09:09:30"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-21 09:12:01"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 09:12:18"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 09:12:18"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 09:12:18"}
+{"level":"info","message":"[CORREO] Notificación simulada por: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 09:12:18"}
