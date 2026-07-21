@@ -79,3 +79,13 @@
 {"level":"info","message":"[EVENTO] Evento recibido: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 14:42:00"}
 {"level":"info","message":"[AUDITORÍA] Operación registrada: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 14:42:00"}
 {"level":"info","message":"[CORREO] Notificación simulada por: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 14:42:00"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-21 14:52:49"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 14:53:11"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 14:53:11"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 14:53:11"}
+{"level":"info","message":"[CORREO] Notificación simulada por: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 14:53:11"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-21 15:00:12"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 15:00:29"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 15:00:29"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 15:00:29"}
+{"level":"info","message":"[CORREO] Notificación simulada por: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 15:00:29"}

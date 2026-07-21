@@ -12,7 +12,14 @@ export interface ResultadoTransferenciaInterbancaria {
     mensaje?: string;
 }
 
+export interface ResolucionCuentaRed {
+    codigoBanco: string;
+}
+
 export interface IRedBancariaClient {
+    resolverCuentaDestino(
+        numeroCuenta: string
+    ): Promise<ResolucionCuentaRed | null>;
     transferir(
         solicitud: SolicitudTransferenciaInterbancaria
     ): Promise<ResultadoTransferenciaInterbancaria>;

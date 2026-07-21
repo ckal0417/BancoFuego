@@ -24,6 +24,7 @@ import { Dinero } from "../../Domain/ValueObjects/Dinero";
 import { EventBus } from "../../Shared/Events/EventBus";
 import { Evento } from "../../Shared/Events/Evento";
 
+
 export class TransferenciaService {
     constructor(
         private readonly unidadDeTrabajo:
@@ -77,7 +78,8 @@ export class TransferenciaService {
 
         let respuesta:
             TransferenciaResponseDto;
-
+        
+        
         if (
             datos.cuentaDestinoId !== undefined
         ) {
