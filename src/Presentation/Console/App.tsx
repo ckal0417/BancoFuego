@@ -21,6 +21,8 @@ import { RetiroService } from '../../Application/Services/RetiroService';
 import { HistorialService } from '../../Application/Services/HistorialService';
 import { IdempotenciaService } from '../../Application/Services/IdempotenciaService';
 
+import { SubscriberFactory } from '../../Application/Events/SubscriberFactory';
+
 type Pantalla = 'LOGIN_TARJETA' | 'LOGIN_PIN' | 'MENU_PRINCIPAL' | 'DEPOSITO' | 'RETIRO' | 'SALDO' | 'HISTORIAL' | 'MENSAJE' | 'CONFIRMAR_SALIDA' | 'DESPEDIDA' | 'CAMBIAR_PIN';
 
 
@@ -31,6 +33,8 @@ export const App: React.FC = () => {
     // Contenedor de Servicios instanciados limpiamente en React
     const services = useMemo(() => {
         const eventBus = new EventBus();
+        SubscriberFactory.crear(eventBus);
+
         const tarjetaRepo = new TarjetaRepositoryPostgres();
         const autenticacionRepo = new AutenticacionRepositoryPostgres();
         const cuentaRepo = new CuentaRepositoryPostgres();
