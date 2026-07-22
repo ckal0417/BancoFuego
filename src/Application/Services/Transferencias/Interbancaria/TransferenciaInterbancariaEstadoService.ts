@@ -23,9 +23,14 @@ import logger from "../../../../Shared/Logging/Logger";
 
 export class TransferenciaInterbancariaEstadoService {
     constructor(
-        private readonly unidadDeTrabajo: IUnidadDeTrabajo,
-        private readonly redBancariaClient: IRedBancariaClient,
-        private readonly eventBus: EventBus
+        private readonly unidadDeTrabajo:
+            IUnidadDeTrabajo,
+
+        private readonly redBancariaClient:
+            IRedBancariaClient,
+
+        private readonly eventBus:
+            EventBus
     ) {}
 
     public async consultarPorId(
@@ -44,9 +49,10 @@ export class TransferenciaInterbancariaEstadoService {
         const transaccion =
             await this.unidadDeTrabajo.ejecutar(
                 async repositorios =>
-                    repositorios.transacciones.buscarPorId(
-                        transaccionId
-                    )
+                    repositorios.transacciones
+                        .buscarPorId(
+                            transaccionId
+                        )
             );
 
         if (!transaccion) {
@@ -56,7 +62,9 @@ export class TransferenciaInterbancariaEstadoService {
             );
         }
 
-        this.validarInterbancaria(transaccion);
+        this.validarInterbancaria(
+            transaccion
+        );
 
         if (transaccion.esPendiente()) {
             return this.sincronizarTransaccion(
@@ -64,7 +72,9 @@ export class TransferenciaInterbancariaEstadoService {
             );
         }
 
-        return this.aRespuesta(transaccion);
+        return this.aRespuesta(
+            transaccion
+        );
     }
 
     public async sincronizarPendientes(
@@ -74,13 +84,16 @@ export class TransferenciaInterbancariaEstadoService {
             await this.unidadDeTrabajo.ejecutar(
                 async repositorios =>
                     repositorios.transacciones
-                        .buscarPendientesInterbancarias(limite)
+                        .buscarPendientesInterbancarias(
+                            limite
+                        )
             );
 
         let actualizadas = 0;
 
         for (const transaccion of pendientes) {
-            const id = transaccion.obtenerId();
+            const id =
+                transaccion.obtenerId();
 
             if (id === undefined) {
                 continue;
@@ -88,9 +101,14 @@ export class TransferenciaInterbancariaEstadoService {
 
             try {
                 const resultado =
-                    await this.sincronizarTransaccion(id);
+                    await this.sincronizarTransaccion(
+                        id
+                    );
 
-                if (resultado.estado !== "PENDIENTE") {
+                if (
+                    resultado.estado !==
+                    "PENDIENTE"
+                ) {
                     actualizadas++;
                 }
             } catch (error) {
@@ -111,27 +129,23 @@ export class TransferenciaInterbancariaEstadoService {
     private async sincronizarTransaccion(
         transaccionId: number
     ): Promise<ConsultaTransferenciaInterbancariaResponseDto> {
-        /*
-         * Primero obtenemos la referencia sin mantener una
-         * transacción de base abierta durante la llamada HTTP.
-         */
         const referenciaExterna =
-            await this.obtenerReferencia(transaccionId);
+            await this.obtenerReferencia(
+                transaccionId
+            );
 
         const resultadoExterno =
-            await this.redBancariaClient.consultarEstado(
-                referenciaExterna
-            );
+            await this.redBancariaClient
+                .consultarEstado(
+                    referenciaExterna
+                );
 
         const resultado =
             await this.unidadDeTrabajo.ejecutar(
                 async repositorios => {
-                    /*
-                     * Bloqueamos la transacción para evitar que dos
-                     * workers confirmen o reviertan simultáneamente.
-                     */
                     const transaccion =
-                        await repositorios.transacciones
+                        await repositorios
+                            .transacciones
                             .buscarPorIdParaActualizar(
                                 transaccionId
                             );
@@ -143,19 +157,24 @@ export class TransferenciaInterbancariaEstadoService {
                         );
                     }
 
-                    this.validarInterbancaria(transaccion);
+                    this.validarInterbancaria(
+                        transaccion
+                    );
 
-                    /*
-                     * Otro proceso pudo actualizarla mientras se
-                     * consultaba la red. En ese caso no hacemos nada.
-                     */
-                    if (!transaccion.esPendiente()) {
+                    if (
+                        !transaccion.esPendiente()
+                    ) {
                         return {
-                            respuesta: this.aRespuesta(
-                                transaccion
-                            ),
-                            cambioEstado: false,
-                            reversaAplicada: false
+                            respuesta:
+                                this.aRespuesta(
+                                    transaccion
+                                ),
+
+                            cambioEstado:
+                                false,
+
+                            reversaAplicada:
+                                false
                         };
                     }
 
@@ -183,9 +202,10 @@ export class TransferenciaInterbancariaEstadoService {
         const transaccion =
             await this.unidadDeTrabajo.ejecutar(
                 async repositorios =>
-                    repositorios.transacciones.buscarPorId(
-                        transaccionId
-                    )
+                    repositorios.transacciones
+                        .buscarPorId(
+                            transaccionId
+                        )
             );
 
         if (!transaccion) {
@@ -195,10 +215,13 @@ export class TransferenciaInterbancariaEstadoService {
             );
         }
 
-        this.validarInterbancaria(transaccion);
+        this.validarInterbancaria(
+            transaccion
+        );
 
         const referencia =
-            transaccion.obtenerReferenciaExterna();
+            transaccion
+                .obtenerReferenciaExterna();
 
         if (!referencia) {
             throw new BusinessRuleError(
@@ -212,48 +235,86 @@ export class TransferenciaInterbancariaEstadoService {
 
     private async aplicarResultado(
         transaccion: Transaccion,
-        resultadoExterno: ResultadoTransferenciaInterbancaria,
+
+        resultadoExterno:
+            ResultadoTransferenciaInterbancaria,
+
         repositorios: Parameters<
-            Parameters<IUnidadDeTrabajo["ejecutar"]>[0]
+            Parameters<
+                IUnidadDeTrabajo["ejecutar"]
+            >[0]
         >[0]
     ): Promise<{
-        respuesta: ConsultaTransferenciaInterbancariaResponseDto;
-        cambioEstado: boolean;
-        reversaAplicada: boolean;
+        respuesta:
+            ConsultaTransferenciaInterbancariaResponseDto;
+
+        cambioEstado:
+            boolean;
+
+        reversaAplicada:
+            boolean;
     }> {
-        if (resultadoExterno.estado === "PENDIENTE") {
+        if (
+            resultadoExterno.estado ===
+            "PENDIENTE"
+        ) {
             transaccion.marcarPendiente(
-                resultadoExterno.referenciaExterna,
+                resultadoExterno
+                    .referenciaExterna,
+
                 resultadoExterno.mensaje ??
                     "La transferencia continúa pendiente."
             );
 
-            await repositorios.transacciones.actualizar(
-                transaccion
-            );
+            await repositorios
+                .transacciones
+                .actualizar(
+                    transaccion
+                );
 
             return {
-                respuesta: this.aRespuesta(transaccion),
-                cambioEstado: false,
-                reversaAplicada: false
+                respuesta:
+                    this.aRespuesta(
+                        transaccion
+                    ),
+
+                cambioEstado:
+                    false,
+
+                reversaAplicada:
+                    false
             };
         }
 
-        if (resultadoExterno.estado === "ACEPTADA") {
+        if (
+            resultadoExterno.estado ===
+            "ACEPTADA"
+        ) {
             transaccion.marcarExitosa(
-                resultadoExterno.referenciaExterna,
+                resultadoExterno
+                    .referenciaExterna,
+
                 resultadoExterno.mensaje ??
                     "Transferencia aceptada por la red bancaria."
             );
 
-            await repositorios.transacciones.actualizar(
-                transaccion
-            );
+            await repositorios
+                .transacciones
+                .actualizar(
+                    transaccion
+                );
 
             return {
-                respuesta: this.aRespuesta(transaccion),
-                cambioEstado: true,
-                reversaAplicada: false
+                respuesta:
+                    this.aRespuesta(
+                        transaccion
+                    ),
+
+                cambioEstado:
+                    true,
+
+                reversaAplicada:
+                    false
             };
         }
 
@@ -273,24 +334,36 @@ export class TransferenciaInterbancariaEstadoService {
                 : `${detalleBase}. No fue posible identificar el movimiento original.`
         );
 
-        await repositorios.transacciones.actualizar(
-            transaccion
-        );
+        await repositorios
+            .transacciones
+            .actualizar(
+                transaccion
+            );
 
         return {
-            respuesta: this.aRespuesta(transaccion),
-            cambioEstado: true,
+            respuesta:
+                this.aRespuesta(
+                    transaccion
+                ),
+
+            cambioEstado:
+                true,
+
             reversaAplicada
         };
     }
 
     private async aplicarReversa(
         transaccion: Transaccion,
+
         repositorios: Parameters<
-            Parameters<IUnidadDeTrabajo["ejecutar"]>[0]
+            Parameters<
+                IUnidadDeTrabajo["ejecutar"]
+            >[0]
         >[0]
     ): Promise<boolean> {
-        const transaccionId = transaccion.obtenerId();
+        const transaccionId =
+            transaccion.obtenerId();
 
         if (transaccionId === undefined) {
             return false;
@@ -298,24 +371,31 @@ export class TransferenciaInterbancariaEstadoService {
 
         const movimientos =
             await repositorios.movimientos
-                .buscarPorTransaccionId(transaccionId);
+                .buscarPorTransaccionId(
+                    transaccionId
+                );
 
-        /*
-         * Una interbancaria tiene un único movimiento original:
-         * el débito realizado a la cuenta origen.
-         */
-        const movimientoOriginal = movimientos[0];
+        const movimientoOriginal =
+            movimientos.find(
+                movimiento =>
+                    movimiento
+                        .obtenerNaturaleza() ===
+                    "DEBITO"
+            );
 
         if (!movimientoOriginal) {
             return false;
         }
 
         const cuentaOrigenId =
-            movimientoOriginal.obtenerIdCuenta();
+            movimientoOriginal
+                .obtenerIdCuenta();
 
         const cuentaOrigen =
             await repositorios.cuentas
-                .buscarPorIdParaActualizar(cuentaOrigenId);
+                .buscarPorIdParaActualizar(
+                    cuentaOrigenId
+                );
 
         if (!cuentaOrigen) {
             return false;
@@ -326,13 +406,23 @@ export class TransferenciaInterbancariaEstadoService {
                 transaccion.obtenerMonto()
             );
 
-        const movimientoReversa = Movimiento.crear({
-            monto: transaccion.obtenerMonto(),
-            saldoAnterior: deposito.saldoAnterior,
-            saldoPosterior: deposito.saldoNuevo,
-            idCuenta: cuentaOrigenId,
-            idTransaccion: transaccionId
-        });
+        const movimientoReversa =
+            Movimiento.credito({
+                monto:
+                    transaccion.obtenerMonto(),
+
+                saldoAnterior:
+                    deposito.saldoAnterior,
+
+                saldoPosterior:
+                    deposito.saldoNuevo,
+
+                idCuenta:
+                    cuentaOrigenId,
+
+                idTransaccion:
+                    transaccionId
+            });
 
         await repositorios.cuentas.actualizar(
             cuentaOrigen
@@ -350,7 +440,7 @@ export class TransferenciaInterbancariaEstadoService {
     ): void {
         if (
             transaccion.obtenerTipo() !==
-            "TRANSFERENCIAINTERBANCARIA"
+            "TRANSFERENCIA_EXTERNA"
         ) {
             throw new BusinessRuleError(
                 "La transacción no corresponde a una transferencia interbancaria.",
@@ -362,18 +452,25 @@ export class TransferenciaInterbancariaEstadoService {
     private aRespuesta(
         transaccion: Transaccion
     ): ConsultaTransferenciaInterbancariaResponseDto {
-        const id = transaccion.obtenerId();
-        const referencia =
-            transaccion.obtenerReferenciaExterna();
+        const id =
+            transaccion.obtenerId();
 
-        if (id === undefined || !referencia) {
+        const referencia =
+            transaccion
+                .obtenerReferenciaExterna();
+
+        if (
+            id === undefined ||
+            !referencia
+        ) {
             throw new BusinessRuleError(
                 "La transferencia no contiene información externa completa.",
                 "TRANSFERENCIA_EXTERNA_INCOMPLETA"
             );
         }
 
-        const estado = transaccion.obtenerEstado();
+        const estado =
+            transaccion.obtenerEstado();
 
         if (
             estado !== "PENDIENTE" &&
@@ -387,10 +484,18 @@ export class TransferenciaInterbancariaEstadoService {
         }
 
         return {
-            transaccionId: id,
-            referenciaExterna: referencia,
+            transaccionId:
+                id,
+
+            referenciaExterna:
+                referencia,
+
             estado,
-            mensaje: transaccion.obtenerEstadoDetalle(),
+
+            mensaje:
+                transaccion
+                    .obtenerEstadoDetalle(),
+
             actualizadoEn:
                 transaccion
                     .obtenerActualizadoEn()
@@ -399,20 +504,32 @@ export class TransferenciaInterbancariaEstadoService {
     }
 
     private publicarCambioEstado(
-        respuesta: ConsultaTransferenciaInterbancariaResponseDto,
-        reversaAplicada: boolean
+        respuesta:
+            ConsultaTransferenciaInterbancariaResponseDto,
+
+        reversaAplicada:
+            boolean
     ): void {
         this.eventBus.publicar(
             new Evento(
-                TiposEvento.TRANSFERENCIA_REALIZADA,
+                TiposEvento
+                    .TRANSFERENCIA_REALIZADA,
+
                 {
-                    canal: "INTERBANCARIA",
+                    canal:
+                        "INTERBANCARIA",
+
                     transaccionId:
                         respuesta.transaccionId,
+
                     referenciaExterna:
                         respuesta.referenciaExterna,
-                    estado: respuesta.estado,
+
+                    estado:
+                        respuesta.estado,
+
                     reversaAplicada,
+
                     actualizadoEn:
                         respuesta.actualizadoEn
                 }

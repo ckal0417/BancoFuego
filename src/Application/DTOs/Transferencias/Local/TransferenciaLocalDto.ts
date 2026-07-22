@@ -12,7 +12,7 @@ export interface CuentaTransferenciaLocalDto {
 }
 
 export interface TransferenciaLocalResponseDto {
-    tipo: "TRANSFERENCIAINTERNA";
+    tipo: "TRANSFERENCIA_INTERNA";
 
     origen: CuentaTransferenciaLocalDto;
 

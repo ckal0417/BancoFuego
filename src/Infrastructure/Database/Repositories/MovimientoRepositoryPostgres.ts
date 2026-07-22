@@ -1,5 +1,5 @@
 import { IMovimientoRepository } from "../../../Application/Ports/IMovimientoRepository";
-import { Movimiento } from "../../../Domain/Entities/Movimiento";
+import { Movimiento, NaturalezaMovimiento } from "../../../Domain/Entities/Movimiento";
 import { Dinero } from "../../../Domain/ValueObjects/Dinero";
 import { PostgresConnection } from "../PostgresConnection";
 import { MovimientoQueries } from "../Queries/MovimientoQueries";
@@ -7,6 +7,7 @@ import { QueryExecutor } from "../QueryExecutor";
 
 interface FilaMovimiento {
     id_movimiento: number;
+    naturaleza: NaturalezaMovimiento;
     monto: string;
     saldo_anterior: string;
     saldo_posterior: string;
@@ -36,6 +37,7 @@ export class MovimientoRepositoryPostgres
             }>(
                 MovimientoQueries.CREAR,
                 [
+                    movimiento.obtenerNaturaleza(),
                     movimiento.obtenerMonto().toNumber(),
                     movimiento.obtenerSaldoAnterior().toNumber(),
                     movimiento.obtenerSaldoPosterior().toNumber(),
@@ -81,6 +83,7 @@ export class MovimientoRepositoryPostgres
     ): Movimiento {
         return Movimiento.reconstruir({
             id: fila.id_movimiento,
+            naturaleza: fila.naturaleza,
             monto: Dinero.desde(Number(fila.monto)),
             saldoAnterior:
                 Dinero.desde(Number(fila.saldo_anterior)),

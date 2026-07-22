@@ -121,6 +121,7 @@ export class RetiroService {
 
                     const movimiento =
                         Movimiento.crear({
+                            naturaleza: "DEBITO",
                             monto,
                             saldoAnterior:
                                 resultado.saldoAnterior,

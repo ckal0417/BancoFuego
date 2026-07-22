@@ -1,30 +1,40 @@
 import { SubscriberFactory } from "../Application/Events/SubscriberFactory";
+
 import { AutenticacionService } from "../Application/Services/AutenticacionService";
 import { CuentaService } from "../Application/Services/CuentaService";
 import { DepositoService } from "../Application/Services/DepositoService";
 import { HistorialService } from "../Application/Services/HistorialService";
 import { IdempotenciaService } from "../Application/Services/IdempotenciaService";
 import { RetiroService } from "../Application/Services/RetiroService";
+
 import { TransferenciaService } from "../Application/Services/Transferencias/TransferenciaService";
 import { TransferenciaLocalService } from "../Application/Services/Transferencias/Local/TransferenciaLocalService";
 import { TransferenciaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaService";
 import { TransferenciaInterbancariaEstadoService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaEstadoService";
+
 import { RedBancariaSimuladaClient } from "../Infrastructure/Clients/Transferencias/Interbancaria/RedBancariaSimuladaClient";
+
 import { PostgresUnidadDeTrabajo } from "../Infrastructure/Database/PostgresUnidadDeTrabajo";
+
 import { AutenticacionRepositoryPostgres } from "../Infrastructure/Database/Repositories/AutenticacionRepositoryPostgres";
 import { CuentaRepositoryPostgres } from "../Infrastructure/Database/Repositories/CuentaRepositoryPostgres";
 import { MovimientoRepositoryPostgres } from "../Infrastructure/Database/Repositories/MovimientoRepositoryPostgres";
 import { TarjetaRepositoryPostgres } from "../Infrastructure/Database/Repositories/TarjetaRepositoryPostgres";
 import { TransaccionRepositoryPostgres } from "../Infrastructure/Database/Repositories/TransaccionRepositoryPostgres";
+
 import { JwtTokenService } from "../Infrastructure/Security/JwtTokenService";
+
 import { TransferenciaInterbancariaPollingWorker } from "../Infrastructure/Workers/Transferencias/Interbancaria/TransferenciaInterbancariaPollingWorker";
+
 import { AuthController } from "../Presentation/Http/Controllers/AuthController";
 import { CuentaController } from "../Presentation/Http/Controllers/CuentaController";
 import { HistorialController } from "../Presentation/Http/Controllers/HistorialController";
 import { OperacionController } from "../Presentation/Http/Controllers/OperacionController";
 import { TransferenciaController } from "../Presentation/Http/Controllers/Transferencias/TransferenciaController";
 import { TransferenciaInterbancariaEstadoController } from "../Presentation/Http/Controllers/Transferencias/Interbancaria/TransferenciaInterbancariaEstadoController";
+
 import { AuthMiddleware } from "../Presentation/Http/Middleware/AuthMiddleware";
+
 import { EventBus } from "../Shared/Events/EventBus";
 
 /*
@@ -35,7 +45,7 @@ const eventBus = new EventBus();
 SubscriberFactory.crear(eventBus);
 
 /*
- * Repositorios utilizados fuera de una transacción SQL.
+ * Repositorios usados directamente por servicios de consulta.
  */
 const cuentaRepository =
     new CuentaRepositoryPostgres();
@@ -59,11 +69,7 @@ const unidadDeTrabajo =
     new PostgresUnidadDeTrabajo();
 
 /*
- * Cliente de la red bancaria.
- *
- * Por ahora se utiliza el cliente simulado.
- * Después podrá reemplazarse por RedBancariaHttpClient
- * sin modificar los servicios de aplicación.
+ * Cliente de red bancaria.
  */
 const redBancariaClient =
     new RedBancariaSimuladaClient();
@@ -148,7 +154,7 @@ const transferenciaInterbancariaEstadoService =
     );
 
 /*
- * Controllers.
+ * Controladores.
  */
 export const cuentaController =
     new CuentaController(
@@ -190,17 +196,28 @@ export const authMiddleware =
     );
 
 /*
- * Worker.
+ * Configuración segura del worker.
  */
+function obtenerEnteroPositivo(
+    valor: string | undefined,
+    predeterminado: number
+): number {
+    const numero = Number(valor);
+
+    return Number.isInteger(numero) && numero > 0
+        ? numero
+        : predeterminado;
+}
+
 const intervaloPolling =
-    Number(
-        process.env.INTERBANK_POLLING_INTERVAL_MS ??
+    obtenerEnteroPositivo(
+        process.env.INTERBANK_POLLING_INTERVAL_MS,
         30_000
     );
 
 const lotePolling =
-    Number(
-        process.env.INTERBANK_POLLING_BATCH_SIZE ??
+    obtenerEnteroPositivo(
+        process.env.INTERBANK_POLLING_BATCH_SIZE,
         50
     );
 

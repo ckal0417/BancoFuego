@@ -38,24 +38,33 @@ export class TransferenciaInterbancariaService
     public async ejecutar(
         datos: TransferenciaInterbancariaRequestDto
     ): Promise<ResultadoTransferenciaInterbancaria> {
-        const monto = Dinero.desde(datos.monto);
+        const monto =
+            Dinero.desde(datos.monto);
 
         const clave =
             this.idempotenciaService.normalizarClave(
                 datos.idempotencyKey
             );
 
-        const hashSolicitud = clave
-            ? this.idempotenciaService.crearHash({
-                  tipoTransferencia: "INTERBANCARIA",
-                  cuentaOrigenId: datos.cuentaOrigenId,
-                  numeroCuentaDestino: datos.numeroCuentaDestino,
-                  codigoBancoDestino: datos.codigoBancoDestino,
-                  monto: datos.monto,
-                  concepto: datos.concepto,
-                  operacion: "TRANSFERENCIA"
-              })
-            : undefined;
+        const hashSolicitud =
+            clave
+                ? this.idempotenciaService.crearHash({
+                      tipoTransferencia:
+                          "INTERBANCARIA",
+                      cuentaOrigenId:
+                          datos.cuentaOrigenId,
+                      numeroCuentaDestino:
+                          datos.numeroCuentaDestino,
+                      codigoBancoDestino:
+                          datos.codigoBancoDestino,
+                      monto:
+                          datos.monto,
+                      concepto:
+                          datos.concepto,
+                      operacion:
+                          "TRANSFERENCIA"
+                  })
+                : undefined;
 
         return this.unidadDeTrabajo.ejecutar(
             async repositorios => {
@@ -74,7 +83,8 @@ export class TransferenciaInterbancariaService
                     idempotencia.respuesta
                 ) {
                     return {
-                        respuesta: idempotencia.respuesta,
+                        respuesta:
+                            idempotencia.respuesta,
                         operacionNueva: false
                     };
                 }
@@ -89,29 +99,39 @@ export class TransferenciaInterbancariaService
                     throw new CuentaNoEncontradaError();
                 }
 
-                const retiro = cuentaOrigen.retirar(monto);
+                const retiro =
+                    cuentaOrigen.retirar(monto);
 
                 const resultadoExterno =
                     await this.redBancariaClient
                         .enviarTransferencia({
-                            bancoOrigen: "BANCO_FUEGO",
+                            bancoOrigen:
+                                "BANCO_FUEGO",
+
                             bancoDestino:
                                 datos.codigoBancoDestino,
 
                             numeroCuentaOrigen:
-                                String(datos.cuentaOrigenId),
+                                String(
+                                    datos.cuentaOrigenId
+                                ),
 
                             numeroCuentaDestino:
                                 datos.numeroCuentaDestino,
 
                             monto,
 
-                            concepto: datos.concepto,
+                            concepto:
+                                datos.concepto,
 
-                            fecha: new Date()
+                            fecha:
+                                new Date()
                         });
 
-                if (resultadoExterno.estado === "RECHAZADA") {
+                if (
+                    resultadoExterno.estado ===
+                    "RECHAZADA"
+                ) {
                     throw new BusinessRuleError(
                         resultadoExterno.mensaje ??
                             "La transferencia fue rechazada por la red bancaria.",
@@ -120,38 +140,51 @@ export class TransferenciaInterbancariaService
                 }
 
                 const estadoTransaccion =
-                    resultadoExterno.estado === "PENDIENTE"
+                    resultadoExterno.estado ===
+                    "PENDIENTE"
                         ? "PENDIENTE"
                         : "EXITOSA";
 
-                const transaccion = Transaccion.crear({
-                    tipo: "TRANSFERENCIAINTERBANCARIA",
-                    monto,
-                    estado: estadoTransaccion,
+                const transaccion =
+                    Transaccion.crear({
+                        tipo:
+                            "TRANSFERENCIA_EXTERNA",
 
-                    descripcion:
-                        datos.concepto ??
-                        `Transferencia hacia ${datos.codigoBancoDestino}`,
+                        monto,
 
-                    referenciaExterna:
-                        resultadoExterno.referenciaExterna,
+                        estado:
+                            estadoTransaccion,
 
-                    estadoDetalle:
-                        resultadoExterno.mensaje
-                });
+                        descripcion:
+                            datos.concepto ??
+                            `Transferencia hacia ${datos.codigoBancoDestino}`,
+
+                        referenciaExterna:
+                            resultadoExterno
+                                .referenciaExterna,
+
+                        estadoDetalle:
+                            resultadoExterno
+                                .mensaje
+                    });
 
                 const transaccionId =
                     await repositorios.transacciones.crear(
                         transaccion
                     );
 
-                const movimiento = Movimiento.crear({
-                    monto,
-                    saldoAnterior: retiro.saldoAnterior,
-                    saldoPosterior: retiro.saldoNuevo,
-                    idCuenta: datos.cuentaOrigenId,
-                    idTransaccion: transaccionId
-                });
+                const movimiento =
+                    Movimiento.debito({
+                        monto,
+                        saldoAnterior:
+                            retiro.saldoAnterior,
+                        saldoPosterior:
+                            retiro.saldoNuevo,
+                        idCuenta:
+                            datos.cuentaOrigenId,
+                        idTransaccion:
+                            transaccionId
+                    });
 
                 await repositorios.movimientos.crear(
                     movimiento
@@ -163,25 +196,32 @@ export class TransferenciaInterbancariaService
 
                 const respuesta:
                     TransferenciaInterbancariaResponseDto = {
-                        tipo: "TRANSFERENCIAINTERBANCARIA",
+                        tipo:
+                            "TRANSFERENCIA_EXTERNA",
 
                         origen: {
-                            cuentaId: datos.cuentaOrigenId,
+                            cuentaId:
+                                datos.cuentaOrigenId,
+
                             saldoAnterior:
                                 retiro.saldoAnterior.toNumber(),
+
                             saldoNuevo:
                                 retiro.saldoNuevo.toNumber()
                         },
 
                         transaccionId,
 
-                        estado: estadoTransaccion,
+                        estado:
+                            estadoTransaccion,
 
                         referenciaExterna:
-                            resultadoExterno.referenciaExterna,
+                            resultadoExterno
+                                .referenciaExterna,
 
                         mensaje:
-                            resultadoExterno.mensaje
+                            resultadoExterno
+                                .mensaje
                     };
 
                 await this.completarIdempotencia(

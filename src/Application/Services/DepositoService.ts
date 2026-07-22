@@ -110,6 +110,7 @@ export class DepositoService {
 
                     const movimiento =
                         Movimiento.crear({
+                            naturaleza: "CREDITO",
                             monto,
                             saldoAnterior:
                                 resultado.saldoAnterior,

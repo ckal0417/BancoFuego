@@ -1,4 +1,8 @@
-import { NextFunction, Request, Response } from "express";
+import {
+    NextFunction,
+    Request,
+    Response
+} from "express";
 
 export class ValidacionMiddleware {
     public static validarMonto = (
@@ -20,6 +24,7 @@ export class ValidacionMiddleware {
 
             return;
         }
+
         next();
     };
 
@@ -28,15 +33,19 @@ export class ValidacionMiddleware {
         res: Response,
         next: NextFunction
     ): void => {
-        const numeroTarjeta =  req.body?.numeroTarjeta;
-        const pin = req.body?.pin;
+        const numeroTarjeta =
+            req.body?.numeroTarjeta;
+
+        const pin =
+            req.body?.pin;
 
         if (
             typeof numeroTarjeta !== "string" ||
             numeroTarjeta.trim().length === 0
         ) {
             res.status(400).json({
-                mensaje: "El número de tarjeta es obligatorio"
+                mensaje:
+                    "El número de tarjeta es obligatorio"
             });
 
             return;
@@ -47,10 +56,13 @@ export class ValidacionMiddleware {
             pin.trim().length === 0
         ) {
             res.status(400).json({
-                mensaje: "El PIN es obligatorio"
+                mensaje:
+                    "El PIN es obligatorio"
             });
+
             return;
         }
+
         next();
     };
 
@@ -78,27 +90,44 @@ export class ValidacionMiddleware {
             return;
         }
 
+        const numeroCuentaDestinoValido =
+            typeof numeroCuentaDestino === "string" &&
+            numeroCuentaDestino.trim().length > 0;
+
         if (tipoTransferencia === "LOCAL") {
+            const cuentaDestinoIdValida =
+                typeof cuentaDestinoId === "number" &&
+                Number.isInteger(cuentaDestinoId) &&
+                cuentaDestinoId > 0;
+
             if (
-                typeof cuentaDestinoId !== "number" ||
-                !Number.isInteger(cuentaDestinoId) ||
-                cuentaDestinoId <= 0
+                !cuentaDestinoIdValida &&
+                !numeroCuentaDestinoValido
             ) {
                 res.status(400).json({
                     mensaje:
-                        "La cuenta destino local no es válida"
+                        "Debes indicar la cuenta destino local"
                 });
 
                 return;
             }
 
             if (
-                numeroCuentaDestino !== undefined ||
-                codigoBancoDestino !== undefined
+                cuentaDestinoId !== undefined &&
+                numeroCuentaDestino !== undefined
             ) {
                 res.status(400).json({
                     mensaje:
-                        "Una transferencia local no debe contener datos interbancarios"
+                        "Indica la cuenta destino local por ID o por número, no por ambos"
+                });
+
+                return;
+            }
+
+            if (codigoBancoDestino !== undefined) {
+                res.status(400).json({
+                    mensaje:
+                        "Una transferencia local no debe contener código de banco destino"
                 });
 
                 return;
@@ -108,21 +137,23 @@ export class ValidacionMiddleware {
             return;
         }
 
-        const numeroDestinoValido =
-            typeof numeroCuentaDestino === "string" &&
-            numeroCuentaDestino.trim().length > 0;
-
         const bancoDestinoValido =
             typeof codigoBancoDestino === "string" &&
             codigoBancoDestino.trim().length > 0;
 
-        if (
-            !numeroDestinoValido ||
-            !bancoDestinoValido
-        ) {
+        if (!numeroCuentaDestinoValido) {
             res.status(400).json({
                 mensaje:
-                    "La cuenta y el banco destino son obligatorios para una transferencia interbancaria"
+                    "Debes indicar el número de cuenta destino"
+            });
+
+            return;
+        }
+
+        if (!bancoDestinoValido) {
+            res.status(400).json({
+                mensaje:
+                    "Debes indicar el código del banco destino"
             });
 
             return;
@@ -136,6 +167,7 @@ export class ValidacionMiddleware {
 
             return;
         }
+
         next();
     };
 
@@ -144,28 +176,29 @@ export class ValidacionMiddleware {
         res: Response,
         next: NextFunction
     ): void => {
+        const clave =
+            req.header("Idempotency-Key");
 
-        const clave = req.header( "Idempotency-Key");
-        /*
-         * Por ahora la cabecera sigue siendo opcional,
-         * para no romper clientes anteriores.
-         */
         if (clave === undefined) {
             next();
             return;
         }
 
-        const claveLimpia =  clave.trim();
+        const claveLimpia =
+            clave.trim();
 
         if (
             claveLimpia.length === 0 ||
             claveLimpia.length > 100
         ) {
             res.status(400).json({
-                mensaje: "Idempotency-Key debe tener entre 1 y 100 caracteres"
+                mensaje:
+                    "Idempotency-Key debe tener entre 1 y 100 caracteres"
             });
+
             return;
         }
+
         next();
     };
 }

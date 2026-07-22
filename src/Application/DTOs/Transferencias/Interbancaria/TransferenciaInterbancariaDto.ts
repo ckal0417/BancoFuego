@@ -19,7 +19,7 @@ export interface CuentaOrigenInterbancariaDto {
 }
 
 export interface TransferenciaInterbancariaResponseDto {
-    tipo: "TRANSFERENCIAINTERBANCARIA";
+    tipo: "TRANSFERENCIA_EXTERNA";
 
     origen: CuentaOrigenInterbancariaDto;
 
