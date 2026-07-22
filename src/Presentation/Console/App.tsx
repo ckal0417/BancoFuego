@@ -173,6 +173,13 @@ export const App: React.FC = () => {
     };
 
     const handleTransferenciaCuentaSubmit = () => {
+        const val = cuentaDestinoInput.trim().toLowerCase();
+        if (val === '0' || val === 'c' || val === 'cancelar') {
+            setCuentaDestinoInput('');
+            setMontoInput('');
+            setPantalla('MENU_PRINCIPAL');
+            return;
+        }
         if (cuentaDestinoInput.trim().length < 5) {
             setMensaje({ titulo: 'Cuenta Inválida', contenido: 'Ingrese un número de cuenta destino válido', error: true });
             setPantallaSiguiente('TRANSFERENCIA');
@@ -184,6 +191,13 @@ export const App: React.FC = () => {
     };
 
     const handleTransferenciaSubmit = async () => {
+        const val = montoInput.trim().toLowerCase();
+        if (val === '0' || val === 'c' || val === 'cancelar') {
+            setCuentaDestinoInput('');
+            setMontoInput('');
+            setPantalla('MENU_PRINCIPAL');
+            return;
+        }
         const monto = parseFloat(montoInput);
         if (isNaN(monto) || monto <= 0) {
             setMensaje({ titulo: 'Monto Inválido', contenido: 'Ingrese un monto superior a 0', error: true });
@@ -250,6 +264,12 @@ export const App: React.FC = () => {
 
 
     const handleCambiarPinSubmit = async () => {
+        const val = pinNuevoInput.trim().toLowerCase();
+        if (val === '0' || val === 'c' || val === 'cancelar') {
+            setPinNuevoInput('');
+            setPantalla('MENU_PRINCIPAL');
+            return;
+        }
         if (!/^\d{4}$/.test(pinNuevoInput)) {
             setMensaje({ titulo: 'PIN Inválido', contenido: 'El nuevo PIN debe tener exactamente 4 dígitos numéricos', error: true });
             setPantallaSiguiente('CAMBIAR_PIN');
@@ -303,6 +323,12 @@ export const App: React.FC = () => {
 
 
     const handleDepositoSubmit = async () => {
+        const val = montoInput.trim().toLowerCase();
+        if (val === '0' || val === 'c' || val === 'cancelar') {
+            setMontoInput('');
+            setPantalla('MENU_PRINCIPAL');
+            return;
+        }
         const monto = parseFloat(montoInput);
         if (isNaN(monto) || monto <= 0) {
             setMensaje({ titulo: 'Monto Inválido', contenido: 'Ingrese un monto superior a 0', error: true });
@@ -326,7 +352,14 @@ export const App: React.FC = () => {
     };
 
     const handleRetiroSubmit = async () => {
+        const val = montoInput.trim().toLowerCase();
+        if (val === '0' || val === 'c' || val === 'cancelar') {
+            setMontoInput('');
+            setPantalla('MENU_PRINCIPAL');
+            return;
+        }
         const monto = parseFloat(montoInput);
+
         if (isNaN(monto) || monto <= 0) {
             setMensaje({ titulo: 'Monto Inválido', contenido: 'Ingrese un monto superior a 0', error: true });
             return;
@@ -421,6 +454,9 @@ export const App: React.FC = () => {
                         <Text bold>Monto a depositar ($): </Text>
                         <TextInput value={montoInput} onChange={setMontoInput} onSubmit={handleDepositoSubmit} />
                     </Box>
+                    <Box marginTop={1}>
+                        <Text color="gray">💡 (Escriba 0 o 'cancelar' para volver al Menú Principal)</Text>
+                    </Box>
                     {cargando && <Text color="cyan">Procesando transacción...</Text>}
                 </Box>
             )}
@@ -433,9 +469,13 @@ export const App: React.FC = () => {
                         <Text bold>Monto a retirar ($): </Text>
                         <TextInput value={montoInput} onChange={setMontoInput} onSubmit={handleRetiroSubmit} />
                     </Box>
+                    <Box marginTop={1}>
+                        <Text color="gray">💡 (Escriba 0 o 'cancelar' para volver al Menú Principal)</Text>
+                    </Box>
                     {cargando && <Text color="cyan">Verificando saldo y dispensando efectivo...</Text>}
                 </Box>
             )}
+
 
             {/* Pantalla: Transferencia */}
             {pantalla === 'TRANSFERENCIA' && (
@@ -450,7 +490,7 @@ export const App: React.FC = () => {
                                 <TextInput value={cuentaDestinoInput} onChange={setCuentaDestinoInput} onSubmit={handleTransferenciaCuentaSubmit} />
                             </Box>
                             <Box marginTop={1}>
-                                <Text color="gray">(Ingrese el número de cuenta y presione Enter)</Text>
+                                <Text color="gray">💡 (Escriba 0 o 'cancelar' para volver al Menú Principal)</Text>
                             </Box>
                         </Box>
                     )}
@@ -462,8 +502,12 @@ export const App: React.FC = () => {
                                 <Text bold>Monto a Transferir ($): </Text>
                                 <TextInput value={montoInput} onChange={setMontoInput} onSubmit={handleTransferenciaSubmit} />
                             </Box>
+                            <Box marginTop={1}>
+                                <Text color="gray">💡 (Escriba 0 o 'cancelar' para volver al Menú Principal)</Text>
+                            </Box>
                         </Box>
                     )}
+
 
                     {cargando && <Text color="cyan">Verificando cuenta y transfiriendo fondos...</Text>}
                 </Box>
