@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Box, Text, useApp } from 'ink';
+import { Box, Text, useApp, useInput } from 'ink';
 import TextInput from 'ink-text-input';
 import SelectInput from 'ink-select-input';
 
@@ -26,12 +26,24 @@ import { TransferenciaInterbancariaService } from '../../Application/Services/Tr
 import { RedBancariaSimuladaClient } from '../../Infrastructure/Clients/Transferencias/Interbancaria/RedBancariaSimuladaClient';
 import { SubscriberFactory } from '../../Application/Events/SubscriberFactory';
 
-type Pantalla = 'LOGIN_TARJETA' | 'LOGIN_PIN' | 'MENU_PRINCIPAL' | 'DEPOSITO' | 'RETIRO' | 'SALDO' | 'HISTORIAL' | 'MENSAJE' | 'CONFIRMAR_SALIDA' | 'DESPEDIDA' | 'CAMBIAR_PIN' | 'TRANSFERENCIA';
+type Pantalla = 'LOGIN_TARJETA' | 'LOGIN_PIN' | 'MENU_PRINCIPAL' | 'DEPOSITO' | 'RETIRO' | 'SALDO' | 'HISTORIAL' | 'MENSAJE' | 'CONFIRMAR_SALIDA' | 'DESPEDIDA' | 'CAMBIAR_PIN' | 'TRANSFERENCIA' | 'CONFIRMAR_CANCELACION';
 
 
 export const App: React.FC = () => {
     const { exit } = useApp();
     const [pantalla, setPantalla] = useState<Pantalla>('LOGIN_TARJETA');
+    const [pantallaPreviaCancelacion, setPantallaPreviaCancelacion] = useState<Pantalla | null>(null);
+
+    // Escuchar la tecla ESC para activar el diálogo de confirmación de cancelación
+    useInput((_input, key) => {
+        if (key.escape) {
+            if (['DEPOSITO', 'RETIRO', 'TRANSFERENCIA', 'CAMBIAR_PIN'].includes(pantalla)) {
+                setPantallaPreviaCancelacion(pantalla);
+                setPantalla('CONFIRMAR_CANCELACION');
+            }
+        }
+    });
+
 
     // Contenedor de Servicios instanciados limpiamente en React
     const services = useMemo(() => {
@@ -173,13 +185,6 @@ export const App: React.FC = () => {
     };
 
     const handleTransferenciaCuentaSubmit = () => {
-        const val = cuentaDestinoInput.trim().toLowerCase();
-        if (val === '0' || val === 'c' || val === 'cancelar') {
-            setCuentaDestinoInput('');
-            setMontoInput('');
-            setPantalla('MENU_PRINCIPAL');
-            return;
-        }
         if (cuentaDestinoInput.trim().length < 5) {
             setMensaje({ titulo: 'Cuenta Inválida', contenido: 'Ingrese un número de cuenta destino válido', error: true });
             setPantallaSiguiente('TRANSFERENCIA');
@@ -191,13 +196,6 @@ export const App: React.FC = () => {
     };
 
     const handleTransferenciaSubmit = async () => {
-        const val = montoInput.trim().toLowerCase();
-        if (val === '0' || val === 'c' || val === 'cancelar') {
-            setCuentaDestinoInput('');
-            setMontoInput('');
-            setPantalla('MENU_PRINCIPAL');
-            return;
-        }
         const monto = parseFloat(montoInput);
         if (isNaN(monto) || monto <= 0) {
             setMensaje({ titulo: 'Monto Inválido', contenido: 'Ingrese un monto superior a 0', error: true });
@@ -264,12 +262,6 @@ export const App: React.FC = () => {
 
 
     const handleCambiarPinSubmit = async () => {
-        const val = pinNuevoInput.trim().toLowerCase();
-        if (val === '0' || val === 'c' || val === 'cancelar') {
-            setPinNuevoInput('');
-            setPantalla('MENU_PRINCIPAL');
-            return;
-        }
         if (!/^\d{4}$/.test(pinNuevoInput)) {
             setMensaje({ titulo: 'PIN Inválido', contenido: 'El nuevo PIN debe tener exactamente 4 dígitos numéricos', error: true });
             setPantallaSiguiente('CAMBIAR_PIN');
@@ -323,12 +315,6 @@ export const App: React.FC = () => {
 
 
     const handleDepositoSubmit = async () => {
-        const val = montoInput.trim().toLowerCase();
-        if (val === '0' || val === 'c' || val === 'cancelar') {
-            setMontoInput('');
-            setPantalla('MENU_PRINCIPAL');
-            return;
-        }
         const monto = parseFloat(montoInput);
         if (isNaN(monto) || monto <= 0) {
             setMensaje({ titulo: 'Monto Inválido', contenido: 'Ingrese un monto superior a 0', error: true });
@@ -352,13 +338,8 @@ export const App: React.FC = () => {
     };
 
     const handleRetiroSubmit = async () => {
-        const val = montoInput.trim().toLowerCase();
-        if (val === '0' || val === 'c' || val === 'cancelar') {
-            setMontoInput('');
-            setPantalla('MENU_PRINCIPAL');
-            return;
-        }
         const monto = parseFloat(montoInput);
+
 
         if (isNaN(monto) || monto <= 0) {
             setMensaje({ titulo: 'Monto Inválido', contenido: 'Ingrese un monto superior a 0', error: true });
@@ -583,6 +564,35 @@ export const App: React.FC = () => {
                 </Box>
             )}
 
+            {/* Pantalla: Confirmación de Cancelación de Operación (vía ESC) */}
+            {pantalla === 'CONFIRMAR_CANCELACION' && (
+                <Box flexDirection="column">
+                    <Text color="red" bold>🔴 CANCELAR OPERACIÓN</Text>
+                    <Box marginTop={1}>
+                        <Text bold>¿Desea cancelar esta acción?</Text>
+                    </Box>
+
+                    <Box marginTop={1}>
+                        <SelectInput
+                            items={[
+                                { label: '❌ Sí, cancelar y volver al Menú Principal', value: 'si' },
+                                { label: '↩️ No, continuar con la operación', value: 'no' }
+                            ]}
+                            onSelect={(item) => {
+                                if (item.value === 'si') {
+                                    setMontoInput('');
+                                    setCuentaDestinoInput('');
+                                    setPinNuevoInput('');
+                                    setPantalla('MENU_PRINCIPAL');
+                                } else {
+                                    setPantalla(pantallaPreviaCancelacion || 'MENU_PRINCIPAL');
+                                }
+                            }}
+                        />
+                    </Box>
+                </Box>
+            )}
+
             {/* Pantalla: Despedida */}
             {pantalla === 'DESPEDIDA' && (
                 <Box flexDirection="column">
@@ -596,6 +606,7 @@ export const App: React.FC = () => {
                     </Box>
                 </Box>
             )}
+
 
             {/* Pantalla: Cambiar PIN */}
             {pantalla === 'CAMBIAR_PIN' && (
