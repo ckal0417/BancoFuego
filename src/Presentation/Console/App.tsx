@@ -104,20 +104,29 @@ export const App: React.FC = () => {
             setPantalla('MENU_PRINCIPAL');
         } catch (err: any) {
             const esBloqueo = err?.name === 'TarjetaBloqueadaError' || (err?.message && err.message.toLowerCase().includes('bloqueada'));
+            const esNoEncontrada = err?.name === 'TarjetaNoEncontradaError' || (err?.message && err.message.toLowerCase().includes('no encontrada'));
+
+            let pantallaSig: Pantalla = 'LOGIN_PIN';
+            if (esBloqueo || esNoEncontrada) {
+                pantallaSig = 'LOGIN_TARJETA';
+                setNumeroTarjeta('');
+            }
+
             setMensaje({
-                titulo: esBloqueo ? '🔒 TARJETA BLOQUEADA' : '⚠️ FALLO DE AUTENTICACIÓN',
+                titulo: esBloqueo ? '🔒 TARJETA BLOQUEADA' : (esNoEncontrada ? '💳 TARJETA NO REGISTRADA' : '⚠️ PIN INCORRECTO'),
                 contenido: esBloqueo
                     ? 'La tarjeta ha sido bloqueada por acumular 3 intentos fallidos de PIN. Acuda a una agencia bancaria para desbloquearla.'
-                    : (err?.message || 'PIN o Tarjeta incorrectos'),
+                    : (esNoEncontrada ? 'El número de tarjeta ingresado no existe en nuestro sistema bancario.' : (err?.message || 'PIN incorrecto')),
                 error: true
             });
             setPin('');
-            setPantallaSiguiente(esBloqueo ? 'LOGIN_TARJETA' : 'LOGIN_PIN');
+            setPantallaSiguiente(pantallaSig);
             setPantalla('MENSAJE');
         } finally {
             setCargando(false);
         }
     };
+
 
 
 

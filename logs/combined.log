@@ -129,3 +129,8 @@
 {"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 11:02:09"}
 {"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 11:02:09"}
 {"level":"info","message":"[CORREO ENVIADO] ID: <ef483009-8801-31bd-cb78-709343fee027@gmail.com> -> Para: summcuenta+juan@gmail.com","service":"BancoFuego","timestamp":"2026-07-22 11:02:12"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 14:32:11"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 14:32:11"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 14:32:11"}
+{"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 14:32:11"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <868aa693-d2c5-ecd0-456e-ee31d0928918@gmail.com> -> Para: summcuenta+juan@gmail.com","service":"BancoFuego","timestamp":"2026-07-22 14:32:17"}
