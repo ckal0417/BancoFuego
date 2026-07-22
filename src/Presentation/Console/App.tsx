@@ -205,7 +205,7 @@ export const App: React.FC = () => {
 
         setCargando(true);
         try {
-            const res = await services.depositoService.ejecutar({ cuentaId: sesion!.cuentaId, monto });
+            const res = await services.depositoService.ejecutar({ cuentaId: sesion!.cuentaId, monto, correoCliente: sesion?.correoCliente });
             setSesion(prev => prev ? { ...prev, saldo: res.saldoNuevo } : null);
             setMensaje({ titulo: '¡Depósito Exitoso!', contenido: `Nuevo Saldo: $${res.saldoNuevo}` });
             setPantallaSiguiente('MENU_PRINCIPAL');
@@ -228,7 +228,7 @@ export const App: React.FC = () => {
 
         setCargando(true);
         try {
-            const res = await services.retiroService.ejecutar({ cuentaId: sesion!.cuentaId, monto });
+            const res = await services.retiroService.ejecutar({ cuentaId: sesion!.cuentaId, monto, correoCliente: sesion?.correoCliente });
             setSesion(prev => prev ? { ...prev, saldo: res.saldoNuevo } : null);
             setMensaje({ titulo: '¡Retiro Exitoso!', contenido: `Nuevo Saldo: $${res.saldoNuevo}` });
             setPantallaSiguiente('MENU_PRINCIPAL');
@@ -241,6 +241,7 @@ export const App: React.FC = () => {
             setCargando(false);
         }
     };
+
 
 
     return (

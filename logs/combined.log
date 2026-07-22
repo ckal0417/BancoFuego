@@ -79,3 +79,28 @@
 {"level":"info","message":"[EVENTO] Evento recibido: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 14:42:00"}
 {"level":"info","message":"[AUDITORÍA] Operación registrada: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 14:42:00"}
 {"level":"info","message":"[CORREO] Notificación simulada por: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 14:42:00"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:34:34"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:34:34"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:34:34"}
+{"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:34:34"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento LOGIN_REALIZADO. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-22 09:34:34"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:34:43"}
+{"level":"info","message":"[EVENTO] Evento recibido: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:34:43"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:34:43"}
+{"level":"info","message":"[CORREO] Procesando evento: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:34:43"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento DEPOSITO_REALIZADO. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-22 09:34:43"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:40:33"}
+{"level":"info","message":"[EVENTO] Evento recibido: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:40:33"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:40:33"}
+{"level":"info","message":"[CORREO] Procesando evento: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:40:33"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <e991b246-bc63-fdb5-76b1-93d1d94169d8@gmail.com> -> Para: summcuenta+juan@gmail.com","service":"BancoFuego","timestamp":"2026-07-22 09:40:36"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:48:25"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:48:25"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:48:25"}
+{"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:48:25"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <a0897381-2b62-f1f9-bdce-0d063742a7a2@gmail.com> -> Para: summcuenta+juan@gmail.com","service":"BancoFuego","timestamp":"2026-07-22 09:48:28"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:50:03"}
+{"level":"info","message":"[EVENTO] Evento recibido: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:50:03"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:50:03"}
+{"level":"info","message":"[CORREO] Procesando evento: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:50:03"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <de7ac5e4-6ad3-9514-41b3-3ee0e5f1e42f@gmail.com> -> Para: summcuenta+juan@gmail.com","service":"BancoFuego","timestamp":"2026-07-22 09:50:10"}

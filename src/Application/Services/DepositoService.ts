@@ -166,10 +166,16 @@ export class DepositoService {
             this.eventBus.publicar(
                 new Evento(
                     TiposEvento.DEPOSITO_REALIZADO,
-                    respuesta
+                    {
+                        ...respuesta,
+                        monto: datos.monto,
+                        cuentaId: datos.cuentaId,
+                        correoCliente: datos.correoCliente
+                    }
                 )
             );
         }
+
 
         return respuesta;
     }
