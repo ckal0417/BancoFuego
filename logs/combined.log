@@ -89,3 +89,18 @@
 {"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 15:00:29"}
 {"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 15:00:29"}
 {"level":"info","message":"[CORREO] Notificación simulada por: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 15:00:29"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-21 19:22:33"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 19:24:38"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 19:24:38"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 19:24:38"}
+{"level":"info","message":"[CORREO] Notificación simulada por: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 19:24:38"}
+{"level":"error","message":"Error no controlado en POST /api/transferencias: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERNA\"","requestId":"8e912861-01d2-4e2e-b4b3-c2564e0bdd22","ruta":"POST /api/transferencias","service":"BancoFuego","stack":"error: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERNA\"\n    at C:\\Users\\Usuario\\OneDrive\\Escritorio\\BancoFuego\\node_modules\\pg\\lib\\client.js:652:17\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async TransaccionRepositoryPostgres.crear (C:\\Users\\Usuario\\OneDrive\\Escritorio\\BancoFuego\\src\\Infrastructure\\Database\\Repositories\\TransaccionRepositoryPostgres.ts:35:13)\n    at async C:\\Users\\Usuario\\OneDrive\\Escritorio\\BancoFuego\\src\\Application\\Services\\TransferenciaService.ts:271:21\n    at async PostgresUnidadDeTrabajo.ejecutar (C:\\Users\\Usuario\\OneDrive\\Escritorio\\BancoFuego\\src\\Infrastructure\\Database\\PostgresUnidadDeTrabajo.ts:52:17)\n    at async TransferenciaService.ejecutar (C:\\Users\\Usuario\\OneDrive\\Escritorio\\BancoFuego\\src\\Application\\Services\\TransferenciaService.ts:106:17)\n    at async transferir (C:\\Users\\Usuario\\OneDrive\\Escritorio\\BancoFuego\\src\\Presentation\\Http\\Controllers\\TransferenciaController.ts:47:17)","timestamp":"2026-07-21 19:24:56"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-21 19:31:41"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 19:32:39"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 19:32:39"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 19:32:39"}
+{"level":"info","message":"[CORREO] Notificación simulada por: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-21 19:32:39"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-21 19:32:55"}
+{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-21 19:32:55"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-21 19:32:55"}
+{"level":"info","message":"[CORREO] Notificación simulada por: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-21 19:32:55"}

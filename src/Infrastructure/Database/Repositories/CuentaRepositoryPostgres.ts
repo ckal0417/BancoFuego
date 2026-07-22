@@ -27,6 +27,18 @@ export class CuentaRepositoryPostgres implements ICuentaRepository {
     ) {
         this.executor = executor;
     }
+    public async buscarPorNumeroCuentaParaActualizar(numeroCuenta: string): Promise<Cuenta | null> {
+        const resultado = await this.executor.query<FilaCuenta>(
+            CuentaQueries.BUSCAR_POR_NUMERO_CUENTA_PARA_ACTUALIZAR,
+            [numeroCuenta]
+        );
+
+        const fila = resultado.rows[0];
+
+        return fila
+            ? this.aEntidad(fila)
+            : null;
+    }
 
     async buscarPorId(id: number): Promise<Cuenta | null> {
         const resultado = await this.executor.query<FilaCuenta>(

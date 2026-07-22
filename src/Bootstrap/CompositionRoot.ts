@@ -96,7 +96,7 @@ const transferenciaService =
         idempotenciaService
     );
 
-    
+
 const historialService =
     new HistorialService(
         movimientoRepository,
@@ -134,5 +134,3 @@ export const authMiddleware =
     new AuthMiddleware(
         tokenService
     );
-
- 
