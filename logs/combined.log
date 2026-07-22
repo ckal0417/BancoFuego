@@ -104,3 +104,42 @@
 {"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-21 19:32:55"}
 {"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-21 19:32:55"}
 {"level":"info","message":"[CORREO] Notificación simulada por: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-21 19:32:55"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-22 08:39:54"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 08:41:54"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 08:41:54"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 08:41:54"}
+{"level":"info","message":"[CORREO] Notificación simulada por: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 08:41:54"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 08:42:11"}
+{"level":"info","message":"[EVENTO] Evento recibido: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 08:42:11"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 08:42:11"}
+{"level":"info","message":"[CORREO] Notificación simulada por: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 08:42:11"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 08:42:20"}
+{"level":"info","message":"[EVENTO] Evento recibido: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 08:42:20"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 08:42:20"}
+{"level":"info","message":"[CORREO] Notificación simulada por: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 08:42:20"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 08:42:45"}
+{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 08:42:45"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 08:42:45"}
+{"level":"info","message":"[CORREO] Notificación simulada por: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 08:42:45"}
+{"level":"warn","message":"[SMTP] Credenciales SMTP no configuradas o en valores por defecto. Los correos se simularán en el log.","service":"BancoFuego","timestamp":"2026-07-22 09:29:30"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-22 09:29:32"}
+{"level":"warn","message":"[SMTP] Credenciales SMTP no configuradas o en valores por defecto. Los correos se simularán en el log.","service":"BancoFuego","timestamp":"2026-07-22 09:30:09"}
+{"level":"warn","message":"[SMTP] Credenciales SMTP no configuradas o en valores por defecto. Los correos se simularán en el log.","service":"BancoFuego","timestamp":"2026-07-22 09:30:34"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:30:55"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:30:55"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:30:55"}
+{"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:30:55"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento LOGIN_REALIZADO. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-22 09:30:55"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:32:06"}
+{"level":"info","message":"[EVENTO] Evento recibido: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:32:06"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:32:06"}
+{"level":"info","message":"[CORREO] Procesando evento: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:32:06"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento RETIRO_REALIZADO. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-22 09:32:06"}
+{"level":"warn","message":"[SMTP] Credenciales SMTP no configuradas o en valores por defecto. Los correos se simularán en el log.","service":"BancoFuego","timestamp":"2026-07-22 09:36:54"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-22 09:36:54"}
+{"level":"warn","message":"[SMTP] Credenciales SMTP no configuradas o en valores por defecto. Los correos se simularán en el log.","service":"BancoFuego","timestamp":"2026-07-22 09:37:09"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:37:20"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:37:20"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:37:20"}
+{"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 09:37:20"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento LOGIN_REALIZADO. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-22 09:37:20"}
