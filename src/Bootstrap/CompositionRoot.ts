@@ -1,33 +1,52 @@
+import { SubscriberFactory } from "../Application/Events/SubscriberFactory";
+
 import { AutenticacionService } from "../Application/Services/AutenticacionService";
 import { CuentaService } from "../Application/Services/CuentaService";
 import { DepositoService } from "../Application/Services/DepositoService";
 import { HistorialService } from "../Application/Services/HistorialService";
+import { IdempotenciaService } from "../Application/Services/IdempotenciaService";
 import { RetiroService } from "../Application/Services/RetiroService";
-import { TransferenciaService } from "../Application/Services/TransferenciaService";
-import { RedBancariaSimuladaClient } from "../Infrastructure/Clients/RedBancariaSimuladaClient";
+
+import { TransferenciaService } from "../Application/Services/Transferencias/TransferenciaService";
+import { TransferenciaLocalService } from "../Application/Services/Transferencias/Local/TransferenciaLocalService";
+import { TransferenciaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaService";
+import { TransferenciaInterbancariaEstadoService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaEstadoService";
+
+import { RedBancariaSimuladaClient } from "../Infrastructure/Clients/Transferencias/Interbancaria/RedBancariaSimuladaClient";
+
 import { PostgresUnidadDeTrabajo } from "../Infrastructure/Database/PostgresUnidadDeTrabajo";
+
 import { AutenticacionRepositoryPostgres } from "../Infrastructure/Database/Repositories/AutenticacionRepositoryPostgres";
 import { CuentaRepositoryPostgres } from "../Infrastructure/Database/Repositories/CuentaRepositoryPostgres";
 import { MovimientoRepositoryPostgres } from "../Infrastructure/Database/Repositories/MovimientoRepositoryPostgres";
 import { TarjetaRepositoryPostgres } from "../Infrastructure/Database/Repositories/TarjetaRepositoryPostgres";
 import { TransaccionRepositoryPostgres } from "../Infrastructure/Database/Repositories/TransaccionRepositoryPostgres";
+
+import { JwtTokenService } from "../Infrastructure/Security/JwtTokenService";
+
+import { TransferenciaInterbancariaPollingWorker } from "../Infrastructure/Workers/Transferencias/Interbancaria/TransferenciaInterbancariaPollingWorker";
+
 import { AuthController } from "../Presentation/Http/Controllers/AuthController";
 import { CuentaController } from "../Presentation/Http/Controllers/CuentaController";
 import { HistorialController } from "../Presentation/Http/Controllers/HistorialController";
 import { OperacionController } from "../Presentation/Http/Controllers/OperacionController";
-import { TransferenciaController } from "../Presentation/Http/Controllers/TransferenciaController";
-import { SubscriberFactory } from "../Application/Events/SubscriberFactory";
-import { EventBus } from "../Shared/Events/EventBus";
-import { JwtTokenService } from "../Infrastructure/Security/JwtTokenService";
+import { TransferenciaController } from "../Presentation/Http/Controllers/Transferencias/TransferenciaController";
+import { TransferenciaInterbancariaEstadoController } from "../Presentation/Http/Controllers/Transferencias/Interbancaria/TransferenciaInterbancariaEstadoController";
+
 import { AuthMiddleware } from "../Presentation/Http/Middleware/AuthMiddleware";
-import { IdempotenciaService } from "../Application/Services/IdempotenciaService";
 
+import { EventBus } from "../Shared/Events/EventBus";
 
-// Repositories usados fuera de una transacción SQL
-const eventBus =
-    new EventBus();
+/*
+ * Eventos
+ */
+const eventBus = new EventBus();
 
 SubscriberFactory.crear(eventBus);
+
+/*
+ * Repositorios usados directamente por servicios de consulta.
+ */
 const cuentaRepository =
     new CuentaRepositoryPostgres();
 
@@ -43,23 +62,33 @@ const transaccionRepository =
 const movimientoRepository =
     new MovimientoRepositoryPostgres();
 
-// Unidad de trabajo para operaciones bancarias atómicas
+/*
+ * Unidad de trabajo para operaciones bancarias atómicas.
+ */
 const unidadDeTrabajo =
     new PostgresUnidadDeTrabajo();
 
-// Clientes externos
+/*
+ * Cliente de red bancaria.
+ */
 const redBancariaClient =
     new RedBancariaSimuladaClient();
 
-// Servcios de autenticación
+/*
+ * Seguridad.
+ */
 const tokenService =
     new JwtTokenService();
 
-//
+/*
+ * Idempotencia.
+ */
 const idempotenciaService =
     new IdempotenciaService();
 
-// Servicios de aplicación
+/*
+ * Servicios generales.
+ */
 const cuentaService =
     new CuentaService(
         cuentaRepository
@@ -94,22 +123,45 @@ const retiroService =
         idempotenciaService
     );
 
-const transferenciaService =
-    new TransferenciaService(
-        unidadDeTrabajo,
-        redBancariaClient,
-        eventBus,
-        idempotenciaService
-    );
-
-
 const historialService =
     new HistorialService(
         movimientoRepository,
         transaccionRepository
     );
 
-// Controllers
+/*
+ * Servicios de transferencias.
+ */
+const transferenciaLocalService =
+    new TransferenciaLocalService(
+        unidadDeTrabajo,
+        idempotenciaService
+    );
+
+const transferenciaInterbancariaService =
+    new TransferenciaInterbancariaService(
+        unidadDeTrabajo,
+        redBancariaClient,
+        idempotenciaService
+    );
+
+const transferenciaService =
+    new TransferenciaService(
+        transferenciaLocalService,
+        transferenciaInterbancariaService,
+        eventBus
+    );
+
+const transferenciaInterbancariaEstadoService =
+    new TransferenciaInterbancariaEstadoService(
+        unidadDeTrabajo,
+        redBancariaClient,
+        eventBus
+    );
+
+/*
+ * Controladores.
+ */
 export const cuentaController =
     new CuentaController(
         cuentaService
@@ -131,12 +183,53 @@ export const transferenciaController =
         transferenciaService
     );
 
+export const transferenciaInterbancariaEstadoController =
+    new TransferenciaInterbancariaEstadoController(
+        transferenciaInterbancariaEstadoService
+    );
+
 export const historialController =
     new HistorialController(
         historialService
     );
 
+/*
+ * Middleware.
+ */
 export const authMiddleware =
     new AuthMiddleware(
         tokenService
+    );
+
+/*
+ * Configuración segura del worker.
+ */
+function obtenerEnteroPositivo(
+    valor: string | undefined,
+    predeterminado: number
+): number {
+    const numero = Number(valor);
+
+    return Number.isInteger(numero) && numero > 0
+        ? numero
+        : predeterminado;
+}
+
+const intervaloPolling =
+    obtenerEnteroPositivo(
+        process.env.INTERBANK_POLLING_INTERVAL_MS,
+        30_000
+    );
+
+const lotePolling =
+    obtenerEnteroPositivo(
+        process.env.INTERBANK_POLLING_BATCH_SIZE,
+        50
+    );
+
+export const transferenciaInterbancariaPollingWorker =
+    new TransferenciaInterbancariaPollingWorker(
+        transferenciaInterbancariaEstadoService,
+        intervaloPolling,
+        lotePolling
     );

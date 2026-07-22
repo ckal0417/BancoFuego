@@ -8,4 +8,8 @@ export interface IMovimientoRepository {
     buscarPorCuentaId(
         idCuenta: number
     ): Promise<Movimiento[]>;
+
+    buscarPorTransaccionId(
+        idTransaccion: number
+    ): Promise<Movimiento[]>;
 }

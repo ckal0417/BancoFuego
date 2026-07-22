@@ -10,23 +10,35 @@ export class Transaccion {
         private estado: EstadoTransaccion,
         private readonly fecha: Date,
         private readonly descripcion: string | undefined,
-        private readonly idCajero: number | undefined
+        private readonly idCajero: number | undefined,
+        private referenciaExterna: string | undefined,
+        private estadoDetalle: string | undefined,
+        private actualizadoEn: Date
     ) {}
 
     public static crear(datos: {
         tipo: TipoTransaccion;
         monto: Dinero;
+        estado?: EstadoTransaccion;
         descripcion?: string;
         idCajero?: number;
+        referenciaExterna?: string;
+        estadoDetalle?: string;
+        actualizadoEn?: Date;
     }): Transaccion {
+        const fecha = new Date();
+
         return new Transaccion(
             undefined,
             datos.tipo,
             datos.monto,
-            "EXITOSA",
-            new Date(),
+            datos.estado ?? "EXITOSA",
+            fecha,
             datos.descripcion,
-            datos.idCajero
+            datos.idCajero,
+            datos.referenciaExterna,
+            datos.estadoDetalle,
+            datos.actualizadoEn ?? fecha
         );
     }
 
@@ -38,6 +50,9 @@ export class Transaccion {
         fecha: Date;
         descripcion?: string;
         idCajero?: number;
+        referenciaExterna?: string;
+        estadoDetalle?: string;
+        actualizadoEn?: Date;
     }): Transaccion {
         return new Transaccion(
             datos.id,
@@ -46,16 +61,59 @@ export class Transaccion {
             datos.estado,
             datos.fecha,
             datos.descripcion,
-            datos.idCajero
+            datos.idCajero,
+            datos.referenciaExterna,
+            datos.estadoDetalle,
+            datos.actualizadoEn ?? datos.fecha
         );
     }
 
-    public marcarFallida(): void {
-        this.estado = "FALLIDA";
+    public marcarPendiente(
+        referenciaExterna: string,
+        detalle?: string
+    ): void {
+        this.estado = "PENDIENTE";
+        this.referenciaExterna = referenciaExterna;
+        this.estadoDetalle = detalle;
+        this.actualizadoEn = new Date();
     }
 
-    public cancelar(): void {
+    public marcarExitosa(
+        referenciaExterna?: string,
+        detalle?: string
+    ): void {
+        this.estado = "EXITOSA";
+
+        if (referenciaExterna) {
+            this.referenciaExterna = referenciaExterna;
+        }
+
+        this.estadoDetalle = detalle;
+        this.actualizadoEn = new Date();
+    }
+
+    public marcarFallida(detalle?: string): void {
+        this.estado = "FALLIDA";
+        this.estadoDetalle = detalle;
+        this.actualizadoEn = new Date();
+    }
+
+    public cancelar(detalle?: string): void {
         this.estado = "CANCELADA";
+        this.estadoDetalle = detalle;
+        this.actualizadoEn = new Date();
+    }
+
+    public esPendiente(): boolean {
+        return this.estado === "PENDIENTE";
+    }
+
+    public esExitosa(): boolean {
+        return this.estado === "EXITOSA";
+    }
+
+    public esFallida(): boolean {
+        return this.estado === "FALLIDA";
     }
 
     public obtenerId(): number | undefined {
@@ -84,5 +142,17 @@ export class Transaccion {
 
     public obtenerIdCajero(): number | undefined {
         return this.idCajero;
+    }
+
+    public obtenerReferenciaExterna(): string | undefined {
+        return this.referenciaExterna;
+    }
+
+    public obtenerEstadoDetalle(): string | undefined {
+        return this.estadoDetalle;
+    }
+
+    public obtenerActualizadoEn(): Date {
+        return this.actualizadoEn;
     }
 }

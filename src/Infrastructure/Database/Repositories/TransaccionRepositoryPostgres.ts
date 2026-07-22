@@ -15,15 +15,19 @@ interface FilaTransaccion {
     fecha: Date;
     descripcion: string | null;
     id_cajero: number | null;
+    referencia_externa: string | null;
+    estado_detalle: string | null;
+    actualizado_en: Date | null;
 }
 
 export class TransaccionRepositoryPostgres
-    implements ITransaccionRepository {
-
+    implements ITransaccionRepository
+{
     private readonly executor: QueryExecutor;
 
     constructor(
-        executor: QueryExecutor = PostgresConnection.obtenerPool()
+        executor: QueryExecutor =
+            PostgresConnection.obtenerPool()
     ) {
         this.executor = executor;
     }
@@ -42,11 +46,37 @@ export class TransaccionRepositoryPostgres
                     transaccion.obtenerEstado(),
                     transaccion.obtenerFecha(),
                     transaccion.obtenerDescripcion() ?? null,
-                    transaccion.obtenerIdCajero() ?? null
+                    transaccion.obtenerIdCajero() ?? null,
+                    transaccion.obtenerReferenciaExterna() ?? null,
+                    transaccion.obtenerEstadoDetalle() ?? null,
+                    transaccion.obtenerActualizadoEn()
                 ]
             );
 
         return resultado.rows[0]!.id_transaccion;
+    }
+
+    public async actualizar(
+        transaccion: Transaccion
+    ): Promise<void> {
+        const id = transaccion.obtenerId();
+
+        if (id === undefined) {
+            throw new Error(
+                "No se puede actualizar una transacción sin ID."
+            );
+        }
+
+        await this.executor.query(
+            TransaccionQueries.ACTUALIZAR,
+            [
+                transaccion.obtenerEstado(),
+                transaccion.obtenerReferenciaExterna() ?? null,
+                transaccion.obtenerEstadoDetalle() ?? null,
+                transaccion.obtenerActualizadoEn(),
+                id
+            ]
+        );
     }
 
     public async buscarPorId(
@@ -55,6 +85,22 @@ export class TransaccionRepositoryPostgres
         const resultado =
             await this.executor.query<FilaTransaccion>(
                 TransaccionQueries.BUSCAR_POR_ID,
+                [id]
+            );
+
+        const fila = resultado.rows[0];
+
+        return fila
+            ? this.aEntidad(fila)
+            : null;
+    }
+
+    public async buscarPorIdParaActualizar(
+        id: number
+    ): Promise<Transaccion | null> {
+        const resultado =
+            await this.executor.query<FilaTransaccion>(
+                TransaccionQueries.BUSCAR_POR_ID_PARA_ACTUALIZAR,
                 [id]
             );
 
@@ -83,6 +129,26 @@ export class TransaccionRepositoryPostgres
         );
     }
 
+    public async buscarPendientesInterbancarias(
+        limite: number = 50
+    ): Promise<Transaccion[]> {
+        const limiteSeguro =
+            Number.isInteger(limite) && limite > 0
+                ? Math.min(limite, 200)
+                : 50;
+
+        const resultado =
+            await this.executor.query<FilaTransaccion>(
+                TransaccionQueries
+                    .BUSCAR_PENDIENTES_INTERBANCARIAS,
+                [limiteSeguro]
+            );
+
+        return resultado.rows.map(
+            fila => this.aEntidad(fila)
+        );
+    }
+
     private aEntidad(
         fila: FilaTransaccion
     ): Transaccion {
@@ -92,8 +158,18 @@ export class TransaccionRepositoryPostgres
             monto: Dinero.desde(Number(fila.monto)),
             estado: fila.estado,
             fecha: new Date(fila.fecha),
-            descripcion: fila.descripcion ?? undefined,
-            idCajero: fila.id_cajero ?? undefined
+            descripcion:
+                fila.descripcion ?? undefined,
+            idCajero:
+                fila.id_cajero ?? undefined,
+            referenciaExterna:
+                fila.referencia_externa ?? undefined,
+            estadoDetalle:
+                fila.estado_detalle ?? undefined,
+            actualizadoEn:
+                fila.actualizado_en
+                    ? new Date(fila.actualizado_en)
+                    : new Date(fila.fecha)
         });
     }
 }

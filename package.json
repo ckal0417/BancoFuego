@@ -8,6 +8,7 @@
     "start": "tsx src/Presentation/Console/index-tui.tsx",
     "start:tui": "tsx src/Presentation/Console/index-tui.tsx",
     "start:console": "tsx src/Presentation/Console/index-tui.tsx",
+    "dev:console": "tsx src/Presentation/Console/index.ts",
     "check": "tsc --noEmit",
     "build": "tsc",
     "dev:api": "tsx src/Presentation/Http/server.ts",

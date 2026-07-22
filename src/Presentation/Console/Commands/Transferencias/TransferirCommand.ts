@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
 import type { Interface } from "node:readline/promises";
-import { BancoApiClient } from "../Clients/BancoApiClient";
-import { SesionCajero } from "../SesionCajero";
-import { Consola } from "../Utils/Consola";
-import { Formato } from "../Utils/Formato";
-import { ICommandConsola } from "./ICommandConsola";
+import { BancoApiClient } from "../../Clients/BancoApiClient";
+import { SesionCajero } from "../../SesionCajero";
+import { Consola } from "../../Utils/Consola";
+import { Formato } from "../../Utils/Formato";
+import { ICommandConsola } from "../ICommandConsola";
 
 interface TransferenciaResponse {
     mensaje?: string;

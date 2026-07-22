@@ -8,7 +8,7 @@ export interface HistorialItemDto {
     monto: number;
     estado: EstadoTransaccion;
     fecha: Date;
-    descripcion?: string;
+    naturaleza?: string;
     saldoAnterior: number;
     saldoPosterior: number;
 }
