@@ -81,20 +81,26 @@ async function iniciar(): Promise<void> {
         let programaActivo = true;
 
         while (programaActivo) {
-            const loginExitoso = await loginMenu.ejecutar();
+            const loginExitoso =
+                await loginMenu.ejecutar();
 
             if (!loginExitoso) {
-                programaActivo = await preguntarReintento(entrada);
+                programaActivo =
+                    await preguntarReintento(entrada);
+
                 continue;
             }
 
             await mainMenu.ejecutar();
 
-            programaActivo = await preguntarNuevaSesion(entrada);
+            programaActivo =
+                await preguntarNuevaSesion(entrada);
         }
 
         Consola.pantalla("BANCO FUEGO");
-        Consola.informacion("Gracias por utilizar nuestro cajero.");
+        Consola.informacion(
+            "Gracias por utilizar nuestro cajero."
+        );
     } catch (error) {
         const mensaje =
             error instanceof Error
