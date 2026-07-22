@@ -9,7 +9,7 @@ export class TransaccionQueries {
             id_cajero,
             referencia_externa,
             estado_detalle,
-            actualizado_en
+            updated_at
         )
         VALUES (
             $1,
@@ -31,7 +31,7 @@ export class TransaccionQueries {
             estado = $1,
             referencia_externa = $2,
             estado_detalle = $3,
-            actualizado_en = $4
+            updated_at = $4
         WHERE id_transaccion = $5
     `;
 
@@ -46,7 +46,7 @@ export class TransaccionQueries {
             id_cajero,
             referencia_externa,
             estado_detalle,
-            actualizado_en
+            updated_at
         FROM BancoFuego.Transaccion
         WHERE id_transaccion = $1
     `;
@@ -62,7 +62,7 @@ export class TransaccionQueries {
             id_cajero,
             referencia_externa,
             estado_detalle,
-            actualizado_en
+            updated_at
         FROM BancoFuego.Transaccion
         WHERE id_transaccion = ANY($1::int[])
         ORDER BY id_transaccion ASC
@@ -79,7 +79,7 @@ export class TransaccionQueries {
             id_cajero,
             referencia_externa,
             estado_detalle,
-            actualizado_en
+            updated_at
         FROM BancoFuego.Transaccion
         WHERE tipo = 'TRANSFERENCIAINTERBANCARIA'
           AND estado = 'PENDIENTE'
@@ -99,7 +99,7 @@ export class TransaccionQueries {
             id_cajero,
             referencia_externa,
             estado_detalle,
-            actualizado_en
+            updated_at
         FROM BancoFuego.Transaccion
         WHERE id_transaccion = $1
         FOR UPDATE
