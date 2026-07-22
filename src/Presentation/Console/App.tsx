@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Box, Text, useApp } from 'ink';
+import { Box, Text, useApp, useInput } from 'ink';
 import TextInput from 'ink-text-input';
 import SelectInput from 'ink-select-input';
 
@@ -20,15 +20,30 @@ import { DepositoService } from '../../Application/Services/DepositoService';
 import { RetiroService } from '../../Application/Services/RetiroService';
 import { HistorialService } from '../../Application/Services/HistorialService';
 import { IdempotenciaService } from '../../Application/Services/IdempotenciaService';
-
+import { TransferenciaService } from '../../Application/Services/Transferencias/TransferenciaService';
+import { TransferenciaLocalService } from '../../Application/Services/Transferencias/Local/TransferenciaLocalService';
+import { TransferenciaInterbancariaService } from '../../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaService';
+import { RedBancariaSimuladaClient } from '../../Infrastructure/Clients/Transferencias/Interbancaria/RedBancariaSimuladaClient';
 import { SubscriberFactory } from '../../Application/Events/SubscriberFactory';
 
-type Pantalla = 'LOGIN_TARJETA' | 'LOGIN_PIN' | 'MENU_PRINCIPAL' | 'DEPOSITO' | 'RETIRO' | 'SALDO' | 'HISTORIAL' | 'MENSAJE' | 'CONFIRMAR_SALIDA' | 'DESPEDIDA' | 'CAMBIAR_PIN';
+type Pantalla = 'LOGIN_TARJETA' | 'LOGIN_PIN' | 'MENU_PRINCIPAL' | 'DEPOSITO' | 'RETIRO' | 'SALDO' | 'HISTORIAL' | 'MENSAJE' | 'CONFIRMAR_SALIDA' | 'DESPEDIDA' | 'CAMBIAR_PIN' | 'TRANSFERENCIA' | 'CONFIRMAR_CANCELACION';
 
 
 export const App: React.FC = () => {
     const { exit } = useApp();
     const [pantalla, setPantalla] = useState<Pantalla>('LOGIN_TARJETA');
+    const [pantallaPreviaCancelacion, setPantallaPreviaCancelacion] = useState<Pantalla | null>(null);
+
+    // Escuchar la tecla ESC para activar el diálogo de confirmación de cancelación
+    useInput((_input, key) => {
+        if (key.escape) {
+            if (['DEPOSITO', 'RETIRO', 'TRANSFERENCIA', 'CAMBIAR_PIN'].includes(pantalla)) {
+                setPantallaPreviaCancelacion(pantalla);
+                setPantalla('CONFIRMAR_CANCELACION');
+            }
+        }
+    });
+
 
     // Contenedor de Servicios instanciados limpiamente en React
     const services = useMemo(() => {
@@ -45,14 +60,21 @@ export const App: React.FC = () => {
         const unidadDeTrabajo = new PostgresUnidadDeTrabajo();
         const tokenService = new JwtTokenService();
         const idempotenciaService = new IdempotenciaService();
+        const redBancariaClient = new RedBancariaSimuladaClient();
 
         const authService = new AutenticacionService(tarjetaRepo, autenticacionRepo, cuentaRepo, eventBus, tokenService, clienteRepo);
         const depositoService = new DepositoService(unidadDeTrabajo, eventBus, idempotenciaService);
         const retiroService = new RetiroService(unidadDeTrabajo, eventBus, idempotenciaService);
         const historialService = new HistorialService(movimientoRepo, transaccionRepo);
 
-        return { cuentaRepo, authService, depositoService, retiroService, historialService };
+        const transferenciaLocalService = new TransferenciaLocalService(unidadDeTrabajo, idempotenciaService);
+        const transferenciaInterbancariaService = new TransferenciaInterbancariaService(unidadDeTrabajo, redBancariaClient, idempotenciaService);
+        const transferenciaService = new TransferenciaService(transferenciaLocalService, transferenciaInterbancariaService, eventBus);
+
+        return { cuentaRepo, authService, depositoService, retiroService, historialService, transferenciaService };
     }, []);
+
+
 
     // Sesión del Usuario
     const [numeroTarjeta, setNumeroTarjeta] = useState('');
@@ -63,12 +85,17 @@ export const App: React.FC = () => {
     const [pinNuevoInput, setPinNuevoInput] = useState('');
     const [pasoPin, setPasoPin] = useState<'PIN_ACTUAL' | 'PIN_NUEVO'>('PIN_ACTUAL');
 
+    // Estado para Transferencias
+    const [cuentaDestinoInput, setCuentaDestinoInput] = useState('');
+    const [pasoTransferencia, setPasoTransferencia] = useState<'CUENTA_DESTINO' | 'MONTO'>('CUENTA_DESTINO');
+
     // Inputs de operaciones
     const [montoInput, setMontoInput] = useState('');
     const [mensaje, setMensaje] = useState<{ titulo: string; contenido: string; error?: boolean }>({ titulo: '', contenido: '' });
     const [pantallaSiguiente, setPantallaSiguiente] = useState<Pantalla>('LOGIN_TARJETA');
     const [cargando, setCargando] = useState(false);
     const [historialItems, setHistorialItems] = useState<any[]>([]);
+
 
 
 
@@ -89,20 +116,29 @@ export const App: React.FC = () => {
             setPantalla('MENU_PRINCIPAL');
         } catch (err: any) {
             const esBloqueo = err?.name === 'TarjetaBloqueadaError' || (err?.message && err.message.toLowerCase().includes('bloqueada'));
+            const esNoEncontrada = err?.name === 'TarjetaNoEncontradaError' || (err?.message && err.message.toLowerCase().includes('no encontrada'));
+
+            let pantallaSig: Pantalla = 'LOGIN_PIN';
+            if (esBloqueo || esNoEncontrada) {
+                pantallaSig = 'LOGIN_TARJETA';
+                setNumeroTarjeta('');
+            }
+
             setMensaje({
-                titulo: esBloqueo ? '🔒 TARJETA BLOQUEADA' : '⚠️ FALLO DE AUTENTICACIÓN',
+                titulo: esBloqueo ? '🔒 TARJETA BLOQUEADA' : (esNoEncontrada ? '💳 TARJETA NO REGISTRADA' : '⚠️ PIN INCORRECTO'),
                 contenido: esBloqueo
                     ? 'La tarjeta ha sido bloqueada por acumular 3 intentos fallidos de PIN. Acuda a una agencia bancaria para desbloquearla.'
-                    : (err?.message || 'PIN o Tarjeta incorrectos'),
+                    : (esNoEncontrada ? 'El número de tarjeta ingresado no existe en nuestro sistema bancario.' : (err?.message || 'PIN incorrecto')),
                 error: true
             });
             setPin('');
-            setPantallaSiguiente(esBloqueo ? 'LOGIN_TARJETA' : 'LOGIN_PIN');
+            setPantallaSiguiente(pantallaSig);
             setPantalla('MENSAJE');
         } finally {
             setCargando(false);
         }
     };
+
 
 
 
@@ -114,6 +150,11 @@ export const App: React.FC = () => {
         } else if (item.value === 'retirar') {
             setMontoInput('');
             setPantalla('RETIRO');
+        } else if (item.value === 'transferir') {
+            setCuentaDestinoInput('');
+            setMontoInput('');
+            setPasoTransferencia('CUENTA_DESTINO');
+            setPantalla('TRANSFERENCIA');
         } else if (item.value === 'saldo') {
             try {
                 const cuenta = await services.cuentaRepo.buscarPorId(sesion!.cuentaId);
@@ -142,6 +183,83 @@ export const App: React.FC = () => {
             setPantalla('CONFIRMAR_SALIDA');
         }
     };
+
+    const handleTransferenciaCuentaSubmit = () => {
+        if (cuentaDestinoInput.trim().length < 5) {
+            setMensaje({ titulo: 'Cuenta Inválida', contenido: 'Ingrese un número de cuenta destino válido', error: true });
+            setPantallaSiguiente('TRANSFERENCIA');
+            setPantalla('MENSAJE');
+            return;
+        }
+        setMontoInput('');
+        setPasoTransferencia('MONTO');
+    };
+
+    const handleTransferenciaSubmit = async () => {
+        const monto = parseFloat(montoInput);
+        if (isNaN(monto) || monto <= 0) {
+            setMensaje({ titulo: 'Monto Inválido', contenido: 'Ingrese un monto superior a 0', error: true });
+            setPantallaSiguiente('TRANSFERENCIA');
+            setPantalla('MENSAJE');
+            return;
+        }
+
+        setCargando(true);
+        try {
+            const numeroDestino = cuentaDestinoInput.trim();
+            const cuentaLocal = await services.cuentaRepo.buscarPorNumeroCuentaParaActualizar(numeroDestino);
+
+
+            let res;
+            let tipoDesc = '';
+
+            if (cuentaLocal && cuentaLocal.obtenerId() !== undefined) {
+                res = await services.transferenciaService.ejecutar({
+                    tipoTransferencia: 'LOCAL',
+                    cuentaOrigenId: sesion!.cuentaId,
+                    cuentaDestinoId: cuentaLocal.obtenerId()!,
+                    monto,
+                    correoCliente: sesion?.correoCliente
+                });
+                tipoDesc = 'Interna (Banco Fuego)';
+            } else {
+
+                res = await services.transferenciaService.ejecutar({
+                    tipoTransferencia: 'INTERBANCARIA',
+                    cuentaOrigenId: sesion!.cuentaId,
+                    numeroCuentaDestino: numeroDestino,
+                    codigoBancoDestino: 'BANCO_EXTERNO',
+                    monto,
+                    correoCliente: sesion?.correoCliente
+                });
+                tipoDesc = 'Interbancaria';
+            }
+
+            const nuevoSaldo = res.origen.saldoNuevo;
+            setSesion(prev => prev ? { ...prev, saldo: nuevoSaldo } : null);
+
+            setMensaje({
+                titulo: '¡Transferencia Exitosa!',
+                contenido: `Se transfirieron $${monto.toFixed(2)} a la cuenta ${numeroDestino} [${tipoDesc}].\nNuevo Saldo: $${nuevoSaldo.toFixed(2)}`
+            });
+            setCuentaDestinoInput('');
+            setMontoInput('');
+            setPantallaSiguiente('MENU_PRINCIPAL');
+            setPantalla('MENSAJE');
+        } catch (err: any) {
+            setMensaje({
+                titulo: 'Error en Transferencia',
+                contenido: err?.message || 'No se pudo procesar la transferencia',
+                error: true
+            });
+            setPantallaSiguiente('MENU_PRINCIPAL');
+            setPantalla('MENSAJE');
+        } finally {
+            setCargando(false);
+        }
+    };
+
+
 
     const handleCambiarPinSubmit = async () => {
         if (!/^\d{4}$/.test(pinNuevoInput)) {
@@ -205,7 +323,7 @@ export const App: React.FC = () => {
 
         setCargando(true);
         try {
-            const res = await services.depositoService.ejecutar({ cuentaId: sesion!.cuentaId, monto });
+            const res = await services.depositoService.ejecutar({ cuentaId: sesion!.cuentaId, monto, correoCliente: sesion?.correoCliente });
             setSesion(prev => prev ? { ...prev, saldo: res.saldoNuevo } : null);
             setMensaje({ titulo: '¡Depósito Exitoso!', contenido: `Nuevo Saldo: $${res.saldoNuevo}` });
             setPantallaSiguiente('MENU_PRINCIPAL');
@@ -221,6 +339,8 @@ export const App: React.FC = () => {
 
     const handleRetiroSubmit = async () => {
         const monto = parseFloat(montoInput);
+
+
         if (isNaN(monto) || monto <= 0) {
             setMensaje({ titulo: 'Monto Inválido', contenido: 'Ingrese un monto superior a 0', error: true });
             return;
@@ -228,7 +348,7 @@ export const App: React.FC = () => {
 
         setCargando(true);
         try {
-            const res = await services.retiroService.ejecutar({ cuentaId: sesion!.cuentaId, monto });
+            const res = await services.retiroService.ejecutar({ cuentaId: sesion!.cuentaId, monto, correoCliente: sesion?.correoCliente });
             setSesion(prev => prev ? { ...prev, saldo: res.saldoNuevo } : null);
             setMensaje({ titulo: '¡Retiro Exitoso!', contenido: `Nuevo Saldo: $${res.saldoNuevo}` });
             setPantallaSiguiente('MENU_PRINCIPAL');
@@ -241,6 +361,7 @@ export const App: React.FC = () => {
             setCargando(false);
         }
     };
+
 
 
     return (
@@ -293,10 +414,11 @@ export const App: React.FC = () => {
                             items={[
                                 { label: '💰 [1] Depositar Dinero', value: 'depositar' },
                                 { label: '💸 [2] Retirar Efectivo', value: 'retirar' },
-                                { label: '📊 [3] Consultar Saldo', value: 'saldo' },
-                                { label: '📜 [4] Ver Historial de Movimientos', value: 'historial' },
-                                { label: '🔑 [5] Cambiar PIN Secreto', value: 'cambiar_pin' },
-                                { label: '🚪 [6] Cerrar Sesión', value: 'salir' }
+                                { label: '🔄 [3] Realizar Transferencia', value: 'transferir' },
+                                { label: '📊 [4] Consultar Saldo', value: 'saldo' },
+                                { label: '📜 [5] Ver Historial de Movimientos', value: 'historial' },
+                                { label: '🔑 [6] Cambiar PIN Secreto', value: 'cambiar_pin' },
+                                { label: '🚪 [7] Cerrar Sesión', value: 'salir' }
                             ]}
                             onSelect={handleMenuSelect}
                         />
@@ -313,6 +435,9 @@ export const App: React.FC = () => {
                         <Text bold>Monto a depositar ($): </Text>
                         <TextInput value={montoInput} onChange={setMontoInput} onSubmit={handleDepositoSubmit} />
                     </Box>
+                    <Box marginTop={1}>
+                        <Text color="gray">🔴 Presione la tecla ESC para cancelar esta acción</Text>
+                    </Box>
                     {cargando && <Text color="cyan">Procesando transacción...</Text>}
                 </Box>
             )}
@@ -325,9 +450,49 @@ export const App: React.FC = () => {
                         <Text bold>Monto a retirar ($): </Text>
                         <TextInput value={montoInput} onChange={setMontoInput} onSubmit={handleRetiroSubmit} />
                     </Box>
+                    <Box marginTop={1}>
+                        <Text color="gray">🔴 Presione la tecla ESC para cancelar esta acción</Text>
+                    </Box>
                     {cargando && <Text color="cyan">Verificando saldo y dispensando efectivo...</Text>}
                 </Box>
             )}
+
+            {/* Pantalla: Transferencia */}
+            {pantalla === 'TRANSFERENCIA' && (
+                <Box flexDirection="column">
+                    <Text color="yellow" bold>TRANSFERENCIA BANCARIA DE FONDOS</Text>
+                    <Text color="gray">Cuenta Origen: {sesion?.numeroCuenta} | Saldo: ${sesion?.saldo.toFixed(2)}</Text>
+
+                    {pasoTransferencia === 'CUENTA_DESTINO' && (
+                        <Box flexDirection="column" marginTop={1}>
+                            <Box>
+                                <Text bold>Número de Cuenta Destino: </Text>
+                                <TextInput value={cuentaDestinoInput} onChange={setCuentaDestinoInput} onSubmit={handleTransferenciaCuentaSubmit} />
+                            </Box>
+                            <Box marginTop={1}>
+                                <Text color="gray">🔴 Presione la tecla ESC para cancelar esta acción</Text>
+                            </Box>
+                        </Box>
+                    )}
+
+                    {pasoTransferencia === 'MONTO' && (
+                        <Box flexDirection="column" marginTop={1}>
+                            <Text color="cyan">Cuenta Destino: {cuentaDestinoInput}</Text>
+                            <Box marginTop={1}>
+                                <Text bold>Monto a Transferir ($): </Text>
+                                <TextInput value={montoInput} onChange={setMontoInput} onSubmit={handleTransferenciaSubmit} />
+                            </Box>
+                            <Box marginTop={1}>
+                                <Text color="gray">🔴 Presione la tecla ESC para cancelar esta acción</Text>
+                            </Box>
+                        </Box>
+                    )}
+
+                    {cargando && <Text color="cyan">Verificando cuenta y transfiriendo fondos...</Text>}
+                </Box>
+            )}
+
+
 
             {/* Pantalla: Saldo */}
             {pantalla === 'SALDO' && sesion && (
@@ -352,10 +517,11 @@ export const App: React.FC = () => {
                         <Text color="gray">No se encontraron movimientos para esta cuenta.</Text>
                     ) : (
                         historialItems.slice(0, 5).map((item, idx) => (
-                            <Text key={idx} color={item.monto > 0 ? 'green' : 'red'}>
-                                • {new Date(item.fecha).toLocaleString()} | {item.tipo} | ${item.monto} | {item.descripcion || 'Sin detalle'}
+                            <Text key={idx} color={item.naturaleza === 'CREDITO' ? 'green' : 'red'}>
+                                • {new Date(item.fecha).toLocaleString()} | {item.tipo} | {item.naturaleza ? `[${item.naturaleza}]` : ''} | ${item.monto} | Saldo: ${item.saldoPosterior}
                             </Text>
                         ))
+
                     )}
                     <Box marginTop={1}>
                         <SelectInput
@@ -397,6 +563,35 @@ export const App: React.FC = () => {
                 </Box>
             )}
 
+            {/* Pantalla: Confirmación de Cancelación de Operación (vía ESC) */}
+            {pantalla === 'CONFIRMAR_CANCELACION' && (
+                <Box flexDirection="column">
+                    <Text color="red" bold>🔴 CANCELAR OPERACIÓN</Text>
+                    <Box marginTop={1}>
+                        <Text bold>¿Desea cancelar esta acción?</Text>
+                    </Box>
+
+                    <Box marginTop={1}>
+                        <SelectInput
+                            items={[
+                                { label: '❌ Sí, cancelar y volver al Menú Principal', value: 'si' },
+                                { label: '↩️ No, continuar con la operación', value: 'no' }
+                            ]}
+                            onSelect={(item) => {
+                                if (item.value === 'si') {
+                                    setMontoInput('');
+                                    setCuentaDestinoInput('');
+                                    setPinNuevoInput('');
+                                    setPantalla('MENU_PRINCIPAL');
+                                } else {
+                                    setPantalla(pantallaPreviaCancelacion || 'MENU_PRINCIPAL');
+                                }
+                            }}
+                        />
+                    </Box>
+                </Box>
+            )}
+
             {/* Pantalla: Despedida */}
             {pantalla === 'DESPEDIDA' && (
                 <Box flexDirection="column">
@@ -410,6 +605,7 @@ export const App: React.FC = () => {
                     </Box>
                 </Box>
             )}
+
 
             {/* Pantalla: Cambiar PIN */}
             {pantalla === 'CAMBIAR_PIN' && (
@@ -429,8 +625,12 @@ export const App: React.FC = () => {
                         </Box>
                     )}
                     {cargando && <Text color="cyan">Actualizando clave secreta en la base de datos...</Text>}
+                    <Box marginTop={1}>
+                        <Text color="gray">🔴 Presione la tecla ESC para cancelar esta acción</Text>
+                    </Box>
                 </Box>
             )}
+
 
         </Box>
 

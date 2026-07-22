@@ -177,10 +177,16 @@ export class RetiroService {
             this.eventBus.publicar(
                 new Evento(
                     TiposEvento.RETIRO_REALIZADO,
-                    respuesta
+                    {
+                        ...respuesta,
+                        monto: datos.monto,
+                        cuentaId: datos.cuentaId,
+                        correoCliente: datos.correoCliente
+                    }
                 )
             );
         }
+
 
         return respuesta;
     }

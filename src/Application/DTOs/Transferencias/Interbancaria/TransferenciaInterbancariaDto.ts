@@ -5,7 +5,9 @@ export interface TransferenciaInterbancariaRequestDto {
     monto: number;
     concepto?: string;
     idempotencyKey?: string;
+    correoCliente?: string;
 }
+
 
 export type EstadoTransferenciaInterbancaria =
     | "PENDIENTE"
