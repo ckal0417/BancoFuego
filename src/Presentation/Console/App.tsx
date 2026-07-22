@@ -436,7 +436,7 @@ export const App: React.FC = () => {
                         <TextInput value={montoInput} onChange={setMontoInput} onSubmit={handleDepositoSubmit} />
                     </Box>
                     <Box marginTop={1}>
-                        <Text color="gray">💡 (Escriba 0 o 'cancelar' para volver al Menú Principal)</Text>
+                        <Text color="gray">🔴 Presione la tecla ESC para cancelar esta acción</Text>
                     </Box>
                     {cargando && <Text color="cyan">Procesando transacción...</Text>}
                 </Box>
@@ -451,12 +451,11 @@ export const App: React.FC = () => {
                         <TextInput value={montoInput} onChange={setMontoInput} onSubmit={handleRetiroSubmit} />
                     </Box>
                     <Box marginTop={1}>
-                        <Text color="gray">💡 (Escriba 0 o 'cancelar' para volver al Menú Principal)</Text>
+                        <Text color="gray">🔴 Presione la tecla ESC para cancelar esta acción</Text>
                     </Box>
                     {cargando && <Text color="cyan">Verificando saldo y dispensando efectivo...</Text>}
                 </Box>
             )}
-
 
             {/* Pantalla: Transferencia */}
             {pantalla === 'TRANSFERENCIA' && (
@@ -471,7 +470,7 @@ export const App: React.FC = () => {
                                 <TextInput value={cuentaDestinoInput} onChange={setCuentaDestinoInput} onSubmit={handleTransferenciaCuentaSubmit} />
                             </Box>
                             <Box marginTop={1}>
-                                <Text color="gray">💡 (Escriba 0 o 'cancelar' para volver al Menú Principal)</Text>
+                                <Text color="gray">🔴 Presione la tecla ESC para cancelar esta acción</Text>
                             </Box>
                         </Box>
                     )}
@@ -484,15 +483,15 @@ export const App: React.FC = () => {
                                 <TextInput value={montoInput} onChange={setMontoInput} onSubmit={handleTransferenciaSubmit} />
                             </Box>
                             <Box marginTop={1}>
-                                <Text color="gray">💡 (Escriba 0 o 'cancelar' para volver al Menú Principal)</Text>
+                                <Text color="gray">🔴 Presione la tecla ESC para cancelar esta acción</Text>
                             </Box>
                         </Box>
                     )}
 
-
                     {cargando && <Text color="cyan">Verificando cuenta y transfiriendo fondos...</Text>}
                 </Box>
             )}
+
 
 
             {/* Pantalla: Saldo */}
@@ -626,8 +625,12 @@ export const App: React.FC = () => {
                         </Box>
                     )}
                     {cargando && <Text color="cyan">Actualizando clave secreta en la base de datos...</Text>}
+                    <Box marginTop={1}>
+                        <Text color="gray">🔴 Presione la tecla ESC para cancelar esta acción</Text>
+                    </Box>
                 </Box>
             )}
+
 
         </Box>
 
