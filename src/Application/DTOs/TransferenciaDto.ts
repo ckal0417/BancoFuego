@@ -3,7 +3,9 @@ export interface TransferenciaRequestDto {
     numeroCuentaDestino: string;
     monto: number;
     idempotencyKey?: string;
+    correoCliente?: string;
 }
+
 
 export interface CuentaTransferenciaDto {
     cuentaId: number;

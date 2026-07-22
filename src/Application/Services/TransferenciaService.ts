@@ -140,10 +140,17 @@ export class TransferenciaService {
             this.eventBus.publicar(
                 new Evento(
                     TiposEvento.TRANSFERENCIA_REALIZADA,
-                    respuesta
+                    {
+                        ...respuesta,
+                        cuentaId: datos.cuentaOrigenId,
+                        monto: datos.monto,
+                        correoCliente: datos.correoCliente,
+                        numeroCuentaDestino: datos.numeroCuentaDestino
+                    }
                 )
             );
         }
+
 
         return respuesta;
     }

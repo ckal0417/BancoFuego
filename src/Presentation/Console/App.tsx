@@ -20,10 +20,12 @@ import { DepositoService } from '../../Application/Services/DepositoService';
 import { RetiroService } from '../../Application/Services/RetiroService';
 import { HistorialService } from '../../Application/Services/HistorialService';
 import { IdempotenciaService } from '../../Application/Services/IdempotenciaService';
+import { TransferenciaService } from '../../Application/Services/TransferenciaService';
 
+import { RedBancariaSimuladaClient } from '../../Infrastructure/Clients/RedBancariaSimuladaClient';
 import { SubscriberFactory } from '../../Application/Events/SubscriberFactory';
 
-type Pantalla = 'LOGIN_TARJETA' | 'LOGIN_PIN' | 'MENU_PRINCIPAL' | 'DEPOSITO' | 'RETIRO' | 'SALDO' | 'HISTORIAL' | 'MENSAJE' | 'CONFIRMAR_SALIDA' | 'DESPEDIDA' | 'CAMBIAR_PIN';
+type Pantalla = 'LOGIN_TARJETA' | 'LOGIN_PIN' | 'MENU_PRINCIPAL' | 'DEPOSITO' | 'RETIRO' | 'SALDO' | 'HISTORIAL' | 'MENSAJE' | 'CONFIRMAR_SALIDA' | 'DESPEDIDA' | 'CAMBIAR_PIN' | 'TRANSFERENCIA';
 
 
 export const App: React.FC = () => {
@@ -45,14 +47,17 @@ export const App: React.FC = () => {
         const unidadDeTrabajo = new PostgresUnidadDeTrabajo();
         const tokenService = new JwtTokenService();
         const idempotenciaService = new IdempotenciaService();
+        const redBancariaClient = new RedBancariaSimuladaClient();
 
         const authService = new AutenticacionService(tarjetaRepo, autenticacionRepo, cuentaRepo, eventBus, tokenService, clienteRepo);
         const depositoService = new DepositoService(unidadDeTrabajo, eventBus, idempotenciaService);
         const retiroService = new RetiroService(unidadDeTrabajo, eventBus, idempotenciaService);
         const historialService = new HistorialService(movimientoRepo, transaccionRepo);
+        const transferenciaService = new TransferenciaService(unidadDeTrabajo, redBancariaClient, eventBus, idempotenciaService);
 
-        return { cuentaRepo, authService, depositoService, retiroService, historialService };
+        return { cuentaRepo, authService, depositoService, retiroService, historialService, transferenciaService };
     }, []);
+
 
     // Sesión del Usuario
     const [numeroTarjeta, setNumeroTarjeta] = useState('');
@@ -63,12 +68,17 @@ export const App: React.FC = () => {
     const [pinNuevoInput, setPinNuevoInput] = useState('');
     const [pasoPin, setPasoPin] = useState<'PIN_ACTUAL' | 'PIN_NUEVO'>('PIN_ACTUAL');
 
+    // Estado para Transferencias
+    const [cuentaDestinoInput, setCuentaDestinoInput] = useState('');
+    const [pasoTransferencia, setPasoTransferencia] = useState<'CUENTA_DESTINO' | 'MONTO'>('CUENTA_DESTINO');
+
     // Inputs de operaciones
     const [montoInput, setMontoInput] = useState('');
     const [mensaje, setMensaje] = useState<{ titulo: string; contenido: string; error?: boolean }>({ titulo: '', contenido: '' });
     const [pantallaSiguiente, setPantallaSiguiente] = useState<Pantalla>('LOGIN_TARJETA');
     const [cargando, setCargando] = useState(false);
     const [historialItems, setHistorialItems] = useState<any[]>([]);
+
 
 
 
@@ -114,6 +124,11 @@ export const App: React.FC = () => {
         } else if (item.value === 'retirar') {
             setMontoInput('');
             setPantalla('RETIRO');
+        } else if (item.value === 'transferir') {
+            setCuentaDestinoInput('');
+            setMontoInput('');
+            setPasoTransferencia('CUENTA_DESTINO');
+            setPantalla('TRANSFERENCIA');
         } else if (item.value === 'saldo') {
             try {
                 const cuenta = await services.cuentaRepo.buscarPorId(sesion!.cuentaId);
@@ -142,6 +157,59 @@ export const App: React.FC = () => {
             setPantalla('CONFIRMAR_SALIDA');
         }
     };
+
+    const handleTransferenciaCuentaSubmit = () => {
+        if (cuentaDestinoInput.trim().length < 5) {
+            setMensaje({ titulo: 'Cuenta Inválida', contenido: 'Ingrese un número de cuenta destino válido', error: true });
+            setPantallaSiguiente('TRANSFERENCIA');
+            setPantalla('MENSAJE');
+            return;
+        }
+        setMontoInput('');
+        setPasoTransferencia('MONTO');
+    };
+
+    const handleTransferenciaSubmit = async () => {
+        const monto = parseFloat(montoInput);
+        if (isNaN(monto) || monto <= 0) {
+            setMensaje({ titulo: 'Monto Inválido', contenido: 'Ingrese un monto superior a 0', error: true });
+            setPantallaSiguiente('TRANSFERENCIA');
+            setPantalla('MENSAJE');
+            return;
+        }
+
+        setCargando(true);
+        try {
+            const res = await services.transferenciaService.ejecutar({
+                cuentaOrigenId: sesion!.cuentaId,
+                numeroCuentaDestino: cuentaDestinoInput.trim(),
+                monto,
+                correoCliente: sesion?.correoCliente
+            });
+            const nuevoSaldo = res.origen.saldoNuevo;
+            setSesion(prev => prev ? { ...prev, saldo: nuevoSaldo } : null);
+            const tipoDesc = res.tipo === 'TRANSFERENCIAINTERBANCARIA' ? 'Interbancaria' : 'Interna (Banco Fuego)';
+            setMensaje({
+                titulo: '¡Transferencia Exitosa!',
+                contenido: `Se transfirieron $${monto.toFixed(2)} a la cuenta ${cuentaDestinoInput} [${tipoDesc}].\nNuevo Saldo: $${nuevoSaldo.toFixed(2)}`
+            });
+            setCuentaDestinoInput('');
+            setMontoInput('');
+            setPantallaSiguiente('MENU_PRINCIPAL');
+            setPantalla('MENSAJE');
+        } catch (err: any) {
+            setMensaje({
+                titulo: 'Error en Transferencia',
+                contenido: err?.message || 'No se pudo procesar la transferencia',
+                error: true
+            });
+            setPantallaSiguiente('MENU_PRINCIPAL');
+            setPantalla('MENSAJE');
+        } finally {
+            setCargando(false);
+        }
+    };
+
 
     const handleCambiarPinSubmit = async () => {
         if (!/^\d{4}$/.test(pinNuevoInput)) {
@@ -294,10 +362,11 @@ export const App: React.FC = () => {
                             items={[
                                 { label: '💰 [1] Depositar Dinero', value: 'depositar' },
                                 { label: '💸 [2] Retirar Efectivo', value: 'retirar' },
-                                { label: '📊 [3] Consultar Saldo', value: 'saldo' },
-                                { label: '📜 [4] Ver Historial de Movimientos', value: 'historial' },
-                                { label: '🔑 [5] Cambiar PIN Secreto', value: 'cambiar_pin' },
-                                { label: '🚪 [6] Cerrar Sesión', value: 'salir' }
+                                { label: '🔄 [3] Realizar Transferencia', value: 'transferir' },
+                                { label: '📊 [4] Consultar Saldo', value: 'saldo' },
+                                { label: '📜 [5] Ver Historial de Movimientos', value: 'historial' },
+                                { label: '🔑 [6] Cambiar PIN Secreto', value: 'cambiar_pin' },
+                                { label: '🚪 [7] Cerrar Sesión', value: 'salir' }
                             ]}
                             onSelect={handleMenuSelect}
                         />
@@ -329,6 +398,39 @@ export const App: React.FC = () => {
                     {cargando && <Text color="cyan">Verificando saldo y dispensando efectivo...</Text>}
                 </Box>
             )}
+
+            {/* Pantalla: Transferencia */}
+            {pantalla === 'TRANSFERENCIA' && (
+                <Box flexDirection="column">
+                    <Text color="yellow" bold>TRANSFERENCIA BANCARIA DE FONDOS</Text>
+                    <Text color="gray">Cuenta Origen: {sesion?.numeroCuenta} | Saldo: ${sesion?.saldo.toFixed(2)}</Text>
+
+                    {pasoTransferencia === 'CUENTA_DESTINO' && (
+                        <Box flexDirection="column" marginTop={1}>
+                            <Box>
+                                <Text bold>Número de Cuenta Destino: </Text>
+                                <TextInput value={cuentaDestinoInput} onChange={setCuentaDestinoInput} onSubmit={handleTransferenciaCuentaSubmit} />
+                            </Box>
+                            <Box marginTop={1}>
+                                <Text color="gray">(Ingrese el número de cuenta y presione Enter)</Text>
+                            </Box>
+                        </Box>
+                    )}
+
+                    {pasoTransferencia === 'MONTO' && (
+                        <Box flexDirection="column" marginTop={1}>
+                            <Text color="cyan">Cuenta Destino: {cuentaDestinoInput}</Text>
+                            <Box marginTop={1}>
+                                <Text bold>Monto a Transferir ($): </Text>
+                                <TextInput value={montoInput} onChange={setMontoInput} onSubmit={handleTransferenciaSubmit} />
+                            </Box>
+                        </Box>
+                    )}
+
+                    {cargando && <Text color="cyan">Verificando cuenta y transfiriendo fondos...</Text>}
+                </Box>
+            )}
+
 
             {/* Pantalla: Saldo */}
             {pantalla === 'SALDO' && sesion && (

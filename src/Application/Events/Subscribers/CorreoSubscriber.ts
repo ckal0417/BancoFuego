@@ -71,7 +71,24 @@ export class CorreoSubscriber implements IEventSubscriber {
                     <p style="color: #666; font-size: 12px;">Si no realizó esta transacción, bloquee su tarjeta o comuníquese con el banco.</p>
                 </div>
             `;
+        } else if (evento.nombre === 'TRANSFERENCIA_REALIZADA') {
+            const saldoNuevo = datos.origen?.saldoNuevo ?? datos.saldoNuevoOrigen ?? '0.00';
+            const montoStr = datos.monto ? Number(datos.monto).toFixed(2) : '0.00';
+            asunto = '🔥 Banco Fuego - Comprobante de Transferencia Bancaria';
+            htmlContent = `
+                <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #007bff; border-radius: 8px;">
+                    <h2 style="color: #007bff;">🔥 Banco Fuego - Transferencia Realizada</h2>
+                    <p>Se ha completado exitosamente la transferencia de fondos desde su cuenta.</p>
+                    <p><strong>Monto Transferido:</strong> $${montoStr}</p>
+                    <p><strong>Cuenta Destino:</strong> ${datos.numeroCuentaDestino || 'No especificada'}</p>
+                    <p><strong>Tipo de Transferencia:</strong> ${datos.tipo === 'TRANSFERENCIAINTERBANCARIA' ? 'Interbancaria' : 'Interna (Banco Fuego)'}</p>
+                    <p><strong>Nuevo Saldo Disponible:</strong> $${saldoNuevo}</p>
+                    <p style="color: #666; font-size: 12px;">Gracias por utilizar nuestros servicios financieros.</p>
+                </div>
+            `;
         }
+
+
 
         await this.emailService.enviarCorreo({
             para: destinatario,
