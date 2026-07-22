@@ -484,10 +484,11 @@ export const App: React.FC = () => {
                         <Text color="gray">No se encontraron movimientos para esta cuenta.</Text>
                     ) : (
                         historialItems.slice(0, 5).map((item, idx) => (
-                            <Text key={idx} color={item.monto > 0 ? 'green' : 'red'}>
-                                • {new Date(item.fecha).toLocaleString()} | {item.tipo} | ${item.monto} | {item.descripcion || 'Sin detalle'}
+                            <Text key={idx} color={item.naturaleza === 'CREDITO' ? 'green' : 'red'}>
+                                • {new Date(item.fecha).toLocaleString()} | {item.tipo} | {item.naturaleza ? `[${item.naturaleza}]` : ''} | ${item.monto} | Saldo: ${item.saldoPosterior}
                             </Text>
                         ))
+
                     )}
                     <Box marginTop={1}>
                         <SelectInput
