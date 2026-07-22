@@ -97,9 +97,9 @@ export class HistorialService {
                 fecha:
                     movimiento.obtenerFecha(),
 
-                descripcion:
-                    transaccion
-                        .obtenerDescripcion(),
+                naturaleza:
+                    movimiento
+                        .obtenerNaturaleza(),
 
                 saldoAnterior:
                     movimiento
@@ -109,7 +109,8 @@ export class HistorialService {
                 saldoPosterior:
                     movimiento
                         .obtenerSaldoPosterior()
-                        .toNumber()
+                        .toNumber(),
+                
             });
         }
 
