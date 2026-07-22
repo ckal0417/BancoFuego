@@ -10,7 +10,7 @@ interface TransaccionResponse {
     fecha: string;
     tipo: string;
     monto: number;
-    descripcion?: string;
+    naturaleza?: string;
     estado?: string;
 }
 
@@ -62,9 +62,9 @@ export class HistorialCommand implements ICommandConsola {
                     )}`
                 );
 
-                if (transaccion.descripcion) {
+                if (transaccion.naturaleza) {
                     Consola.informacion(
-                        `Descripción: ${transaccion.descripcion}`
+                        `Naturaleza: ${transaccion.naturaleza}`
                     );
                 }
 
