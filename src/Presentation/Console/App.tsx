@@ -20,9 +20,10 @@ import { DepositoService } from '../../Application/Services/DepositoService';
 import { RetiroService } from '../../Application/Services/RetiroService';
 import { HistorialService } from '../../Application/Services/HistorialService';
 import { IdempotenciaService } from '../../Application/Services/IdempotenciaService';
-import { TransferenciaService } from '../../Application/Services/TransferenciaService';
-
-import { RedBancariaSimuladaClient } from '../../Infrastructure/Clients/RedBancariaSimuladaClient';
+import { TransferenciaService } from '../../Application/Services/Transferencias/TransferenciaService';
+import { TransferenciaLocalService } from '../../Application/Services/Transferencias/Local/TransferenciaLocalService';
+import { TransferenciaInterbancariaService } from '../../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaService';
+import { RedBancariaSimuladaClient } from '../../Infrastructure/Clients/Transferencias/Interbancaria/RedBancariaSimuladaClient';
 import { SubscriberFactory } from '../../Application/Events/SubscriberFactory';
 
 type Pantalla = 'LOGIN_TARJETA' | 'LOGIN_PIN' | 'MENU_PRINCIPAL' | 'DEPOSITO' | 'RETIRO' | 'SALDO' | 'HISTORIAL' | 'MENSAJE' | 'CONFIRMAR_SALIDA' | 'DESPEDIDA' | 'CAMBIAR_PIN' | 'TRANSFERENCIA';
@@ -53,10 +54,14 @@ export const App: React.FC = () => {
         const depositoService = new DepositoService(unidadDeTrabajo, eventBus, idempotenciaService);
         const retiroService = new RetiroService(unidadDeTrabajo, eventBus, idempotenciaService);
         const historialService = new HistorialService(movimientoRepo, transaccionRepo);
-        const transferenciaService = new TransferenciaService(unidadDeTrabajo, redBancariaClient, eventBus, idempotenciaService);
+
+        const transferenciaLocalService = new TransferenciaLocalService(unidadDeTrabajo, idempotenciaService);
+        const transferenciaInterbancariaService = new TransferenciaInterbancariaService(unidadDeTrabajo, redBancariaClient, idempotenciaService);
+        const transferenciaService = new TransferenciaService(transferenciaLocalService, transferenciaInterbancariaService, eventBus);
 
         return { cuentaRepo, authService, depositoService, retiroService, historialService, transferenciaService };
     }, []);
+
 
 
     // Sesión del Usuario
@@ -180,18 +185,41 @@ export const App: React.FC = () => {
 
         setCargando(true);
         try {
-            const res = await services.transferenciaService.ejecutar({
-                cuentaOrigenId: sesion!.cuentaId,
-                numeroCuentaDestino: cuentaDestinoInput.trim(),
-                monto,
-                correoCliente: sesion?.correoCliente
-            });
+            const numeroDestino = cuentaDestinoInput.trim();
+            const cuentaLocal = await services.cuentaRepo.buscarPorNumeroCuentaParaActualizar(numeroDestino);
+
+
+            let res;
+            let tipoDesc = '';
+
+            if (cuentaLocal && cuentaLocal.obtenerId() !== undefined) {
+                res = await services.transferenciaService.ejecutar({
+                    tipoTransferencia: 'LOCAL',
+                    cuentaOrigenId: sesion!.cuentaId,
+                    cuentaDestinoId: cuentaLocal.obtenerId()!,
+                    monto,
+                    correoCliente: sesion?.correoCliente
+                });
+                tipoDesc = 'Interna (Banco Fuego)';
+            } else {
+
+                res = await services.transferenciaService.ejecutar({
+                    tipoTransferencia: 'INTERBANCARIA',
+                    cuentaOrigenId: sesion!.cuentaId,
+                    numeroCuentaDestino: numeroDestino,
+                    codigoBancoDestino: 'BANCO_EXTERNO',
+                    monto,
+                    correoCliente: sesion?.correoCliente
+                });
+                tipoDesc = 'Interbancaria';
+            }
+
             const nuevoSaldo = res.origen.saldoNuevo;
             setSesion(prev => prev ? { ...prev, saldo: nuevoSaldo } : null);
-            const tipoDesc = res.tipo === 'TRANSFERENCIAINTERBANCARIA' ? 'Interbancaria' : 'Interna (Banco Fuego)';
+
             setMensaje({
                 titulo: '¡Transferencia Exitosa!',
-                contenido: `Se transfirieron $${monto.toFixed(2)} a la cuenta ${cuentaDestinoInput} [${tipoDesc}].\nNuevo Saldo: $${nuevoSaldo.toFixed(2)}`
+                contenido: `Se transfirieron $${monto.toFixed(2)} a la cuenta ${numeroDestino} [${tipoDesc}].\nNuevo Saldo: $${nuevoSaldo.toFixed(2)}`
             });
             setCuentaDestinoInput('');
             setMontoInput('');
@@ -209,6 +237,7 @@ export const App: React.FC = () => {
             setCargando(false);
         }
     };
+
 
 
     const handleCambiarPinSubmit = async () => {

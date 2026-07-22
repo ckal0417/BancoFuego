@@ -23,4 +23,5 @@ export interface TransferenciaBaseDto {
     cuentaOrigenId: number;
     monto: number;
     idempotencyKey?: string;
-}
+    correoCliente?: string;
+}

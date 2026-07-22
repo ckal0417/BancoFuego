@@ -3,7 +3,9 @@ export interface TransferenciaLocalRequestDto {
     cuentaDestinoId: number;
     monto: number;
     idempotencyKey?: string;
+    correoCliente?: string;
 }
+
 
 export interface CuentaTransferenciaLocalDto {
     cuentaId: number;
