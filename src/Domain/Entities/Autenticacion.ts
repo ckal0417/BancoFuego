@@ -112,6 +112,8 @@ export class Autenticacion {
         return this.intentos;
     }
 
+
+
     public obtenerPinHash(): string {
         return this.pinHash;
     }

@@ -8,4 +8,6 @@ export interface AutenticacionResponseDto {
     cuentaId: number;
     numeroCuenta: string;
     saldo: number;
-}
+    nombreCliente?: string;
+    correoCliente?: string;
+}
