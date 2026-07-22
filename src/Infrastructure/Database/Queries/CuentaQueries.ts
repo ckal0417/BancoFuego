@@ -19,10 +19,27 @@ export class CuentaQueries {
             numero_cuenta,
             tipo,
             saldo,
+            fecha_creacion,
             activa,
-            id_cliente
+            id_cliente, 
+            id_banco
         FROM BancoFuego.Cuenta
         WHERE id_cuenta = $1
+        FOR UPDATE
+    `;
+
+    public static readonly BUSCAR_POR_NUMERO_CUENTA_PARA_ACTUALIZAR = `
+        SELECT
+            id_cuenta,
+            numero_cuenta,
+            tipo,
+            saldo,
+            fecha_creacion,
+            activa,
+            id_cliente,
+            id_banco
+        FROM BancoFuego.Cuenta
+        WHERE numero_cuenta = $1
         FOR UPDATE
     `;
 

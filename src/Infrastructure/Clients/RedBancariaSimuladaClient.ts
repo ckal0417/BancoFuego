@@ -1,10 +1,14 @@
-import { IRedBancariaClient, ResultadoTransferenciaInterbancaria, SolicitudTransferenciaInterbancaria } from "../../Application/Ports/IRedBancariaClient";
+import { IRedBancariaClient, ResolucionCuentaRed, ResultadoTransferenciaInterbancaria, SolicitudTransferenciaInterbancaria } from "../../Application/Ports/IRedBancariaClient";
 
 export class RedBancariaSimuladaClient implements IRedBancariaClient {
+    public async resolverCuentaDestino(numeroCuenta: string):
+        Promise<ResolucionCuentaRed | null> {
+        return null;
+    }
 
-    public async transferir( solicitud: SolicitudTransferenciaInterbancaria ): Promise<ResultadoTransferenciaInterbancaria> {
-        
-        const referencia =  `EXT-${Date.now()}`;
+    public async transferir(solicitud: SolicitudTransferenciaInterbancaria): Promise<ResultadoTransferenciaInterbancaria> {
+
+        const referencia = `EXT-${Date.now()}`;
 
         return {
             aprobada: true,

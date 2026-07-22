@@ -9,14 +9,13 @@ import express, {
     Response
 } from "express";
 
-import helmet from "helmet";
-
 import { errorHandler } from "./Middleware/ErrorHandler";
 import { notFoundHandler } from "./Middleware/NotFoundHandler";
 import { requestIdMiddleware } from "./Middleware/RequestIdMiddleware";
 
 import { apiRoutes } from "./Routes";
 import { docsRoutes } from "./Routes/DocsRoutes";
+import helmet from "helmet";
 
 const app: Application =
     express();
@@ -50,63 +49,63 @@ const origenesPermitidos =
 
 const corsOptions:
     CorsOptions = {
-        origin: (
-            origin,
-            callback
-        ) => {
-            /*
-             * Postman, la consola y otros servidores
-             * pueden hacer solicitudes sin Origin.
-             */
-            if (!origin) {
-                callback(
-                    null,
-                    true
-                );
-
-                return;
-            }
-
-            if (
-                origenesPermitidos.includes(
-                    origin
-                )
-            ) {
-                callback(
-                    null,
-                    true
-                );
-
-                return;
-            }
-
+    origin: (
+        origin,
+        callback
+    ) => {
+        /*
+         * Postman, la consola y otros servidores
+         * pueden hacer solicitudes sin Origin.
+         */
+        if (!origin) {
             callback(
-                new Error(
-                    "El origen no está autorizado por CORS"
-                )
+                null,
+                true
             );
-        },
 
-        methods: [
-            "GET",
-            "POST",
-            "PUT",
-            "PATCH",
-            "DELETE",
-            "OPTIONS"
-        ],
+            return;
+        }
 
-        allowedHeaders: [
-            "Content-Type",
-            "Authorization",
-            "Idempotency-Key",
-            "X-Request-Id"
-        ],
+        if (
+            origenesPermitidos.includes(
+                origin
+            )
+        ) {
+            callback(
+                null,
+                true
+            );
 
-        exposedHeaders: [
-            "X-Request-Id"
-        ]
-    };
+            return;
+        }
+
+        callback(
+            new Error(
+                "El origen no está autorizado por CORS"
+            )
+        );
+    },
+
+    methods: [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE",
+        "OPTIONS"
+    ],
+
+    allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "Idempotency-Key",
+        "X-Request-Id"
+    ],
+
+    exposedHeaders: [
+        "X-Request-Id"
+    ]
+};
 
 app.use(
     cors(corsOptions)
@@ -138,7 +137,7 @@ app.get(
     ): void => {
         const requestId =
             res.locals.requestId as
-                string | undefined;
+            string | undefined;
 
         res.status(200).json({
             estado: "OK",
@@ -178,7 +177,7 @@ app.use(
         ) {
             const requestId =
                 res.locals.requestId as
-                    string | undefined;
+                string | undefined;
 
             res.status(400).json({
                 mensaje:

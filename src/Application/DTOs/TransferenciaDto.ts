@@ -1,8 +1,6 @@
 export interface TransferenciaRequestDto {
     cuentaOrigenId: number;
-    cuentaDestinoId?: number;
-    numeroCuentaDestino?: string;
-    codigoBancoDestino?: string;
+    numeroCuentaDestino: string;
     monto: number;
     idempotencyKey?: string;
 }
@@ -15,8 +13,8 @@ export interface CuentaTransferenciaDto {
 
 export interface TransferenciaResponseDto {
     tipo:
-        | "TRANSFERENCIAINTERNA"
-        | "TRANSFERENCIAINTERBANCARIA";
+    | "TRANSFERENCIAINTERNA"
+    | "TRANSFERENCIAINTERBANCARIA";
 
     origen: CuentaTransferenciaDto;
 

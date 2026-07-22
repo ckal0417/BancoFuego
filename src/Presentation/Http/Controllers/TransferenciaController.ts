@@ -8,7 +8,7 @@ import { TransferenciaService } from "../../../Application/Services/Transferenci
 
 interface TransferenciaBody {
     cuentaDestinoId?: number;
-    numeroCuentaDestino?: string;
+    numeroCuentaDestino: string;
     codigoBancoDestino?: string;
     monto: number;
 }
@@ -22,7 +22,7 @@ export class TransferenciaController {
     constructor(
         private readonly transferenciaService:
             TransferenciaService
-    ) {}
+    ) { }
 
     public transferir = async (
         req: Request<
@@ -36,7 +36,7 @@ export class TransferenciaController {
         try {
             const autenticacion =
                 res.locals.autenticacion as
-                    DatosAutenticacion;
+                DatosAutenticacion;
 
             const idempotencyKey =
                 req.header(
@@ -45,22 +45,11 @@ export class TransferenciaController {
 
             const resultado =
                 await this.transferenciaService.ejecutar({
-                    cuentaOrigenId:
-                        autenticacion.cuentaId,
-
-                    cuentaDestinoId:
-                        req.body.cuentaDestinoId,
-
-                    numeroCuentaDestino:
-                        req.body.numeroCuentaDestino,
-
-                    codigoBancoDestino:
-                        req.body.codigoBancoDestino,
-
-                    monto:
-                        req.body.monto,
-
+                    cuentaOrigenId: autenticacion.cuentaId,
+                    numeroCuentaDestino: req.body.numeroCuentaDestino,
+                    monto: req.body.monto,
                     idempotencyKey
+
                 });
 
             res.status(201).json(resultado);

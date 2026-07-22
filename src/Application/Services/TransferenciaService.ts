@@ -23,6 +23,8 @@ import { Dinero } from "../../Domain/ValueObjects/Dinero";
 
 import { EventBus } from "../../Shared/Events/EventBus";
 import { Evento } from "../../Shared/Events/Evento";
+import { NumeroCuenta } from "../../Domain/ValueObjects/NumeroCuenta";
+
 
 export class TransferenciaService {
     constructor(
@@ -37,13 +39,21 @@ export class TransferenciaService {
 
         private readonly idempotenciaService:
             IdempotenciaService
-    ) {}
+    ) { }
 
     public async ejecutar(
         datos: TransferenciaRequestDto
     ): Promise<TransferenciaResponseDto> {
-        const monto =
-            Dinero.desde(datos.monto);
+        const monto = Dinero.desde(datos.monto);
+
+        if (!datos.numeroCuentaDestino) {
+            throw new ValidationError(
+                "El número de cuenta destino es requerido"
+            );
+        }
+
+        const numeroCuentaDestino =
+            NumeroCuenta.desde(datos.numeroCuentaDestino);
 
         const clave =
             this.idempotenciaService.normalizarClave(
@@ -53,71 +63,79 @@ export class TransferenciaService {
         const hashSolicitud =
             clave
                 ? this.idempotenciaService.crearHash({
-                    cuentaOrigenId:
-                        datos.cuentaOrigenId,
-
-                    cuentaDestinoId:
-                        datos.cuentaDestinoId,
-
-                    numeroCuentaDestino:
-                        datos.numeroCuentaDestino,
-
-                    codigoBancoDestino:
-                        datos.codigoBancoDestino,
-
-                    monto:
-                        datos.monto,
-
-                    operacion:
-                        "TRANSFERENCIA"
+                    cuentaOrigenId: datos.cuentaOrigenId,
+                    numeroCuentaDestino: numeroCuentaDestino.toString(),
+                    monto: datos.monto,
+                    operacion: "TRANSFERENCIA"
                 })
                 : undefined;
 
         let operacionNueva = true;
 
-        let respuesta:
-            TransferenciaResponseDto;
+        const marcarComoRepetida = () => {
+            operacionNueva = false;
+        };
 
-        if (
-            datos.cuentaDestinoId !== undefined
-        ) {
+        /*
+         * Resolvemos primero si la cuenta destino es local.
+         * Esta consulta corre en su propia unidad de trabajo,
+         * de solo lectura (con lock), separada de la operación real.
+         */
+        const cuentaDestinoLocal =
+            await this.unidadDeTrabajo.ejecutar(repositorios =>
+                repositorios.cuentas
+                    .buscarPorNumeroCuentaParaActualizar(
+                        numeroCuentaDestino.toString()
+                    )
+            );
+
+        let respuesta: TransferenciaResponseDto;
+
+        if (cuentaDestinoLocal) {
+            const cuentaDestinoId =
+                cuentaDestinoLocal.obtenerId();
+
+            if (cuentaDestinoId === undefined) {
+                throw new BusinessRuleError(
+                    "La cuenta destino no tiene un identificador válido",
+                    "CUENTA_DESTINO_INVALIDA"
+                );
+            }
+
             respuesta =
                 await this.transferirInternamente(
                     datos.cuentaOrigenId,
-                    datos.cuentaDestinoId,
+                    cuentaDestinoId,
                     monto,
                     clave,
                     hashSolicitud,
-                    () => {
-                        operacionNueva = false;
-                    }
+                    marcarComoRepetida
                 );
-        } else if (
-            datos.numeroCuentaDestino &&
-            datos.codigoBancoDestino
-        ) {
+        } else {
+            const resolucion =
+                await this.redBancariaClient
+                    .resolverCuentaDestino(
+                        numeroCuentaDestino.toString()
+                    );
+
+            if (!resolucion) {
+                throw new CuentaNoEncontradaError(
+                    "No se encontró la cuenta destino"
+                );
+            }
+
             respuesta =
                 await this.transferirInterbancariamente(
                     datos.cuentaOrigenId,
-                    datos.numeroCuentaDestino,
-                    datos.codigoBancoDestino,
+                    numeroCuentaDestino.toString(),
+                    resolucion.codigoBanco,
                     monto,
                     clave,
                     hashSolicitud,
-                    () => {
-                        operacionNueva = false;
-                    }
+                    marcarComoRepetida
                 );
-        } else {
-            throw new ValidationError(
-                "Debes indicar una cuenta interna o los datos del banco destino"
-            );
         }
 
-        /*
-         * Una petición idempotente repetida no debe publicar
-         * otra vez el evento, porque la transferencia ya ocurrió.
-         */
         if (operacionNueva) {
             this.eventBus.publicar(
                 new Evento(
@@ -241,7 +259,7 @@ export class TransferenciaService {
                 const transaccion =
                     Transaccion.crear({
                         tipo:
-                            "TRANSFERENCIAINTERNA",
+                            "TRANSFERENCIA_INTERNA",
 
                         monto,
 
@@ -308,37 +326,37 @@ export class TransferenciaService {
 
                 const resultadoFinal:
                     TransferenciaResponseDto = {
-                        tipo:
-                            "TRANSFERENCIAINTERNA",
+                    tipo:
+                        "TRANSFERENCIAINTERNA",
 
-                        origen: {
-                            cuentaId:
-                                cuentaOrigenId,
+                    origen: {
+                        cuentaId:
+                            cuentaOrigenId,
 
-                            saldoAnterior:
-                                retiro.saldoAnterior
-                                    .toNumber(),
+                        saldoAnterior:
+                            retiro.saldoAnterior
+                                .toNumber(),
 
-                            saldoNuevo:
-                                retiro.saldoNuevo
-                                    .toNumber()
-                        },
+                        saldoNuevo:
+                            retiro.saldoNuevo
+                                .toNumber()
+                    },
 
-                        destino: {
-                            cuentaId:
-                                cuentaDestinoId,
+                    destino: {
+                        cuentaId:
+                            cuentaDestinoId,
 
-                            saldoAnterior:
-                                deposito.saldoAnterior
-                                    .toNumber(),
+                        saldoAnterior:
+                            deposito.saldoAnterior
+                                .toNumber(),
 
-                            saldoNuevo:
-                                deposito.saldoNuevo
-                                    .toNumber()
-                        },
+                        saldoNuevo:
+                            deposito.saldoNuevo
+                                .toNumber()
+                    },
 
-                        transaccionId
-                    };
+                    transaccionId
+                };
 
                 /*
                  * Guardamos la respuesta antes del COMMIT.
@@ -441,7 +459,7 @@ export class TransferenciaService {
                 ) {
                     throw new BusinessRuleError(
                         resultadoExterno.mensaje ??
-                            "La transferencia fue rechazada por la red bancaria",
+                        "La transferencia fue rechazada por la red bancaria",
 
                         "TRANSFERENCIA_RECHAZADA"
                     );
@@ -450,7 +468,7 @@ export class TransferenciaService {
                 const transaccion =
                     Transaccion.crear({
                         tipo:
-                            "TRANSFERENCIAINTERBANCARIA",
+                            "TRANSFERENCIA_EXTERNA",
 
                         monto,
 
@@ -491,27 +509,27 @@ export class TransferenciaService {
 
                 const resultadoFinal:
                     TransferenciaResponseDto = {
-                        tipo:
-                            "TRANSFERENCIAINTERBANCARIA",
+                    tipo:
+                        "TRANSFERENCIAINTERBANCARIA",
 
-                        origen: {
-                            cuentaId:
-                                cuentaOrigenId,
+                    origen: {
+                        cuentaId:
+                            cuentaOrigenId,
 
-                            saldoAnterior:
-                                retiro.saldoAnterior
-                                    .toNumber(),
+                        saldoAnterior:
+                            retiro.saldoAnterior
+                                .toNumber(),
 
-                            saldoNuevo:
-                                retiro.saldoNuevo
-                                    .toNumber()
-                        },
+                        saldoNuevo:
+                            retiro.saldoNuevo
+                                .toNumber()
+                    },
 
-                        transaccionId,
+                    transaccionId,
 
-                        referenciaExterna:
-                            resultadoExterno.referencia
-                    };
+                    referenciaExterna:
+                        resultadoExterno.referencia
+                };
 
                 if (clave) {
                     await repositorios

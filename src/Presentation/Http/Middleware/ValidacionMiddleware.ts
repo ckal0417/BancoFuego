@@ -28,7 +28,7 @@ export class ValidacionMiddleware {
         res: Response,
         next: NextFunction
     ): void => {
-        const numeroTarjeta =  req.body?.numeroTarjeta;
+        const numeroTarjeta = req.body?.numeroTarjeta;
         const pin = req.body?.pin;
 
         if (
@@ -59,50 +59,18 @@ export class ValidacionMiddleware {
         res: Response,
         next: NextFunction
     ): void => {
-        const {
-            cuentaDestinoId,
-            numeroCuentaDestino,
-            codigoBancoDestino
-        } = req.body ?? {};
-
-        const tieneDestinoInterno = cuentaDestinoId !== undefined;
-        const tieneNumeroExterno =  typeof numeroCuentaDestino ===  "string" && numeroCuentaDestino.trim().length > 0;
-        const tieneBancoExterno = typeof codigoBancoDestino === "string" && codigoBancoDestino.trim().length > 0;
-        const tieneDestinoExterno = tieneNumeroExterno && tieneBancoExterno;
+        const { numeroCuentaDestino } = req.body ?? {};
 
         if (
-
-            tieneDestinoInterno && tieneDestinoExterno
+            typeof numeroCuentaDestino !== "string" ||
+            numeroCuentaDestino.trim().length === 0
         ) {
             res.status(400).json({
-                mensaje: "Debes indicar un destino interno o uno interbancario, no ambos"
-            });
-            return;
-        }
-        if (
-
-            !tieneDestinoInterno && !tieneDestinoExterno
-        ) {
-            res.status(400).json({
-                mensaje: "Debes indicar la cuenta destino o los datos del banco externo"
+                mensaje: "Debes indicar el número de cuenta destino"
             });
             return;
         }
 
-        if (
-            tieneDestinoInterno &&
-            (
-                typeof cuentaDestinoId !=="number" ||
-                !Number.isInteger(
-                    cuentaDestinoId
-                ) || cuentaDestinoId <= 0
-            )
-        ) {
-            res.status(400).json({
-                mensaje: "La cuenta destino no es válida"
-            });
-            return;
-        }
         next();
     };
 
@@ -112,7 +80,7 @@ export class ValidacionMiddleware {
         next: NextFunction
     ): void => {
 
-        const clave = req.header( "Idempotency-Key");
+        const clave = req.header("Idempotency-Key");
         /*
          * Por ahora la cabecera sigue siendo opcional,
          * para no romper clientes anteriores.
@@ -122,7 +90,7 @@ export class ValidacionMiddleware {
             return;
         }
 
-        const claveLimpia =  clave.trim();
+        const claveLimpia = clave.trim();
 
         if (
             claveLimpia.length === 0 ||
