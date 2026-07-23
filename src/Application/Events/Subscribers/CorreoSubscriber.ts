@@ -81,7 +81,7 @@ export class CorreoSubscriber implements IEventSubscriber {
                     <p>Se ha completado exitosamente la transferencia de fondos desde su cuenta.</p>
                     <p><strong>Monto Transferido:</strong> $${montoStr}</p>
                     <p><strong>Cuenta Destino:</strong> ${datos.numeroCuentaDestino || 'No especificada'}</p>
-                    <p><strong>Tipo de Transferencia:</strong> ${datos.tipo === 'TRANSFERENCIAINTERBANCARIA' ? 'Interbancaria' : 'Interna (Banco Fuego)'}</p>
+                    <p><strong>Tipo de Transferencia:</strong> ${datos.tipo === 'TRANSFERENCIA_EXTERNA' ? 'Interbancaria' : 'Interna (Banco Fuego)'}</p>
                     <p><strong>Nuevo Saldo Disponible:</strong> $${saldoNuevo}</p>
                     <p style="color: #666; font-size: 12px;">Gracias por utilizar nuestros servicios financieros.</p>
                 </div>

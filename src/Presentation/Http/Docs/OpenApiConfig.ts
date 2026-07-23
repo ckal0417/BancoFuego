@@ -248,8 +248,8 @@ export const openApiConfig = {
                     tipo: {
                         type: "string",
                         enum: [
-                            "TRANSFERENCIAINTERNA",
-                            "TRANSFERENCIAINTERBANCARIA"
+                            "TRANSFERENCIA_INTERNA",
+                            "TRANSFERENCIA_EXTERNA"
                         ]
                     },
                     origen: {

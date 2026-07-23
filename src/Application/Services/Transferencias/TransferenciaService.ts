@@ -25,11 +25,11 @@ export class TransferenciaService {
         const resultado =
             datos.tipoTransferencia === "LOCAL"
                 ? await this.transferenciaLocalService.ejecutar(
-                      datos
-                  )
+                    datos
+                )
                 : await this.transferenciaInterbancariaService.ejecutar(
-                      datos
-                  );
+                    datos
+                );
 
         /*
          * No publicamos nuevamente el evento cuando la respuesta

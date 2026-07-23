@@ -17,7 +17,7 @@ interface FilaTransaccion {
     id_cajero: number | null;
     referencia_externa: string | null;
     estado_detalle: string | null;
-    actualizado_en: Date | null;
+    updated_at: Date | null;
 }
 
 export class TransaccionRepositoryPostgres
@@ -167,8 +167,8 @@ export class TransaccionRepositoryPostgres
             estadoDetalle:
                 fila.estado_detalle ?? undefined,
             actualizadoEn:
-                fila.actualizado_en
-                    ? new Date(fila.actualizado_en)
+                fila.updated_at
+                    ? new Date(fila.updated_at)
                     : new Date(fila.fecha)
         });
     }

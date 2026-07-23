@@ -81,10 +81,10 @@ export class TransaccionQueries {
             estado_detalle,
             updated_at
         FROM BancoFuego.Transaccion
-        WHERE tipo = 'TRANSFERENCIAINTERBANCARIA'
-          AND estado = 'PENDIENTE'
-          AND referencia_externa IS NOT NULL
-        ORDER BY actualizado_en ASC, id_transaccion ASC
+        WHERE tipo = 'TRANSFERENCIA_EXTERNA'
+            AND estado = 'PENDIENTE'
+            AND referencia_externa IS NOT NULL
+        ORDER BY updated_at ASC, id_transaccion ASC
         LIMIT $1
     `;
 

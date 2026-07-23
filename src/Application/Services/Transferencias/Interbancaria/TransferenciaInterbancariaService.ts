@@ -49,21 +49,21 @@ export class TransferenciaInterbancariaService
         const hashSolicitud =
             clave
                 ? this.idempotenciaService.crearHash({
-                      tipoTransferencia:
-                          "INTERBANCARIA",
-                      cuentaOrigenId:
-                          datos.cuentaOrigenId,
-                      numeroCuentaDestino:
-                          datos.numeroCuentaDestino,
-                      codigoBancoDestino:
-                          datos.codigoBancoDestino,
-                      monto:
-                          datos.monto,
-                      concepto:
-                          datos.concepto,
-                      operacion:
-                          "TRANSFERENCIA"
-                  })
+                    tipoTransferencia:
+                        "TRANSFERENCIA_EXTERNA",
+                    cuentaOrigenId:
+                        datos.cuentaOrigenId,
+                    numeroCuentaDestino:
+                        datos.numeroCuentaDestino,
+                    codigoBancoDestino:
+                        datos.codigoBancoDestino,
+                    monto:
+                        datos.monto,
+                    concepto:
+                        datos.concepto,
+                    operacion:
+                        "TRANSFERENCIA"
+                    })
                 : undefined;
 
         return this.unidadDeTrabajo.ejecutar(

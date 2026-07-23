@@ -15,20 +15,20 @@ export interface SolicitudTransferenciaInterbancaria {
 
 export type ResultadoTransferenciaInterbancaria =
     | {
-          estado: "ACEPTADA";
-          referenciaExterna: string;
-          mensaje?: string;
-      }
+        estado: "ACEPTADA";
+        referenciaExterna: string;
+        mensaje?: string;
+    }
     | {
-          estado: "RECHAZADA";
-          codigoError: string;
-          mensaje?: string;
-      }
+        estado: "RECHAZADA";
+        codigoError: string;
+        mensaje?: string;
+    }
     | {
-          estado: "PENDIENTE";
-          referenciaExterna: string;
-          mensaje?: string;
-      };
+        estado: "PENDIENTE";
+        referenciaExterna: string;
+        mensaje?: string;
+    };
 
 export interface IRedBancariaClient {
     enviarTransferencia(

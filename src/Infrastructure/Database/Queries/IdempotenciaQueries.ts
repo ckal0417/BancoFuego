@@ -28,8 +28,8 @@ export class IdempotenciaQueries {
             respuesta_body
         FROM BancoFuego.IdempotenciaOperacion
         WHERE id_cuenta = $1
-          AND operacion = $2
-          AND idempotency_key = $3
+            AND operacion = $2
+            AND idempotency_key = $3
         FOR UPDATE
     `;
 
@@ -41,7 +41,7 @@ export class IdempotenciaQueries {
             respuesta_body = $5::jsonb,
             updated_at = CURRENT_TIMESTAMP
         WHERE id_cuenta = $1
-          AND operacion = $2
-          AND idempotency_key = $3
+            AND operacion = $2
+            AND idempotency_key = $3
     `;
 }

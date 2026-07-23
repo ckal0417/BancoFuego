@@ -1,6 +1,6 @@
 export const TIPOS_TRANSFERENCIA = [
-    "LOCAL",
-    "INTERBANCARIA"
+    "INTERNA",
+    "EXTERNA"
 ] as const;
 
 export type TipoTransferencia =
