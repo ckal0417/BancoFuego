@@ -333,3 +333,4 @@
 {"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:47:03"}
 {"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:47:33"}
 {"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:48:03"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:48:33"}
