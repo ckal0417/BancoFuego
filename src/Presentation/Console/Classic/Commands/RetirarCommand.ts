@@ -1,19 +1,19 @@
 import { randomUUID } from "node:crypto";
 import type { Interface } from "node:readline/promises";
-import { BancoApiClient } from "../Clients/BancoApiClient";
-import { SesionCajero } from "../SesionCajero";
+import { BancoApiClient } from "../../Clients/BancoApiClient";
+import { SesionCajero } from "../../Shared/SesionCajero";
 import { Consola } from "../Utils/Consola";
-import { Formato } from "../Utils/Formato";
+import { Formato } from "../../Shared/Formato";
 import { ICommandConsola } from "./ICommandConsola";
 
-interface DepositoResponse {
+interface RetiroResponse {
     mensaje?: string;
     monto: number;
     saldoActual: number;
 }
 
-export class DepositarCommand implements ICommandConsola {
-    public readonly nombre = "Depositar";
+export class RetirarCommand implements ICommandConsola {
+    public readonly nombre = "Retirar";
 
     constructor(
         private readonly entrada: Interface,
@@ -22,10 +22,10 @@ export class DepositarCommand implements ICommandConsola {
     ) {}
 
     public async ejecutar(): Promise<void> {
-        Consola.pantalla("DEPÓSITO");
+        Consola.pantalla("RETIRO");
 
         const textoMonto = await this.entrada.question(
-            "Ingrese el monto a depositar: "
+            "Ingrese el monto a retirar: "
         );
 
         const monto = Number(textoMonto);
@@ -41,8 +41,8 @@ export class DepositarCommand implements ICommandConsola {
 
         try {
             const respuesta =
-                await this.apiClient.post<DepositoResponse>(
-                    "/operaciones/depositos",
+                await this.apiClient.post<RetiroResponse>(
+                    "/operaciones/retiros",
                     { monto },
                     undefined,
                     {
@@ -51,11 +51,12 @@ export class DepositarCommand implements ICommandConsola {
                 );
 
             Consola.exito(
-                respuesta.mensaje ?? "Depósito realizado correctamente."
+                respuesta.mensaje ??
+                    "Retiro realizado correctamente."
             );
 
             Consola.informacion(
-                `Monto depositado: ${Formato.dinero(respuesta.monto)}`
+                `Monto retirado: ${Formato.dinero(respuesta.monto)}`
             );
 
             Consola.informacion(
@@ -79,6 +80,6 @@ export class DepositarCommand implements ICommandConsola {
     private obtenerMensaje(error: unknown): string {
         return error instanceof Error
             ? error.message
-            : "No fue posible realizar el depósito.";
+            : "No fue posible realizar el retiro.";
     }
 }

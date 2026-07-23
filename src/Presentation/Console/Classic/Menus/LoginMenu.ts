@@ -1,6 +1,6 @@
 import type { Interface } from "node:readline/promises";
-import { BancoApiClient } from "../Clients/BancoApiClient";
-import { SesionCajero } from "../SesionCajero";
+import { BancoApiClient } from "../../Clients/BancoApiClient";
+import { SesionCajero } from "../../Shared/SesionCajero";
 import { Consola } from "../Utils/Consola";
 
 interface LoginResponse {

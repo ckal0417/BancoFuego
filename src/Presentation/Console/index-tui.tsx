@@ -1,7 +1,7 @@
 import "dotenv/config";
 import React from 'react';
 import { render } from 'ink';
-import { App } from './App';
+import { App } from './Tui/App';
 
 // Manejar errores de flujo TTY (EPIPE) al redimensionar la consola para evitar cierres abruptos
 process.stdout.on('error', (err: any) => {

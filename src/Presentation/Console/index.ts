@@ -1,17 +1,20 @@
 import "dotenv/config";
 import { createInterface } from "node:readline/promises";
-import { stdin as input, stdout as output } from "node:process";
+import {
+    stdin as input,
+    stdout as output
+} from "node:process";
 import { BancoApiClient } from "./Clients/BancoApiClient";
-import { ConsultarSaldoCommand } from "./Commands/ConsultarSaldoCommand";
-import { DepositarCommand } from "./Commands/DepositarCommand";
-import { HistorialCommand } from "./Commands/HistorialCommand";
-import { ICommandConsola } from "./Commands/ICommandConsola";
-import { RetirarCommand } from "./Commands/RetirarCommand";
-import { TransferirCommand } from "./Commands/Transferencias/TransferirCommand";
-import { LoginMenu } from "./Menus/LoginMenu";
-import { MainMenu } from "./Menus/MainMenu";
-import { SesionCajero } from "./SesionCajero";
-import { Consola } from "./Utils/Consola";
+import { ConsultarSaldoCommand } from "./Classic/Commands/ConsultarSaldoCommand";
+import { DepositarCommand } from "./Classic/Commands/DepositarCommand";
+import { HistorialCommand } from "./Classic/Commands/HistorialCommand";
+import { ICommandConsola } from "./Classic/Commands/ICommandConsola";
+import { RetirarCommand } from "./Classic/Commands/RetirarCommand";
+import { TransferirCommand } from "./Classic/Commands/Transferencias/TransferirCommand";
+import { LoginMenu } from "./Classic/Menus/LoginMenu";
+import { MainMenu } from "./Classic/Menus/MainMenu";
+import { Consola } from "./Classic/Utils/Consola";
+import { SesionCajero } from "./Shared/SesionCajero";
 
 async function iniciar(): Promise<void> {
     const entrada = createInterface({
@@ -19,63 +22,69 @@ async function iniciar(): Promise<void> {
         output
     });
 
-    const apiClient = new BancoApiClient();
-    const sesion = new SesionCajero();
+    const apiClient =
+        new BancoApiClient();
 
-    const comandos = new Map<string, ICommandConsola>([
-        [
-            "1",
-            new ConsultarSaldoCommand(
-                entrada,
-                apiClient,
-                sesion
-            )
-        ],
-        [
-            "2",
-            new DepositarCommand(
-                entrada,
-                apiClient,
-                sesion
-            )
-        ],
-        [
-            "3",
-            new RetirarCommand(
-                entrada,
-                apiClient,
-                sesion
-            )
-        ],
-        [
-            "4",
-            new TransferirCommand(
-                entrada,
-                apiClient,
-                sesion
-            )
-        ],
-        [
-            "5",
-            new HistorialCommand(
-                entrada,
-                apiClient,
-                sesion
-            )
-        ]
-    ]);
+    const sesion =
+        new SesionCajero();
 
-    const loginMenu = new LoginMenu(
-        entrada,
-        apiClient,
-        sesion
-    );
+    const comandos =
+        new Map<string, ICommandConsola>([
+            [
+                "1",
+                new ConsultarSaldoCommand(
+                    entrada,
+                    apiClient,
+                    sesion
+                )
+            ],
+            [
+                "2",
+                new DepositarCommand(
+                    entrada,
+                    apiClient,
+                    sesion
+                )
+            ],
+            [
+                "3",
+                new RetirarCommand(
+                    entrada,
+                    apiClient,
+                    sesion
+                )
+            ],
+            [
+                "4",
+                new TransferirCommand(
+                    entrada,
+                    apiClient,
+                    sesion
+                )
+            ],
+            [
+                "5",
+                new HistorialCommand(
+                    entrada,
+                    apiClient,
+                    sesion
+                )
+            ]
+        ]);
 
-    const mainMenu = new MainMenu(
-        entrada,
-        sesion,
-        comandos
-    );
+    const loginMenu =
+        new LoginMenu(
+            entrada,
+            apiClient,
+            sesion
+        );
+
+    const mainMenu =
+        new MainMenu(
+            entrada,
+            sesion,
+            comandos
+        );
 
     try {
         let programaActivo = true;
@@ -86,7 +95,9 @@ async function iniciar(): Promise<void> {
 
             if (!loginExitoso) {
                 programaActivo =
-                    await preguntarReintento(entrada);
+                    await preguntarReintento(
+                        entrada
+                    );
 
                 continue;
             }
@@ -94,10 +105,15 @@ async function iniciar(): Promise<void> {
             await mainMenu.ejecutar();
 
             programaActivo =
-                await preguntarNuevaSesion(entrada);
+                await preguntarNuevaSesion(
+                    entrada
+                );
         }
 
-        Consola.pantalla("BANCO FUEGO");
+        Consola.pantalla(
+            "BANCO FUEGO"
+        );
+
         Consola.informacion(
             "Gracias por utilizar nuestro cajero."
         );
@@ -124,7 +140,10 @@ async function preguntarReintento(
         .trim()
         .toLowerCase();
 
-    return respuesta === "s" || respuesta === "si";
+    return (
+        respuesta === "s" ||
+        respuesta === "si"
+    );
 }
 
 async function preguntarNuevaSesion(
@@ -138,15 +157,20 @@ async function preguntarNuevaSesion(
         .trim()
         .toLowerCase();
 
-    return respuesta === "s" || respuesta === "si";
+    return (
+        respuesta === "s" ||
+        respuesta === "si"
+    );
 }
 
-iniciar().catch((error: unknown) => {
-    const mensaje =
-        error instanceof Error
-            ? error.message
-            : "No fue posible iniciar la consola.";
+iniciar().catch(
+    (error: unknown) => {
+        const mensaje =
+            error instanceof Error
+                ? error.message
+                : "No fue posible iniciar la consola.";
 
-    console.error(mensaje);
-    process.exitCode = 1;
-});
+        console.error(mensaje);
+        process.exitCode = 1;
+    }
+);

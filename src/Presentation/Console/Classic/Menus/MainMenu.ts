@@ -1,6 +1,6 @@
 import type { Interface } from "node:readline/promises";
 import { ICommandConsola } from "../Commands/ICommandConsola";
-import { SesionCajero } from "../SesionCajero";
+import { SesionCajero } from "../../Shared/SesionCajero";
 import { Consola } from "../Utils/Consola";
 
 export class MainMenu {

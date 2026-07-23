@@ -154,131 +154,182 @@
 {"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 14:58:17"}
 {"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 14:58:17"}
 {"level":"info","message":"[CORREO ENVIADO] ID: <8fa533fb-0280-8123-699e-36eca05ca140@gmail.com> -> Para: summcuenta+juan@gmail.com","service":"BancoFuego","timestamp":"2026-07-22 14:58:23"}
-{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-22 15:34:27"}
-{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-22 15:34:27"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:34:58"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:35:28"}
-{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:35:30"}
-{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:35:30"}
-{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:35:30"}
-{"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:35:30"}
-{"level":"info","message":"[CORREO ENVIADO] ID: <02c62788-88c9-476f-a786-593f8a79d849@gmail.com> -> Para: summcuenta+juan@gmail.com","service":"BancoFuego","timestamp":"2026-07-22 15:35:33"}
-{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 15:35:52"}
-{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 15:35:52"}
-{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 15:35:52"}
-{"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 15:35:52"}
-{"level":"info","message":"[CORREO] No se especificó correo para el evento TRANSFERENCIA_REALIZADA. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-22 15:35:52"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:35:58"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:36:28"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:36:58"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:37:28"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:37:58"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:38:28"}
-{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-22 15:38:52"}
-{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-22 15:38:52"}
-{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-22 15:38:52"}
-{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-23 08:44:52"}
-{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-23 08:44:52"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 08:45:23"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 08:45:53"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 08:46:23"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 08:46:53"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 08:47:23"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 08:47:53"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 08:48:23"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 08:48:53"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 08:49:23"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 08:49:53"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 08:50:23"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 08:50:53"}
-{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-23 08:51:08"}
-{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-23 08:51:08"}
-{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-23 08:51:08"}
-{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-23 09:11:05"}
-{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-23 09:11:05"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:11:36"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:12:05"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:12:35"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:13:05"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:13:35"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:14:05"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:14:35"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:15:05"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:15:35"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:16:05"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:16:35"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:17:05"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:17:35"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:18:05"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:18:35"}
-{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-23 09:18:54"}
-{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:18:54"}
-{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:18:54"}
-{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-23 09:19:02"}
-{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-23 09:19:02"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:19:33"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:20:03"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:20:33"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:21:03"}
-{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-23 09:21:21"}
-{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:21:21"}
-{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:21:21"}
-{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-23 09:22:08"}
-{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-23 09:22:08"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:22:39"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:23:09"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:23:39"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:24:09"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:24:39"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:25:09"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:25:39"}
-{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:26:09"}
-{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-23 09:26:17"}
-{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:26:17"}
-{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:26:17"}
-{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-23 09:44:28"}
-{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-23 09:44:28"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:44:59"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:45:28"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:45:58"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:46:28"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:46:58"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:47:28"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:47:58"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:48:28"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:48:58"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:49:28"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:49:58"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:50:28"}
-{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-23 09:50:51"}
-{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:50:51"}
-{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:50:51"}
-{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-23 09:53:09"}
-{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-23 09:53:09"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:53:40"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:54:09"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:54:39"}
-{"level":"warn","message":"Error en el worker interbancario: column \"actualizado_en\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:55:09"}
-{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-23 09:55:38"}
-{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:55:38"}
-{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:55:38"}
-{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-23 09:55:47"}
-{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-23 09:55:47"}
-{"level":"warn","message":"Error en el worker interbancario: column \"update_at\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:56:17"}
-{"level":"warn","message":"Error en el worker interbancario: column \"update_at\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:56:47"}
-{"level":"warn","message":"Error en el worker interbancario: column \"update_at\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:57:17"}
-{"level":"warn","message":"Error en el worker interbancario: column \"update_at\" does not exist","service":"BancoFuego","timestamp":"2026-07-23 09:57:47"}
-{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-23 09:58:08"}
-{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:58:08"}
-{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:58:08"}
-{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-23 09:58:30"}
-{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-23 09:58:30"}
-{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 09:59:02"}
-{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 09:59:02"}
-{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 09:59:02"}
-{"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 09:59:02"}
-{"level":"info","message":"[CORREO] No se especificó correo para el evento TRANSFERENCIA_REALIZADA. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-23 09:59:02"}
-{"level":"info","message":"Se actualizaron 1 transferencia(s) interbancaria(s).","service":"BancoFuego","timestamp":"2026-07-23 09:59:02"}
-{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-23 09:59:59"}
-{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:59:59"}
-{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:59:59"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-22 15:12:52"}
+{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-22 15:12:52"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:13:08"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:13:08"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:13:08"}
+{"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:13:08"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <8e6f3f46-4950-683f-df27-63c2f2da70b0@gmail.com> -> Para: summcuenta+juan@gmail.com","service":"BancoFuego","timestamp":"2026-07-22 15:13:15"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:13:22"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:13:52"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 15:14:21"}
+{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 15:14:21"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 15:14:21"}
+{"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 15:14:21"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento TRANSFERENCIA_REALIZADA. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-22 15:14:21"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:14:22"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:14:52"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:15:22"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:15:32"}
+{"level":"info","message":"[EVENTO] Evento recibido: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:15:32"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:15:32"}
+{"level":"info","message":"[CORREO] Procesando evento: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:15:32"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:15:37"}
+{"level":"info","message":"[EVENTO] Evento recibido: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:15:37"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:15:37"}
+{"level":"info","message":"[CORREO] Procesando evento: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:15:37"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <94d61f54-efb9-ee60-4957-55ba8ff5e632@gmail.com> -> Para: summcuenta+juan@gmail.com","service":"BancoFuego","timestamp":"2026-07-22 15:15:38"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <e1ad3b91-7b8c-cf51-bb10-f69c0fd18db3@gmail.com> -> Para: summcuenta+juan@gmail.com","service":"BancoFuego","timestamp":"2026-07-22 15:15:44"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:15:52"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:16:22"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:16:52"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:17:22"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:17:52"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:18:22"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:18:52"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:19:22"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:19:52"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:20:22"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:20:52"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:21:22"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:21:52"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:22:22"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:22:52"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:23:22"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:23:52"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:24:22"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:24:52"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:25:22"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:25:52"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:29:24"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:29:54"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:30:24"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:30:54"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:31:24"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:31:31"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:31:31"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:31:31"}
+{"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:31:31"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <a1694244-7761-e314-810a-57593cac8634@gmail.com> -> Para: ckal17@outlook.es","service":"BancoFuego","timestamp":"2026-07-22 15:31:38"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:31:54"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:32:24"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:32:32"}
+{"level":"info","message":"[EVENTO] Evento recibido: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:32:32"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:32:32"}
+{"level":"info","message":"[CORREO] Procesando evento: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:32:32"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <86b45570-cfe9-55f0-d0b9-202f66bf4bd1@gmail.com> -> Para: ckal17@outlook.es","service":"BancoFuego","timestamp":"2026-07-22 15:32:39"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:32:54"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:33:24"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:33:54"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 15:34:01"}
+{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 15:34:01"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 15:34:01"}
+{"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-22 15:34:01"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento TRANSFERENCIA_REALIZADA. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-22 15:34:01"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:34:24"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:34:54"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:35:24"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:35:54"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:36:24"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:36:54"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:37:10"}
+{"level":"info","message":"[EVENTO] Evento recibido: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:37:10"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:37:10"}
+{"level":"info","message":"[CORREO] Procesando evento: DEPOSITO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:37:10"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <2520ec4d-eedc-f1f3-a6c7-e860b5fc8010@gmail.com> -> Para: ckal17@outlook.es","service":"BancoFuego","timestamp":"2026-07-22 15:37:14"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:37:24"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:37:50"}
+{"level":"info","message":"[EVENTO] Evento recibido: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:37:50"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:37:50"}
+{"level":"info","message":"[CORREO] Procesando evento: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-22 15:37:50"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-22 15:37:54"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <454cc7ad-1525-5375-9fc6-d2cabb2709e0@gmail.com> -> Para: ckal17@outlook.es","service":"BancoFuego","timestamp":"2026-07-22 15:37:56"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-23 09:55:46"}
+{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-23 09:55:46"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 09:56:07"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 09:56:07"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 09:56:07"}
+{"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 09:56:07"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <fafeb19b-3aa0-dcdc-ac35-30f4daedba75@gmail.com> -> Para: ckal17@outlook.es","service":"BancoFuego","timestamp":"2026-07-23 09:56:10"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:56:16"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:56:46"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:57:16"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:57:46"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:58:16"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:58:46"}
+{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-23 09:59:08"}
+{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:59:08"}
+{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-23 09:59:08"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-23 09:59:15"}
+{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-23 09:59:15"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 09:59:46"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:00:16"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:00:45"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:01:15"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:01:45"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:02:15"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:02:45"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:03:15"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:03:45"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:04:15"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:04:45"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:05:15"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:05:45"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:06:16"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:06:46"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:07:16"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 10:07:46"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-23 15:38:57"}
+{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-23 15:38:57"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 15:39:11"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 15:39:11"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 15:39:11"}
+{"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 15:39:11"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <b83a52ba-6fc6-5117-a75a-25063283f2e3@gmail.com> -> Para: ckal17@outlook.es","service":"BancoFuego","timestamp":"2026-07-23 15:39:18"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:39:28"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 15:39:51"}
+{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 15:39:51"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 15:39:51"}
+{"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 15:39:51"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento TRANSFERENCIA_REALIZADA. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-23 15:39:51"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:39:57"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 15:40:02"}
+{"level":"info","message":"[EVENTO] Evento recibido: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 15:40:02"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 15:40:02"}
+{"level":"info","message":"[CORREO] Procesando evento: RETIRO_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 15:40:02"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <026a75d4-3fdf-085d-fe00-a4888a9ddeeb@gmail.com> -> Para: ckal17@outlook.es","service":"BancoFuego","timestamp":"2026-07-23 15:40:06"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:40:27"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:40:57"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:41:27"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:41:57"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:42:27"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:42:57"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:43:27"}
+{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-23 15:43:54"}
+{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-23 15:43:54"}
+{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-23 15:43:54"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-23 15:44:33"}
+{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-23 15:44:33"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 15:44:56"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 15:44:56"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 15:44:56"}
+{"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-23 15:44:56"}
+{"level":"info","message":"[CORREO ENVIADO] ID: <508d3ed4-c66d-6e48-dfcc-3ba69f90d603@gmail.com> -> Para: ckal17@outlook.es","service":"BancoFuego","timestamp":"2026-07-23 15:44:59"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:45:04"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 15:45:23"}
+{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 15:45:23"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 15:45:23"}
+{"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 15:45:23"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento TRANSFERENCIA_REALIZADA. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-23 15:45:23"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:45:33"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 15:46:01"}
+{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 15:46:01"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 15:46:01"}
+{"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-23 15:46:01"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento TRANSFERENCIA_REALIZADA. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-23 15:46:01"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:46:03"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:46:33"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:47:03"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:47:33"}
+{"level":"warn","message":"Error en el worker interbancario: invalid input value for enum bancofuego.tipo_transaccion: \"TRANSFERENCIAINTERBANCARIA\"","service":"BancoFuego","timestamp":"2026-07-23 15:48:03"}

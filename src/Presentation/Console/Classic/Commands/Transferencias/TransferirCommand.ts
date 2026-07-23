@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
 import type { Interface } from "node:readline/promises";
-import { BancoApiClient } from "../../Clients/BancoApiClient";
-import { SesionCajero } from "../../SesionCajero";
+import { BancoApiClient } from "../../../Clients/BancoApiClient";
+import { SesionCajero } from "../../../Shared/SesionCajero";
 import { Consola } from "../../Utils/Consola";
-import { Formato } from "../../Utils/Formato";
+import { Formato } from "../../../Shared/Formato";
 import { ICommandConsola } from "../ICommandConsola";
 
 interface TransferenciaResponse {
@@ -31,9 +31,10 @@ export class TransferirCommand implements ICommandConsola {
             )
         ).trim();
 
-        const textoMonto = await this.entrada.question(
-            "Monto a transferir: "
-        );
+        const textoMonto =
+            await this.entrada.question(
+                "Monto a transferir: "
+            );
 
         const monto = Number(textoMonto);
 
@@ -58,7 +59,10 @@ export class TransferirCommand implements ICommandConsola {
             return;
         }
 
-        if (!Number.isFinite(monto) || monto <= 0) {
+        if (
+            !Number.isFinite(monto) ||
+            monto <= 0
+        ) {
             Consola.error(
                 "El monto debe ser un número mayor que cero."
             );
@@ -69,15 +73,19 @@ export class TransferirCommand implements ICommandConsola {
 
         try {
             const respuesta =
-                await this.apiClient.post<TransferenciaResponse>(
+                await this.apiClient.post<
+                    TransferenciaResponse
+                >(
                     "/transferencias",
                     {
-                        numeroCuentaDestino: cuentaDestino,
+                        numeroCuentaDestino:
+                            cuentaDestino,
                         monto
                     },
                     undefined,
                     {
-                        "Idempotency-Key": randomUUID()
+                        "Idempotency-Key":
+                            randomUUID()
                     }
                 );
 
@@ -102,7 +110,9 @@ export class TransferirCommand implements ICommandConsola {
                 )}`
             );
         } catch (error) {
-            Consola.error(this.obtenerMensaje(error));
+            Consola.error(
+                this.obtenerMensaje(error)
+            );
         }
 
         await this.continuar();
@@ -114,7 +124,9 @@ export class TransferirCommand implements ICommandConsola {
         );
     }
 
-    private obtenerMensaje(error: unknown): string {
+    private obtenerMensaje(
+        error: unknown
+    ): string {
         return error instanceof Error
             ? error.message
             : "No fue posible realizar la transferencia.";

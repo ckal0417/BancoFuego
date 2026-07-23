@@ -1,40 +1,30 @@
 import { SubscriberFactory } from "../Application/Events/SubscriberFactory";
-
 import { AutenticacionService } from "../Application/Services/AutenticacionService";
 import { CuentaService } from "../Application/Services/CuentaService";
 import { DepositoService } from "../Application/Services/DepositoService";
 import { HistorialService } from "../Application/Services/HistorialService";
 import { IdempotenciaService } from "../Application/Services/IdempotenciaService";
 import { RetiroService } from "../Application/Services/RetiroService";
-
 import { TransferenciaService } from "../Application/Services/Transferencias/TransferenciaService";
 import { TransferenciaLocalService } from "../Application/Services/Transferencias/Local/TransferenciaLocalService";
 import { TransferenciaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaService";
 import { TransferenciaInterbancariaEstadoService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaEstadoService";
-
 import { RedBancariaSimuladaClient } from "../Infrastructure/Clients/Transferencias/Interbancaria/RedBancariaSimuladaClient";
-
 import { PostgresUnidadDeTrabajo } from "../Infrastructure/Database/PostgresUnidadDeTrabajo";
-
 import { AutenticacionRepositoryPostgres } from "../Infrastructure/Database/Repositories/AutenticacionRepositoryPostgres";
 import { CuentaRepositoryPostgres } from "../Infrastructure/Database/Repositories/CuentaRepositoryPostgres";
 import { MovimientoRepositoryPostgres } from "../Infrastructure/Database/Repositories/MovimientoRepositoryPostgres";
 import { TarjetaRepositoryPostgres } from "../Infrastructure/Database/Repositories/TarjetaRepositoryPostgres";
 import { TransaccionRepositoryPostgres } from "../Infrastructure/Database/Repositories/TransaccionRepositoryPostgres";
-
 import { JwtTokenService } from "../Infrastructure/Security/JwtTokenService";
-
 import { TransferenciaInterbancariaPollingWorker } from "../Infrastructure/Workers/Transferencias/Interbancaria/TransferenciaInterbancariaPollingWorker";
-
 import { AuthController } from "../Presentation/Http/Controllers/AuthController";
 import { CuentaController } from "../Presentation/Http/Controllers/CuentaController";
 import { HistorialController } from "../Presentation/Http/Controllers/HistorialController";
 import { OperacionController } from "../Presentation/Http/Controllers/OperacionController";
 import { TransferenciaController } from "../Presentation/Http/Controllers/Transferencias/TransferenciaController";
 import { TransferenciaInterbancariaEstadoController } from "../Presentation/Http/Controllers/Transferencias/Interbancaria/TransferenciaInterbancariaEstadoController";
-
 import { AuthMiddleware } from "../Presentation/Http/Middleware/AuthMiddleware";
-
 import { EventBus } from "../Shared/Events/EventBus";
 
 /*
