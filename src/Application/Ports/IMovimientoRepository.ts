@@ -6,7 +6,9 @@ export interface IMovimientoRepository {
     ): Promise<number>;
 
     buscarPorCuentaId(
-        idCuenta: number
+        idCuenta: number,
+        limite?: number,
+        offset?: number
     ): Promise<Movimiento[]>;
 
     buscarPorTransaccionId(

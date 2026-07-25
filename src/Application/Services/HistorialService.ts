@@ -10,14 +10,16 @@ export class HistorialService {
 
         private readonly transaccionRepository:
             ITransaccionRepository
-    ) {}
+    ) { }
 
     public async obtenerPorCuenta(
-        cuentaId: number
+        cuentaId: number,
+        limite: number = 6,
+        offset: number = 0
     ): Promise<HistorialItemDto[]> {
         const movimientos =
             await this.movimientoRepository
-                .buscarPorCuentaId(cuentaId);
+                .buscarPorCuentaId(cuentaId, limite, offset);
 
         const transaccionIds = [
             ...new Set(
@@ -110,7 +112,7 @@ export class HistorialService {
                     movimiento
                         .obtenerSaldoPosterior()
                         .toNumber(),
-                
+
             });
         }
 

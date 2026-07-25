@@ -26,6 +26,8 @@ export class MovimientoQueries {
         FROM BancoFuego.Movimiento
         WHERE id_cuenta = $1
         ORDER BY fecha DESC
+        limit $2
+        offset $3
     `;
 
     public static readonly BUSCAR_POR_TRANSACCION_ID = `

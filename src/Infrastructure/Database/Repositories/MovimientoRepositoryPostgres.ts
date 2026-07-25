@@ -17,8 +17,7 @@ interface FilaMovimiento {
 }
 
 export class MovimientoRepositoryPostgres
-    implements IMovimientoRepository
-{
+    implements IMovimientoRepository {
     private readonly executor: QueryExecutor;
 
     constructor(
@@ -51,12 +50,14 @@ export class MovimientoRepositoryPostgres
     }
 
     public async buscarPorCuentaId(
-        idCuenta: number
+        idCuenta: number,
+        limite: number = 6,
+        offset: number = 0
     ): Promise<Movimiento[]> {
         const resultado =
             await this.executor.query<FilaMovimiento>(
                 MovimientoQueries.BUSCAR_POR_CUENTA_ID,
-                [idCuenta]
+                [idCuenta, limite, offset]
             );
 
         return resultado.rows.map(
