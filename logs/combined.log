@@ -608,3 +608,48 @@
 {"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-24 19:31:50"}
 {"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-24 19:32:03"}
 {"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-24 19:32:03"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-25 13:06:28"}
+{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-25 13:06:28"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-25 13:06:55"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-25 13:06:55"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-25 13:06:55"}
+{"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-25 13:06:55"}
+{"level":"error","message":"[CORREO ERROR] No se pudo enviar el correo a maria@correo.com: self-signed certificate in certificate chain","service":"BancoFuego","timestamp":"2026-07-25 13:06:57"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 13:08:13"}
+{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 13:08:13"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 13:08:13"}
+{"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 13:08:13"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento TRANSFERENCIA_REALIZADA. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-25 13:08:13"}
+{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-25 13:10:37"}
+{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-25 13:10:37"}
+{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-25 13:10:37"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-25 14:17:28"}
+{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-25 14:17:28"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-25 14:18:18"}
+{"level":"info","message":"[EVENTO] Evento recibido: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-25 14:18:18"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-25 14:18:18"}
+{"level":"info","message":"[CORREO] Procesando evento: LOGIN_REALIZADO","service":"BancoFuego","timestamp":"2026-07-25 14:18:18"}
+{"level":"error","message":"[CORREO ERROR] No se pudo enviar el correo a maria@correo.com: self-signed certificate in certificate chain","service":"BancoFuego","timestamp":"2026-07-25 14:18:21"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:19:17"}
+{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:19:17"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:19:17"}
+{"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:19:17"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento TRANSFERENCIA_REALIZADA. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-25 14:19:17"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:20:08"}
+{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:20:08"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:20:08"}
+{"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:20:08"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento TRANSFERENCIA_REALIZADA. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-25 14:20:08"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:22:28"}
+{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:22:28"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:22:28"}
+{"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:22:28"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento TRANSFERENCIA_REALIZADA. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-25 14:22:28"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:24:47"}
+{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:24:47"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:24:47"}
+{"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-25 14:24:47"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento TRANSFERENCIA_REALIZADA. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-25 14:24:47"}
+{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-25 14:26:41"}
+{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-25 14:26:41"}
+{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-25 14:26:41"}

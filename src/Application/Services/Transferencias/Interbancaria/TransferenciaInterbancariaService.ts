@@ -1,4 +1,5 @@
 import {
+    EstadoTransferenciaInterbancaria,
     TransferenciaInterbancariaRequestDto,
     TransferenciaInterbancariaResponseDto
 } from "../../../DTOs/Transferencias/Interbancaria/TransferenciaInterbancariaDto";
@@ -12,10 +13,7 @@ import { TransferenciaBaseService } from "../TransferenciaBaseService";
 import { Movimiento } from "../../../../Domain/Entities/Movimiento";
 import { Transaccion } from "../../../../Domain/Entities/Transaccion";
 
-import {
-    BusinessRuleError,
-    CuentaNoEncontradaError
-} from "../../../../Domain/Errors/DomainErrors";
+import { BusinessRuleError, CuentaNoEncontradaError } from "../../../../Domain/Errors/DomainErrors";
 
 import { Dinero } from "../../../../Domain/ValueObjects/Dinero";
 
@@ -25,8 +23,7 @@ export interface ResultadoTransferenciaInterbancaria {
 }
 
 export class TransferenciaInterbancariaService
-    extends TransferenciaBaseService
-{
+    extends TransferenciaBaseService {
     constructor(
         private readonly unidadDeTrabajo: IUnidadDeTrabajo,
         private readonly redBancariaClient: IRedBancariaClient,
@@ -63,7 +60,7 @@ export class TransferenciaInterbancariaService
                         datos.concepto,
                     operacion:
                         "TRANSFERENCIA"
-                    })
+                })
                 : undefined;
 
         return this.unidadDeTrabajo.ejecutar(
@@ -134,16 +131,12 @@ export class TransferenciaInterbancariaService
                 ) {
                     throw new BusinessRuleError(
                         resultadoExterno.mensaje ??
-                            "La transferencia fue rechazada por la red bancaria.",
+                        "La transferencia fue rechazada por la red bancaria.",
                         "TRANSFERENCIA_RECHAZADA"
                     );
                 }
 
-                const estadoTransaccion =
-                    resultadoExterno.estado ===
-                    "PENDIENTE"
-                        ? "PENDIENTE"
-                        : "EXITOSA";
+                const estadoTransaccion: EstadoTransferenciaInterbancaria = "PENDIENTE";
 
                 const transaccion =
                     Transaccion.crear({
@@ -196,33 +189,33 @@ export class TransferenciaInterbancariaService
 
                 const respuesta:
                     TransferenciaInterbancariaResponseDto = {
-                        tipo:
-                            "TRANSFERENCIA_EXTERNA",
+                    tipo:
+                        "TRANSFERENCIA_EXTERNA",
 
-                        origen: {
-                            cuentaId:
-                                datos.cuentaOrigenId,
+                    origen: {
+                        cuentaId:
+                            datos.cuentaOrigenId,
 
-                            saldoAnterior:
-                                retiro.saldoAnterior.toNumber(),
+                        saldoAnterior:
+                            retiro.saldoAnterior.toNumber(),
 
-                            saldoNuevo:
-                                retiro.saldoNuevo.toNumber()
-                        },
+                        saldoNuevo:
+                            retiro.saldoNuevo.toNumber()
+                    },
 
-                        transaccionId,
+                    transaccionId,
 
-                        estado:
-                            estadoTransaccion,
+                    estado:
+                        estadoTransaccion,
 
-                        referenciaExterna:
-                            resultadoExterno
-                                .referenciaExterna,
+                    referenciaExterna:
+                        resultadoExterno
+                            .referenciaExterna,
 
-                        mensaje:
-                            resultadoExterno
-                                .mensaje
-                    };
+                    mensaje:
+                        resultadoExterno
+                            .mensaje
+                };
 
                 await this.completarIdempotencia(
                     repositorios.idempotencias,

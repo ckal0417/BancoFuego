@@ -86,7 +86,7 @@ export function useTransferenciaInterbancariaController(
 
     function continuar(): void {
         switch (
-            pasoTransferenciaInterbancaria
+        pasoTransferenciaInterbancaria
         ) {
             case "BANCO_DESTINO":
                 validarBancoDestino();
@@ -268,7 +268,7 @@ export function useTransferenciaInterbancariaController(
 
             mostrarMensaje(
                 TuiMensajes.exito(
-                    "Transferencia interbancaria enviada",
+                    "Transferencia interbancaria en proceso",
 
                     `Se enviaron $${monto.toFixed(2)} a la cuenta ${numeroDestino} del banco ${bancoDestino}.${detalleConcepto}\nNuevo saldo: $${nuevoSaldo.toFixed(2)}`
                 ),
