@@ -4,7 +4,7 @@ import { cuentaRoutes } from "./CuentaRoutes";
 import { operacionRoutes } from "./OperacionRoutes";
 import { transferenciaRoutes } from "../Routes/Transferencias/TransferenciaRoutes";
 import { historialRoutes } from "./HistorialRoutes";
-import { transferenciaCallbackRoutes } from "./Transferencias/TransferenciaCallbackRoutes";
+import { transferenciasInterbancariasRoutes } from "./Transferencias/TransferenciasInterbancariasRoutes";
 
 const apiRoutes = Router();
 
@@ -14,7 +14,7 @@ apiRoutes.use("/cuentas", cuentaRoutes);
 
 apiRoutes.use("/operaciones", operacionRoutes);
 
-apiRoutes.use("/transferencias/interbancarias", transferenciaCallbackRoutes);
+apiRoutes.use("/transferencias/interbancarias", transferenciasInterbancariasRoutes);
 apiRoutes.use("/transferencias", transferenciaRoutes);
 
 apiRoutes.use("/historial", historialRoutes);

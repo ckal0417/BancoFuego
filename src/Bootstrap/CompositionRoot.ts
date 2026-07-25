@@ -88,6 +88,8 @@ const cuentaService =
 import { ClienteRepositoryPostgres } from "../Infrastructure/Database/Repositories/ClienteRepositoryPostgres";
 import { ProcesarRespuestaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/ProcesarRespuestaInterbancariaService";
 import { TransferenciaInterbancariaCallbackController } from "../Presentation/Http/Controllers/Transferencias/Interbancaria/TransferenciaInterbancariaCallbackController";
+import { RecibirTransferenciaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/RecibirTransferenciaInterbacariaService";
+import { TransferenciaInterbancariaEntranteController } from "../Presentation/Http/Controllers/Transferencias/Interbancaria/TransferenciaInterbancariaEntranteController";
 
 const clienteRepository = new ClienteRepositoryPostgres();
 
@@ -163,6 +165,11 @@ const procesarRespuestaInterbancariaService =
         aplicarResultadoInterbancarioService
     );
 
+const recibirTransferenciaInterbancariaService =
+    new RecibirTransferenciaInterbancariaService(
+        unidadDeTrabajo
+    );
+
 
 /*
  * Controladores.
@@ -201,6 +208,11 @@ export const historialController =
 export const transferenciaInterbancariaCallbackController =
     new TransferenciaInterbancariaCallbackController(
         procesarRespuestaInterbancariaService
+    );
+
+export const transferenciaInterbancariaEntranteController =
+    new TransferenciaInterbancariaEntranteController(
+        recibirTransferenciaInterbancariaService
     );
 
 /*
