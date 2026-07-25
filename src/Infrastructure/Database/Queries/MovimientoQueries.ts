@@ -31,6 +31,7 @@ export class MovimientoQueries {
     public static readonly BUSCAR_POR_TRANSACCION_ID = `
         SELECT
             id_movimiento,
+            naturaleza,
             monto,
             saldo_anterior,
             saldo_posterior,
@@ -41,5 +42,5 @@ export class MovimientoQueries {
         WHERE id_transaccion = $1
         ORDER BY id_movimiento ASC
     `;
-    
+
 }

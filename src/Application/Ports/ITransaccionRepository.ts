@@ -24,4 +24,8 @@ export interface ITransaccionRepository {
     buscarPendientesInterbancarias(
         limite?: number
     ): Promise<Transaccion[]>;
+
+    buscarPorReferenciaExternaParaActualizar(
+        referenciaExterna: string
+    ): Promise<Transaccion | null>;
 }

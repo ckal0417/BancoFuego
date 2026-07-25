@@ -26,6 +26,7 @@ import { TransferenciaController } from "../Presentation/Http/Controllers/Transf
 import { TransferenciaInterbancariaEstadoController } from "../Presentation/Http/Controllers/Transferencias/Interbancaria/TransferenciaInterbancariaEstadoController";
 import { AuthMiddleware } from "../Presentation/Http/Middleware/AuthMiddleware";
 import { EventBus } from "../Shared/Events/EventBus";
+import { AplicarResultadoInterbancarioService } from "../Application/Services/Transferencias/Interbancaria/AplicarResultadoInterbancarioService";
 
 /*
  * Eventos
@@ -85,6 +86,8 @@ const cuentaService =
     );
 
 import { ClienteRepositoryPostgres } from "../Infrastructure/Database/Repositories/ClienteRepositoryPostgres";
+import { ProcesarRespuestaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/ProcesarRespuestaInterbancariaService";
+import { TransferenciaInterbancariaCallbackController } from "../Presentation/Http/Controllers/Transferencias/Interbancaria/TransferenciaInterbancariaCallbackController";
 
 const clienteRepository = new ClienteRepositoryPostgres();
 
@@ -142,12 +145,24 @@ const transferenciaService =
         eventBus
     );
 
+const aplicarResultadoInterbancarioService =
+    new AplicarResultadoInterbancarioService();
+
 const transferenciaInterbancariaEstadoService =
     new TransferenciaInterbancariaEstadoService(
         unidadDeTrabajo,
         redBancariaClient,
-        eventBus
+        eventBus,
+        aplicarResultadoInterbancarioService
     );
+
+const procesarRespuestaInterbancariaService =
+    new ProcesarRespuestaInterbancariaService(
+        unidadDeTrabajo,
+        eventBus,
+        aplicarResultadoInterbancarioService
+    );
+
 
 /*
  * Controladores.
@@ -181,6 +196,11 @@ export const transferenciaInterbancariaEstadoController =
 export const historialController =
     new HistorialController(
         historialService
+    );
+
+export const transferenciaInterbancariaCallbackController =
+    new TransferenciaInterbancariaCallbackController(
+        procesarRespuestaInterbancariaService
     );
 
 /*

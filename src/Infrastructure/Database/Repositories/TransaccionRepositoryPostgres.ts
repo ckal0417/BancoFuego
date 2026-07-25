@@ -21,8 +21,7 @@ interface FilaTransaccion {
 }
 
 export class TransaccionRepositoryPostgres
-    implements ITransaccionRepository
-{
+    implements ITransaccionRepository {
     private readonly executor: QueryExecutor;
 
     constructor(
@@ -171,5 +170,21 @@ export class TransaccionRepositoryPostgres
                     ? new Date(fila.updated_at)
                     : new Date(fila.fecha)
         });
+    }
+
+    public async buscarPorReferenciaExternaParaActualizar(referenciaExterna: string):
+        Promise<Transaccion | null> {
+        const resultado =
+            await this.executor.query<FilaTransaccion>(
+                TransaccionQueries
+                    .BUSCAR_POR_REFERENCIA_EXTERNA_PARA_ACTUALIZAR,
+                [referenciaExterna]
+            );
+
+        const fila = resultado.rows[0];
+
+        return fila
+            ? this.aEntidad(fila)
+            : null;
     }
 }

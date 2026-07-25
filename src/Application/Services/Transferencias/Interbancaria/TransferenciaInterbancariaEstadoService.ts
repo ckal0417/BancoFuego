@@ -2,14 +2,9 @@ import {
     ConsultaTransferenciaInterbancariaResponseDto
 } from "../../../DTOs/Transferencias/Interbancaria/TransferenciaInterbancariaDto";
 
-import {
-    IRedBancariaClient,
-    ResultadoTransferenciaInterbancaria
-} from "../../../Ports/Transferencias/Interbancaria/IRedBancariaClient";
-
+import { IRedBancariaClient } from "../../../Ports/Transferencias/Interbancaria/IRedBancariaClient";
 import { IUnidadDeTrabajo } from "../../../Ports/IUnidadDeTrabajo";
 
-import { Movimiento } from "../../../../Domain/Entities/Movimiento";
 import { Transaccion } from "../../../../Domain/Entities/Transaccion";
 
 import {
@@ -21,6 +16,8 @@ import { EventBus } from "../../../../Shared/Events/EventBus";
 import { Evento } from "../../../../Shared/Events/Evento";
 import logger from "../../../../Shared/Logging/Logger";
 
+import { AplicarResultadoInterbancarioService } from "./AplicarResultadoInterbancarioService";
+
 export class TransferenciaInterbancariaEstadoService {
     constructor(
         private readonly unidadDeTrabajo:
@@ -30,8 +27,11 @@ export class TransferenciaInterbancariaEstadoService {
             IRedBancariaClient,
 
         private readonly eventBus:
-            EventBus
-    ) {}
+            EventBus,
+
+        private readonly aplicarResultadoService:
+            AplicarResultadoInterbancarioService
+    ) { }
 
     public async consultarPorId(
         transaccionId: number
@@ -50,9 +50,7 @@ export class TransferenciaInterbancariaEstadoService {
             await this.unidadDeTrabajo.ejecutar(
                 async repositorios =>
                     repositorios.transacciones
-                        .buscarPorId(
-                            transaccionId
-                        )
+                        .buscarPorId(transaccionId)
             );
 
         if (!transaccion) {
@@ -62,19 +60,13 @@ export class TransferenciaInterbancariaEstadoService {
             );
         }
 
-        this.validarInterbancaria(
-            transaccion
-        );
+        this.validarInterbancaria(transaccion);
 
         if (transaccion.esPendiente()) {
-            return this.sincronizarTransaccion(
-                transaccionId
-            );
+            return this.sincronizarTransaccion(transaccionId);
         }
 
-        return this.aRespuesta(
-            transaccion
-        );
+        return this.aplicarResultadoService.aRespuesta(transaccion);
     }
 
     public async sincronizarPendientes(
@@ -84,16 +76,13 @@ export class TransferenciaInterbancariaEstadoService {
             await this.unidadDeTrabajo.ejecutar(
                 async repositorios =>
                     repositorios.transacciones
-                        .buscarPendientesInterbancarias(
-                            limite
-                        )
+                        .buscarPendientesInterbancarias(limite)
             );
 
         let actualizadas = 0;
 
         for (const transaccion of pendientes) {
-            const id =
-                transaccion.obtenerId();
+            const id = transaccion.obtenerId();
 
             if (id === undefined) {
                 continue;
@@ -101,14 +90,9 @@ export class TransferenciaInterbancariaEstadoService {
 
             try {
                 const resultado =
-                    await this.sincronizarTransaccion(
-                        id
-                    );
+                    await this.sincronizarTransaccion(id);
 
-                if (
-                    resultado.estado !==
-                    "PENDIENTE"
-                ) {
+                if (resultado.estado !== "PENDIENTE") {
                     actualizadas++;
                 }
             } catch (error) {
@@ -130,25 +114,18 @@ export class TransferenciaInterbancariaEstadoService {
         transaccionId: number
     ): Promise<ConsultaTransferenciaInterbancariaResponseDto> {
         const referenciaExterna =
-            await this.obtenerReferencia(
-                transaccionId
-            );
+            await this.obtenerReferencia(transaccionId);
 
         const resultadoExterno =
             await this.redBancariaClient
-                .consultarEstado(
-                    referenciaExterna
-                );
+                .consultarEstado(referenciaExterna);
 
         const resultado =
             await this.unidadDeTrabajo.ejecutar(
                 async repositorios => {
                     const transaccion =
-                        await repositorios
-                            .transacciones
-                            .buscarPorIdParaActualizar(
-                                transaccionId
-                            );
+                        await repositorios.transacciones
+                            .buscarPorIdParaActualizar(transaccionId);
 
                     if (!transaccion) {
                         throw new BusinessRuleError(
@@ -157,28 +134,19 @@ export class TransferenciaInterbancariaEstadoService {
                         );
                     }
 
-                    this.validarInterbancaria(
-                        transaccion
-                    );
+                    this.validarInterbancaria(transaccion);
 
-                    if (
-                        !transaccion.esPendiente()
-                    ) {
+                    if (!transaccion.esPendiente()) {
                         return {
                             respuesta:
-                                this.aRespuesta(
-                                    transaccion
-                                ),
-
-                            cambioEstado:
-                                false,
-
-                            reversaAplicada:
-                                false
+                                this.aplicarResultadoService
+                                    .aRespuesta(transaccion),
+                            cambioEstado: false,
+                            reversaAplicada: false
                         };
                     }
 
-                    return this.aplicarResultado(
+                    return this.aplicarResultadoService.aplicar(
                         transaccion,
                         resultadoExterno,
                         repositorios
@@ -203,9 +171,7 @@ export class TransferenciaInterbancariaEstadoService {
             await this.unidadDeTrabajo.ejecutar(
                 async repositorios =>
                     repositorios.transacciones
-                        .buscarPorId(
-                            transaccionId
-                        )
+                        .buscarPorId(transaccionId)
             );
 
         if (!transaccion) {
@@ -215,13 +181,10 @@ export class TransferenciaInterbancariaEstadoService {
             );
         }
 
-        this.validarInterbancaria(
-            transaccion
-        );
+        this.validarInterbancaria(transaccion);
 
         const referencia =
-            transaccion
-                .obtenerReferenciaExterna();
+            transaccion.obtenerReferenciaExterna();
 
         if (!referencia) {
             throw new BusinessRuleError(
@@ -231,208 +194,6 @@ export class TransferenciaInterbancariaEstadoService {
         }
 
         return referencia;
-    }
-
-    private async aplicarResultado(
-        transaccion: Transaccion,
-
-        resultadoExterno:
-            ResultadoTransferenciaInterbancaria,
-
-        repositorios: Parameters<
-            Parameters<
-                IUnidadDeTrabajo["ejecutar"]
-            >[0]
-        >[0]
-    ): Promise<{
-        respuesta:
-            ConsultaTransferenciaInterbancariaResponseDto;
-
-        cambioEstado:
-            boolean;
-
-        reversaAplicada:
-            boolean;
-    }> {
-        if (
-            resultadoExterno.estado ===
-            "PENDIENTE"
-        ) {
-            transaccion.marcarPendiente(
-                resultadoExterno
-                    .referenciaExterna,
-
-                resultadoExterno.mensaje ??
-                    "La transferencia continúa pendiente."
-            );
-
-            await repositorios
-                .transacciones
-                .actualizar(
-                    transaccion
-                );
-
-            return {
-                respuesta:
-                    this.aRespuesta(
-                        transaccion
-                    ),
-
-                cambioEstado:
-                    false,
-
-                reversaAplicada:
-                    false
-            };
-        }
-
-        if (
-            resultadoExterno.estado ===
-            "ACEPTADA"
-        ) {
-            transaccion.marcarExitosa(
-                resultadoExterno
-                    .referenciaExterna,
-
-                resultadoExterno.mensaje ??
-                    "Transferencia aceptada por la red bancaria."
-            );
-
-            await repositorios
-                .transacciones
-                .actualizar(
-                    transaccion
-                );
-
-            return {
-                respuesta:
-                    this.aRespuesta(
-                        transaccion
-                    ),
-
-                cambioEstado:
-                    true,
-
-                reversaAplicada:
-                    false
-            };
-        }
-
-        const reversaAplicada =
-            await this.aplicarReversa(
-                transaccion,
-                repositorios
-            );
-
-        const detalleBase =
-            resultadoExterno.mensaje ??
-            `Transferencia rechazada: ${resultadoExterno.codigoError}`;
-
-        transaccion.marcarFallida(
-            reversaAplicada
-                ? `${detalleBase}. Reversa aplicada a la cuenta origen.`
-                : `${detalleBase}. No fue posible identificar el movimiento original.`
-        );
-
-        await repositorios
-            .transacciones
-            .actualizar(
-                transaccion
-            );
-
-        return {
-            respuesta:
-                this.aRespuesta(
-                    transaccion
-                ),
-
-            cambioEstado:
-                true,
-
-            reversaAplicada
-        };
-    }
-
-    private async aplicarReversa(
-        transaccion: Transaccion,
-
-        repositorios: Parameters<
-            Parameters<
-                IUnidadDeTrabajo["ejecutar"]
-            >[0]
-        >[0]
-    ): Promise<boolean> {
-        const transaccionId =
-            transaccion.obtenerId();
-
-        if (transaccionId === undefined) {
-            return false;
-        }
-
-        const movimientos =
-            await repositorios.movimientos
-                .buscarPorTransaccionId(
-                    transaccionId
-                );
-
-        const movimientoOriginal =
-            movimientos.find(
-                movimiento =>
-                    movimiento
-                        .obtenerNaturaleza() ===
-                    "DEBITO"
-            );
-
-        if (!movimientoOriginal) {
-            return false;
-        }
-
-        const cuentaOrigenId =
-            movimientoOriginal
-                .obtenerIdCuenta();
-
-        const cuentaOrigen =
-            await repositorios.cuentas
-                .buscarPorIdParaActualizar(
-                    cuentaOrigenId
-                );
-
-        if (!cuentaOrigen) {
-            return false;
-        }
-
-        const deposito =
-            cuentaOrigen.depositar(
-                transaccion.obtenerMonto()
-            );
-
-        const movimientoReversa =
-            Movimiento.credito({
-                monto:
-                    transaccion.obtenerMonto(),
-
-                saldoAnterior:
-                    deposito.saldoAnterior,
-
-                saldoPosterior:
-                    deposito.saldoNuevo,
-
-                idCuenta:
-                    cuentaOrigenId,
-
-                idTransaccion:
-                    transaccionId
-            });
-
-        await repositorios.cuentas.actualizar(
-            cuentaOrigen
-        );
-
-        await repositorios.movimientos.crear(
-            movimientoReversa
-        );
-
-        return true;
     }
 
     private validarInterbancaria(
@@ -449,60 +210,6 @@ export class TransferenciaInterbancariaEstadoService {
         }
     }
 
-    private aRespuesta(
-        transaccion: Transaccion
-    ): ConsultaTransferenciaInterbancariaResponseDto {
-        const id =
-            transaccion.obtenerId();
-
-        const referencia =
-            transaccion
-                .obtenerReferenciaExterna();
-
-        if (
-            id === undefined ||
-            !referencia
-        ) {
-            throw new BusinessRuleError(
-                "La transferencia no contiene información externa completa.",
-                "TRANSFERENCIA_EXTERNA_INCOMPLETA"
-            );
-        }
-
-        const estado =
-            transaccion.obtenerEstado();
-
-        if (
-            estado !== "PENDIENTE" &&
-            estado !== "EXITOSA" &&
-            estado !== "FALLIDA"
-        ) {
-            throw new BusinessRuleError(
-                "La transferencia tiene un estado no consultable.",
-                "ESTADO_TRANSFERENCIA_INVALIDO"
-            );
-        }
-
-        return {
-            transaccionId:
-                id,
-
-            referenciaExterna:
-                referencia,
-
-            estado,
-
-            mensaje:
-                transaccion
-                    .obtenerEstadoDetalle(),
-
-            actualizadoEn:
-                transaccion
-                    .obtenerActualizadoEn()
-                    .toISOString()
-        };
-    }
-
     private publicarCambioEstado(
         respuesta:
             ConsultaTransferenciaInterbancariaResponseDto,
@@ -512,26 +219,14 @@ export class TransferenciaInterbancariaEstadoService {
     ): void {
         this.eventBus.publicar(
             new Evento(
-                TiposEvento
-                    .TRANSFERENCIA_REALIZADA,
-
+                TiposEvento.TRANSFERENCIA_REALIZADA,
                 {
-                    canal:
-                        "INTERBANCARIA",
-
-                    transaccionId:
-                        respuesta.transaccionId,
-
-                    referenciaExterna:
-                        respuesta.referenciaExterna,
-
-                    estado:
-                        respuesta.estado,
-
+                    canal: "INTERBANCARIA",
+                    transaccionId: respuesta.transaccionId,
+                    referenciaExterna: respuesta.referenciaExterna,
+                    estado: respuesta.estado,
                     reversaAplicada,
-
-                    actualizadoEn:
-                        respuesta.actualizadoEn
+                    actualizadoEn: respuesta.actualizadoEn
                 }
             )
         );

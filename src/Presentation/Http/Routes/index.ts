@@ -4,33 +4,19 @@ import { cuentaRoutes } from "./CuentaRoutes";
 import { operacionRoutes } from "./OperacionRoutes";
 import { transferenciaRoutes } from "../Routes/Transferencias/TransferenciaRoutes";
 import { historialRoutes } from "./HistorialRoutes";
-
+import { transferenciaCallbackRoutes } from "./Transferencias/TransferenciaCallbackRoutes";
 
 const apiRoutes = Router();
 
-apiRoutes.use(
-    "/auth",
-    authRoutes
-);
+apiRoutes.use("/auth", authRoutes);
 
-apiRoutes.use(
-    "/cuentas",
-    cuentaRoutes
-);
+apiRoutes.use("/cuentas", cuentaRoutes);
 
-apiRoutes.use(
-    "/operaciones",
-    operacionRoutes
-);
+apiRoutes.use("/operaciones", operacionRoutes);
 
-apiRoutes.use(
-    "/transferencias",
-    transferenciaRoutes
-);
+apiRoutes.use("/transferencias/interbancarias", transferenciaCallbackRoutes);
+apiRoutes.use("/transferencias", transferenciaRoutes);
 
-apiRoutes.use(
-    "/historial",
-    historialRoutes
-);
+apiRoutes.use("/historial", historialRoutes);
 
 export { apiRoutes };

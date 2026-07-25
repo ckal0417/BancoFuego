@@ -2,7 +2,8 @@ import { Router } from "express";
 import {
     authMiddleware,
     transferenciaController,
-    transferenciaInterbancariaEstadoController
+    transferenciaInterbancariaEstadoController,
+    transferenciaInterbancariaCallbackController
 } from "../../../../Bootstrap/CompositionRoot";
 import { ValidacionMiddleware } from "../../Middleware/ValidacionMiddleware";
 
@@ -23,6 +24,11 @@ transferenciaRoutes.post(
 transferenciaRoutes.get(
     "/interbancarias/:transaccionId/estado",
     transferenciaInterbancariaEstadoController.consultar
+);
+
+transferenciaRoutes.post(
+    "/interbancarias/callback",
+    transferenciaInterbancariaCallbackController.procesar
 );
 
 export {

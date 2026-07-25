@@ -104,4 +104,21 @@ export class TransaccionQueries {
         WHERE id_transaccion = $1
         FOR UPDATE
     `;
+
+    public static readonly BUSCAR_POR_REFERENCIA_EXTERNA_PARA_ACTUALIZAR = `
+    SELECT
+        id_transaccion,
+        tipo,
+        monto,
+        estado,
+        fecha,
+        descripcion,
+        id_cajero,
+        referencia_externa,
+        estado_detalle,
+        updated_at
+    FROM BancoFuego.Transaccion
+    WHERE referencia_externa = $1
+    FOR UPDATE
+`;
 }
