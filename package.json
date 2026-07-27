@@ -14,7 +14,9 @@
     "dev:api": "tsx src/Presentation/Http/server.ts",
     "dev:all": "concurrently --kill-others-on-fail --names API,CONSOLE --prefix-colors cyan,magenta --handle-input --default-input-target 1 \"npm run dev:api\" \"npm run start:tui\"",
     "start:api": "node dist/Presentation/Http/server.js",
-    "migrate": "tsx src/Infrastructure/Database/Migrations/migrate.ts"
+    "migrate": "tsx src/Infrastructure/Database/Migrations/migrate.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -49,6 +51,7 @@
     "concurrently": "^9.2.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.1",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
   }
 }
