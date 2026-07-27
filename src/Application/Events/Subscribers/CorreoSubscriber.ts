@@ -16,9 +16,11 @@ export class CorreoSubscriber implements IEventSubscriber {
         const datos = (evento.datos || {}) as Record<string, any>;
         let destinatario = datos.correoCliente || datos.email;
 
-        if (!destinatario && datos.cuentaId) {
+        const cuentaIdBusqueda = datos.cuentaId || datos.origen?.cuentaId;
+
+        if (!destinatario && cuentaIdBusqueda) {
             try {
-                const cuenta = await this.cuentaRepo.buscarPorId(datos.cuentaId);
+                const cuenta = await this.cuentaRepo.buscarPorId(cuentaIdBusqueda);
                 if (cuenta && cuenta.obtenerIdCliente()) {
                     const cliente = await this.clienteRepo.buscarPorId(cuenta.obtenerIdCliente());
                     if (cliente) {
@@ -26,7 +28,7 @@ export class CorreoSubscriber implements IEventSubscriber {
                     }
                 }
             } catch (err: any) {
-                logger.error(`[CORREO] Error al buscar correo del cliente para la cuenta ${datos.cuentaId}: ${err?.message || err}`);
+                logger.error(`[CORREO] Error al buscar correo del cliente para la cuenta ${cuentaIdBusqueda}: ${err?.message || err}`);
             }
         }
 
@@ -74,19 +76,40 @@ export class CorreoSubscriber implements IEventSubscriber {
         } else if (evento.nombre === 'TRANSFERENCIA_REALIZADA') {
             const saldoNuevo = datos.origen?.saldoNuevo ?? datos.saldoNuevoOrigen ?? '0.00';
             const montoStr = datos.monto ? Number(datos.monto).toFixed(2) : '0.00';
+            
+            let cuentaDestinoTexto = datos.numeroCuentaDestino;
+            const idDestino = datos.destino?.cuentaId || datos.cuentaDestinoId;
+
+            if (idDestino) {
+                try {
+                    const cDestino = await this.cuentaRepo.buscarPorId(idDestino);
+                    if (cDestino) {
+                        cuentaDestinoTexto = cDestino.obtenerNumeroCuenta().toString();
+                    }
+                } catch {
+                    // Si falla la búsqueda por ID, mantenemos la cuenta pasada
+                }
+            }
+
+            if (!cuentaDestinoTexto) {
+                cuentaDestinoTexto = 'No especificada';
+            }
+
             asunto = '🔥 Banco Fuego - Comprobante de Transferencia Bancaria';
             htmlContent = `
                 <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #007bff; border-radius: 8px;">
                     <h2 style="color: #007bff;">🔥 Banco Fuego - Transferencia Realizada</h2>
                     <p>Se ha completado exitosamente la transferencia de fondos desde su cuenta.</p>
                     <p><strong>Monto Transferido:</strong> $${montoStr}</p>
-                    <p><strong>Cuenta Destino:</strong> ${datos.numeroCuentaDestino || 'No especificada'}</p>
+                    <p><strong>Cuenta Destino:</strong> ${cuentaDestinoTexto}</p>
                     <p><strong>Tipo de Transferencia:</strong> ${datos.tipo === 'TRANSFERENCIA_EXTERNA' ? 'Interbancaria' : 'Interna (Banco Fuego)'}</p>
                     <p><strong>Nuevo Saldo Disponible:</strong> $${saldoNuevo}</p>
                     <p style="color: #666; font-size: 12px;">Gracias por utilizar nuestros servicios financieros.</p>
                 </div>
             `;
         }
+
+
 
 
 

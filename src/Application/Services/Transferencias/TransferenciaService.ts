@@ -36,13 +36,21 @@ export class TransferenciaService {
          * proviene de una petición idempotente repetida.
          */
         if (resultado.operacionNueva) {
+            const datosEntrada = datos as Record<string, any>;
             this.eventBus.publicar(
                 new Evento(
                     TiposEvento.TRANSFERENCIA_REALIZADA,
-                    resultado.respuesta
+                    {
+                        ...resultado.respuesta,
+                        cuentaId: datos.cuentaOrigenId,
+                        monto: datos.monto,
+                        correoCliente: datos.correoCliente,
+                        numeroCuentaDestino: datosEntrada.numeroCuentaDestino ?? String(datosEntrada.cuentaDestinoId ?? '')
+                    }
                 )
             );
         }
+
 
         return resultado.respuesta;
     }
