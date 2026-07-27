@@ -669,3 +669,18 @@
 {"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-25 16:06:09"}
 {"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-25 16:06:09"}
 {"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-25 16:06:09"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-27 08:47:40"}
+{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-27 08:47:40"}
+{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-27 08:52:34"}
+{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-27 08:52:34"}
+{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-27 08:52:34"}
+{"level":"info","message":"API BancoFuego ejecutándose en el puerto 3000","service":"BancoFuego","timestamp":"2026-07-27 09:12:54"}
+{"level":"info","message":"Worker interbancario iniciado cada 30000 ms.","service":"BancoFuego","timestamp":"2026-07-27 09:12:54"}
+{"level":"info","message":"[HISTORIAL] Operación disponible en el historial: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-27 09:13:53"}
+{"level":"info","message":"[EVENTO] Evento recibido: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-27 09:13:53"}
+{"level":"info","message":"[AUDITORÍA] Operación registrada: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-27 09:13:53"}
+{"level":"info","message":"[CORREO] Procesando evento: TRANSFERENCIA_REALIZADA","service":"BancoFuego","timestamp":"2026-07-27 09:13:53"}
+{"level":"info","message":"[CORREO] No se especificó correo para el evento TRANSFERENCIA_REALIZADA. Se omite envío SMTP.","service":"BancoFuego","timestamp":"2026-07-27 09:13:53"}
+{"level":"info","message":"Se recibió SIGINT. Cerrando BancoFuego...","service":"BancoFuego","timestamp":"2026-07-27 14:14:10"}
+{"level":"info","message":"Worker interbancario detenido.","service":"BancoFuego","timestamp":"2026-07-27 14:14:10"}
+{"level":"info","message":"Servidor HTTP detenido.","service":"BancoFuego","timestamp":"2026-07-27 14:14:10"}
