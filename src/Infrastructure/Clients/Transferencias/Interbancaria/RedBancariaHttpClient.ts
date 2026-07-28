@@ -4,38 +4,38 @@ import {
     ResultadoTransferenciaInterbancaria,
     SolicitudTransferenciaInterbancaria
 } from "../../../../Application/Ports/Transferencias/Interbancaria/IRedBancariaClient";
+import { TransactionRed, ApiResponseErrorRed, GetTransactionsResponseRed, TransferResponseRed } from "./Http/Tipos-red";
 
+const API_VERSION = "1";
 
 /**
  * Adapter real que traduce entre el dominio de BancoFuego y la API HTTP
  * de la red interbancaria (ISC ATM Integrator).
  *
- * ESTADO ACTUAL: la traducción de contratos está completa, pero la
- * llamada HTTP real y la autenticación (Fase 0/1) siguen pendientes.
- * Los puntos marcados con TODO-FASE1 son los que faltan resolver una vez
- * tengamos URL confirmada, csrf-token, y credenciales/API key.
+ * Autenticación: API key (x-api-key), machine-to-machine. Las llamadas
+ * que cambian estado (POST/PUT/PATCH/DELETE) además requieren un CSRF
+ * token obtenido vía GET /csrf-token.
  *
  * Preguntas abiertas para el grupo que administra la red (anotar
  * respuesta acá cuando se confirmen):
- *   - ¿"source_bank" es realmente un enum fijo (bank_a/bank_b) o un
- *     string libre por banco participante?
- *   - Cuando una Transaction queda en state "cancelled", ¿cómo se
- *     obtiene el motivo/código de rechazo? El schema Transaction no
- *     trae ese campo.
+ *   - GET /transactions marca account_id, operation, state y page/limit
+ *     como query params "required" en el spec, pero solo tenemos
+ *     correlation_id disponible en este punto del flujo. Falta probar
+ *     contra el servidor real si de verdad son obligatorios.
  */
 export class RedBancariaHttpClient implements IRedBancariaClient {
     constructor(
-        private readonly baseUrl: string,
+        private readonly baseUrl: string, // debe incluir el prefijo /api
+        private readonly apiKey: string,
         private readonly mapeoCuentas: IMapeoCuentaRedBancaria
-        // TODO-FASE1: agregar acá un IProveedorAutenticacionRed que
-        // resuelva api-key + csrf-token, inyectado por constructor.
     ) {}
+    public async consultarEstado(referenciaExterna: string): Promise<ResultadoTransferenciaInterbancaria> {
+        return this.consultarEstadoTransferencia(referenciaExterna);
+    }
 
     public async enviarTransferencia(
         solicitud: SolicitudTransferenciaInterbancaria
     ): Promise<ResultadoTransferenciaInterbancaria> {
-        // El correlation_id lo elegimos nosotros: así no dependemos de
-        // que la red nos devuelva algo consultable después.
         const correlationId = this.generarCorrelationId(solicitud);
 
         const accountIdOrigen = await this.mapeoCuentas.resolverAccountIdRed(
@@ -48,131 +48,190 @@ export class RedBancariaHttpClient implements IRedBancariaClient {
         const body = {
             from_account_id: accountIdOrigen,
             to_account_id: accountIdDestino,
-            // Asumimos que Dinero expone el monto en centavos como
-            // entero. Ajustar el nombre del método al real de tu VO.
             amount: solicitud.monto.toNumber(),
             description: solicitud.concepto ?? "Transferencia interbancaria",
             source_bank: solicitud.bancoOrigen,
             correlation_id: correlationId
         };
 
-        // TODO-FASE1: reemplazar esto por el fetch real, con headers
-        // x-api-version, x-csrf-token y Authorization/x-api-key.
-        //
-        // const respuesta = await fetch(`${this.baseUrl}/transactions/transfer`, {
-        //     method: "POST",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //         "x-api-version": "1",
-        //         "x-csrf-token": await this.proveedorAuth.obtenerCsrfToken(),
-        //         "x-api-key": await this.proveedorAuth.obtenerApiKey(),
-        //     },
-        //     body: JSON.stringify(body),
-        // });
-        //
-        // if (!respuesta.ok) {
-        //     const error = await respuesta.json(); // ApiResponseError
-        //     return {
-        //         estado: "RECHAZADA",
-        //         codigoError: error.code,
-        //         mensaje: error.message,
-        //     };
-        // }
-        //
-        // const { data: transacciones } = await respuesta.json(); // Transaction[]
-        // return this.interpretarRespuestaTransferencia(transacciones, correlationId);
+        const csrfToken = await this.obtenerCsrfToken();
 
-        throw new Error(
-            "RedBancariaHttpClient.enviarTransferencia: pendiente de " +
-            "Fase 1 (autenticación). Traducción de contrato lista, " +
-            "falta conectar la llamada HTTP real."
+        const respuesta = await fetch(`${this.baseUrl}/transactions/transfer`, {
+            method: "POST",
+            headers: this.construirHeaders(csrfToken),
+            body: JSON.stringify(body)
+        });
+
+        if (!respuesta.ok) {
+            return this.aRechazoDesdeError(await this.leerError(respuesta));
+        }
+
+        const { data: transacciones } = (await respuesta.json()) as TransferResponseRed;
+
+        return this.interpretarRespuestaTransferencia(
+            transacciones,
+            correlationId,
+            accountIdOrigen
         );
     }
 
-    public async consultarEstado(
+    public async consultarEstadoTransferencia(
         referenciaExterna: string
     ): Promise<ResultadoTransferenciaInterbancaria> {
         // referenciaExterna acá ES nuestro correlation_id (ver nota en
-        // enviarTransferencia), así que consultamos por ese campo.
+        // enviarTransferencia).
+        const params = new URLSearchParams({
+            page: "1",
+            limit: "10",
+            correlation_id: referenciaExterna
+        });
 
-        // TODO-FASE1: reemplazar por el fetch real.
-        //
-        // const respuesta = await fetch(
-        //     `${this.baseUrl}/transactions?correlation_id=${referenciaExterna}&page=1&limit=10`,
-        //     { headers: { "x-api-version": "1", "x-api-key": ... } }
-        // );
-        // const { data: transacciones } = await respuesta.json();
-        // return this.interpretarRespuestaTransferencia(transacciones, referenciaExterna);
-
-        throw new Error(
-            "RedBancariaHttpClient.consultarEstado: pendiente de Fase 1 " +
-            "(autenticación). Traducción de contrato lista, falta " +
-            "conectar la llamada HTTP real."
+        const respuesta = await fetch(
+            `${this.baseUrl}/transactions?${params.toString()}`,
+            { headers: this.construirHeaders() }
         );
+
+        if (!respuesta.ok) {
+            return this.aRechazoDesdeError(await this.leerError(respuesta));
+        }
+
+        const { data: transacciones } = (await respuesta.json()) as  GetTransactionsResponseRed;
+
+        if (transacciones.length === 0) {
+            return {
+                estado: "RECHAZADA",
+                codigoError: "REFERENCIA_NO_EXISTE",
+                mensaje: `No existe una transacción con correlation_id ${referenciaExterna}`
+            };
+        }
+
+        // No tenemos accountIdOrigen en este punto (el puerto solo nos
+        // da la referencia), así que tomamos la primera pata. Si la red
+        // llega a devolver más de una transacción por correlation_id
+        // sin más contexto para desambiguar, hay que revisar esta
+        // asunción con el equipo de la red.
+        return this.interpretarUnaTransaccion(transacciones[0]);
     }
 
-    /**
-     * Traduce el array de Transaction que devuelve la red hacia nuestro
-     * ResultadoTransferenciaInterbancaria. Separado en método propio
-     * porque lo usan tanto enviarTransferencia como consultarEstado.
-     */
-    private interpretarRespuestaTransferencia(
-        transacciones: Array<{ state: string }>,
-        correlationId: string
+    // ---------------------------------------------------------------
+    // Autenticación
+    // ---------------------------------------------------------------
+
+    private async obtenerCsrfToken(): Promise<string> {
+        const respuesta = await fetch(`${this.baseUrl}/csrf-token`, {
+            headers: {
+                "x-api-version": API_VERSION,
+                "x-api-key": this.apiKey
+            }
+        });
+
+        if (!respuesta.ok) {
+            throw new Error(
+                `No se pudo obtener el CSRF token de la red bancaria (HTTP ${respuesta.status})`
+            );
+        }
+
+        const { token } = (await respuesta.json()) as { token: string };
+        return token;
+    }
+
+    private construirHeaders(csrfToken?: string): Record<string, string> {
+        const headers: Record<string, string> = {
+            "Content-Type": "application/json",
+            "x-api-version": API_VERSION,
+            "x-api-key": this.apiKey
+        };
+
+        if (csrfToken) {
+            headers["x-csrf-token"] = csrfToken;
+        }
+
+        return headers;
+    }
+
+    // ---------------------------------------------------------------
+    // Interpretación de respuestas
+    // ---------------------------------------------------------------
+
+    private async leerError(respuesta: Response): Promise<ApiResponseErrorRed> {
+        try {
+            return (await respuesta.json()) as ApiResponseErrorRed;
+        } catch {
+            return {
+                id: "desconocido",
+                message: `Error HTTP ${respuesta.status} sin cuerpo interpretable`,
+                code: "ERROR_RED_DESCONOCIDO",
+                status: respuesta.status,
+                cause: null,
+                error: respuesta.statusText,
+                path: "",
+                resource: "",
+                timestamp: new Date().toISOString()
+            };
+        }
+    }
+
+    private aRechazoDesdeError(
+        error: ApiResponseErrorRed
     ): ResultadoTransferenciaInterbancaria {
-        if (transacciones.length === 0) {
-            throw new Error(
-                `La red no devolvió transacciones para correlation_id ` +
-                `${correlationId}. Respuesta inesperada.`
-            );
-        }
-
-        const estados = new Set(transacciones.map((t) => t.state));
-        if (estados.size > 1) {
-            // No debería pasar (débito y crédito de la misma operación
-            // deberían compartir estado), pero lo dejamos explícito por
-            // si la red se comporta distinto a lo esperado.
-            throw new Error(
-                `Transacciones con estados inconsistentes para ` +
-                `correlation_id ${correlationId}: ${[...estados].join(", ")}`
-            );
-        }
-
-        const estado = transacciones[0].state;
-
-        switch (estado) {
-            case "success":
-                return {
-                    estado: "ACEPTADA",
-                    referenciaExterna: correlationId
-                };
-            case "pending":
-                return {
-                    estado: "PENDIENTE",
-                    referenciaExterna: correlationId
-                };
-            case "cancelled":
-                return {
-                    estado: "RECHAZADA",
-                    // TODO-FASE1: la red no expone un código de motivo
-                    // en la Transaction. Confirmar con el grupo
-                    // administrador cómo se obtiene el detalle real.
-                    codigoError: "RECHAZADA_POR_RED",
-                    mensaje: "La red interbancaria canceló la transacción."
-                };
-            default:
-                throw new Error(
-                    `Estado de transacción no reconocido: "${estado}"`
-                );
-        }
+        return {
+            estado: "RECHAZADA",
+            codigoError: error.code,
+            mensaje: error.message
+        };
     }
 
     private generarCorrelationId(
         solicitud: SolicitudTransferenciaInterbancaria
     ): string {
-        // Placeholder simple. Ajustar para usar el id real de la
-        // TransferenciaInterbancaria del dominio si está disponible en
-        // el punto donde se invoca este cliente.
         return `${solicitud.bancoOrigen}-${solicitud.numeroCuentaOrigen}-${Date.now()}`;
+    }
+
+    private interpretarRespuestaTransferencia(
+        transacciones: TransactionRed[],
+        correlationId: string,
+        accountIdOrigen: string
+    ): ResultadoTransferenciaInterbancaria {
+        const transaccionOrigen = transacciones.find(
+            (t) => t.correlationId === correlationId && t.bankAccountId === accountIdOrigen
+        );
+
+        if (!transaccionOrigen) {
+            return {
+                estado: "RECHAZADA",
+                codigoError: "RESPUESTA_RED_INCONSISTENTE",
+                mensaje: `No se encontró transacción para account_id ${accountIdOrigen} con correlation_id ${correlationId}`
+            };
+        }
+
+        return this.interpretarUnaTransaccion(transaccionOrigen);
+    }
+
+    private interpretarUnaTransaccion(
+        transaccion: TransactionRed
+    ): ResultadoTransferenciaInterbancaria {
+        switch (transaccion.state) {
+            case "success":
+                return {
+                    estado: "ACEPTADA",
+                    referenciaExterna: transaccion.id
+                };
+            case "pending":
+                return {
+                    estado: "PENDIENTE",
+                    referenciaExterna: transaccion.id
+                };
+            case "cancelled":
+                // La API no trae motivo de rechazo en este schema.
+                return {
+                    estado: "RECHAZADA",
+                    codigoError: "TRANSACCION_CANCELADA",
+                    mensaje: "La red canceló la transacción"
+                };
+            default:
+                throw new Error(
+                    `Estado de transacción no reconocido: "${transaccion.state}"`
+                );
+        }
     }
 }
