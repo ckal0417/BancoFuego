@@ -1,36 +1,20 @@
-import {
-    ConsultaTransferenciaInterbancariaResponseDto
-} from "../../../DTOs/Transferencias/Interbancaria/TransferenciaInterbancariaDto";
-
+import {ConsultaTransferenciaInterbancariaResponseDto} from "../../../DTOs/Transferencias/Interbancaria/TransferenciaInterbancariaDto";
 import { IRedBancariaClient } from "../../../Ports/Transferencias/Interbancaria/IRedBancariaClient";
-import { IUnidadDeTrabajo } from "../../../Ports/IUnidadDeTrabajo";
-
-import { Transaccion } from "../../../../Domain/Entities/Transaccion";
-
-import {
-    BusinessRuleError
-} from "../../../../Domain/Errors/DomainErrors";
-
-import { TiposEvento } from "../../../Events/TiposEvento";
-import { EventBus } from "../../../../Shared/Events/EventBus";
-import { Evento } from "../../../../Shared/Events/Evento";
+import { IUnidadDeTrabajo} from "../../../Ports/IUnidadDeTrabajo";
+import {Transaccion} from "../../../../Domain/Entities/Transaccion";
+import { BusinessRuleError} from "../../../../Domain/Errors/DomainErrors";
+import {TiposEvento} from "../../../Events/TiposEvento";
+import {EventBus} from "../../../../Shared/Events/EventBus";
+import {Evento} from "../../../../Shared/Events/Evento";
 import logger from "../../../../Shared/Logging/Logger";
-
-import { AplicarResultadoInterbancarioService } from "./AplicarResultadoInterbancarioService";
+import {AplicarResultadoInterbancarioService} from "./AplicarResultadoInterbancarioService";
 
 export class TransferenciaInterbancariaEstadoService {
     constructor(
-        private readonly unidadDeTrabajo:
-            IUnidadDeTrabajo,
-
-        private readonly redBancariaClient:
-            IRedBancariaClient,
-
-        private readonly eventBus:
-            EventBus,
-
-        private readonly aplicarResultadoService:
-            AplicarResultadoInterbancarioService
+        private readonly unidadDeTrabajo:IUnidadDeTrabajo,
+        private readonly redBancariaClient: IRedBancariaClient,
+        private readonly eventBus: EventBus,
+        private readonly aplicarResultadoService:AplicarResultadoInterbancarioService
     ) { }
 
     public async consultarPorId(
@@ -48,9 +32,7 @@ export class TransferenciaInterbancariaEstadoService {
 
         const transaccion =
             await this.unidadDeTrabajo.ejecutar(
-                async repositorios =>
-                    repositorios.transacciones
-                        .buscarPorId(transaccionId)
+                async repositorios => repositorios.transacciones.buscarPorId(transaccionId)
             );
 
         if (!transaccion) {
@@ -63,10 +45,13 @@ export class TransferenciaInterbancariaEstadoService {
         this.validarInterbancaria(transaccion);
 
         if (transaccion.esPendiente()) {
-            return this.sincronizarTransaccion(transaccionId);
+            return this.sincronizarTransaccion(
+                transaccionId
+            );
         }
 
-        return this.aplicarResultadoService.aRespuesta(transaccion);
+        return this.aplicarResultadoService
+            .aRespuesta(transaccion);
     }
 
     public async sincronizarPendientes(
@@ -76,56 +61,109 @@ export class TransferenciaInterbancariaEstadoService {
             await this.unidadDeTrabajo.ejecutar(
                 async repositorios =>
                     repositorios.transacciones
-                        .buscarPendientesInterbancarias(limite)
+                        .buscarPendientesInterbancarias(
+                            limite
+                        )
             );
 
+        const ids = pendientes
+            .map(
+                transaccion =>
+                    transaccion.obtenerId()
+            )
+            .filter(
+                (id): id is number =>
+                    id !== undefined
+            );
+
+        return this.procesarEnLotes(
+            ids,
+            5
+        );
+    }
+
+    private async procesarEnLotes(
+        transaccionIds: number[],
+        tamanioLote: number
+    ): Promise<number> {
         let actualizadas = 0;
 
-        for (const transaccion of pendientes) {
-            const id = transaccion.obtenerId();
-
-            if (id === undefined) {
-                continue;
-            }
-
-            try {
-                const resultado =
-                    await this.sincronizarTransaccion(id);
-
-                if (resultado.estado !== "PENDIENTE") {
-                    actualizadas++;
-                }
-            } catch (error) {
-                const mensaje =
-                    error instanceof Error
-                        ? error.message
-                        : String(error);
-
-                logger.warn(
-                    `No se pudo sincronizar la transferencia ${id}: ${mensaje}`
+        for (
+            let indice = 0;
+            indice < transaccionIds.length;
+            indice += tamanioLote
+        ) {
+            const lote =
+                transaccionIds.slice(
+                    indice,
+                    indice + tamanioLote
                 );
-            }
+
+            const resultados =
+                await Promise.all(
+                    lote.map(
+                        transaccionId =>
+                            this.sincronizarPendiente(
+                                transaccionId
+                            )
+                    )
+                );
+
+            actualizadas += resultados.filter(
+                actualizada => actualizada
+            ).length;
         }
 
         return actualizadas;
+    }
+
+    private async sincronizarPendiente(
+        transaccionId: number
+    ): Promise<boolean> {
+        try {
+            const resultado =
+                await this.sincronizarTransaccion(
+                    transaccionId
+                );
+
+            return resultado.estado !== "PENDIENTE";
+        } catch (error) {
+            const mensaje =
+                error instanceof Error
+                    ? error.message
+                    : String(error);
+
+            logger.warn(
+                `No se pudo sincronizar la transferencia ${transaccionId}: ${mensaje}`
+            );
+
+            return false;
+        }
     }
 
     private async sincronizarTransaccion(
         transaccionId: number
     ): Promise<ConsultaTransferenciaInterbancariaResponseDto> {
         const referenciaExterna =
-            await this.obtenerReferencia(transaccionId);
+            await this.obtenerReferencia(
+                transaccionId
+            );
 
         const resultadoExterno =
             await this.redBancariaClient
-                .consultarEstado(referenciaExterna);
+                .consultarEstado(
+                    referenciaExterna
+                );
 
         const resultado =
             await this.unidadDeTrabajo.ejecutar(
                 async repositorios => {
                     const transaccion =
-                        await repositorios.transacciones
-                            .buscarPorIdParaActualizar(transaccionId);
+                        await repositorios
+                            .transacciones
+                            .buscarPorIdParaActualizar(
+                                transaccionId
+                            );
 
                     if (!transaccion) {
                         throw new BusinessRuleError(
@@ -134,23 +172,29 @@ export class TransferenciaInterbancariaEstadoService {
                         );
                     }
 
-                    this.validarInterbancaria(transaccion);
+                    this.validarInterbancaria(
+                        transaccion
+                    );
 
                     if (!transaccion.esPendiente()) {
                         return {
                             respuesta:
                                 this.aplicarResultadoService
-                                    .aRespuesta(transaccion),
+                                    .aRespuesta(
+                                        transaccion
+                                    ),
+
                             cambioEstado: false,
                             reversaAplicada: false
                         };
                     }
 
-                    return this.aplicarResultadoService.aplicar(
-                        transaccion,
-                        resultadoExterno,
-                        repositorios
-                    );
+                    return this.aplicarResultadoService
+                        .aplicar(
+                            transaccion,
+                            resultadoExterno,
+                            repositorios
+                        );
                 }
             );
 
@@ -171,7 +215,9 @@ export class TransferenciaInterbancariaEstadoService {
             await this.unidadDeTrabajo.ejecutar(
                 async repositorios =>
                     repositorios.transacciones
-                        .buscarPorId(transaccionId)
+                        .buscarPorId(
+                            transaccionId
+                        )
             );
 
         if (!transaccion) {
@@ -181,7 +227,9 @@ export class TransferenciaInterbancariaEstadoService {
             );
         }
 
-        this.validarInterbancaria(transaccion);
+        this.validarInterbancaria(
+            transaccion
+        );
 
         const referencia =
             transaccion.obtenerReferenciaExterna();
@@ -222,11 +270,19 @@ export class TransferenciaInterbancariaEstadoService {
                 TiposEvento.TRANSFERENCIA_REALIZADA,
                 {
                     canal: "INTERBANCARIA",
-                    transaccionId: respuesta.transaccionId,
-                    referenciaExterna: respuesta.referenciaExterna,
-                    estado: respuesta.estado,
+                    transaccionId:
+                        respuesta.transaccionId,
+
+                    referenciaExterna:
+                        respuesta.referenciaExterna,
+
+                    estado:
+                        respuesta.estado,
+
                     reversaAplicada,
-                    actualizadoEn: respuesta.actualizadoEn
+
+                    actualizadoEn:
+                        respuesta.actualizadoEn
                 }
             )
         );
