@@ -1,5 +1,6 @@
 import { IMovimientoRepository } from "../../../Application/Ports/IMovimientoRepository";
-import { Movimiento, NaturalezaMovimiento } from "../../../Domain/Entities/Movimiento";
+import { Movimiento } from "../../../Domain/Entities/Movimiento";
+import { NaturalezaMovimiento } from "../../../Domain/Enums/NaturalezaMovimiento";
 import { Dinero } from "../../../Domain/ValueObjects/Dinero";
 import { PostgresConnection } from "../PostgresConnection";
 import { MovimientoQueries } from "../Queries/MovimientoQueries";

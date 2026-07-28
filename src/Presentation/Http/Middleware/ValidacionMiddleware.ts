@@ -1,8 +1,4 @@
-import {
-    NextFunction,
-    Request,
-    Response
-} from "express";
+import { NextFunction, Request, Response } from "express";
 
 export class ValidacionMiddleware {
     public static validarMonto = (
@@ -10,7 +6,8 @@ export class ValidacionMiddleware {
         res: Response,
         next: NextFunction
     ): void => {
-        const monto = req.body?.monto;
+        const monto =
+            req.body?.monto;
 
         if (
             typeof monto !== "number" ||
@@ -90,40 +87,29 @@ export class ValidacionMiddleware {
             return;
         }
 
+        if (cuentaDestinoId !== undefined) {
+            res.status(400).json({
+                mensaje:
+                    "No debes enviar cuentaDestinoId; utiliza numeroCuentaDestino"
+            });
+
+            return;
+        }
+
         const numeroCuentaDestinoValido =
             typeof numeroCuentaDestino === "string" &&
             numeroCuentaDestino.trim().length > 0;
 
+        if (!numeroCuentaDestinoValido) {
+            res.status(400).json({
+                mensaje:
+                    "Debes indicar el número de cuenta destino"
+            });
+
+            return;
+        }
+
         if (tipoTransferencia === "LOCAL") {
-            const cuentaDestinoIdValida =
-                typeof cuentaDestinoId === "number" &&
-                Number.isInteger(cuentaDestinoId) &&
-                cuentaDestinoId > 0;
-
-            if (
-                !cuentaDestinoIdValida &&
-                !numeroCuentaDestinoValido
-            ) {
-                res.status(400).json({
-                    mensaje:
-                        "Debes indicar la cuenta destino local"
-                });
-
-                return;
-            }
-
-            if (
-                cuentaDestinoId !== undefined &&
-                numeroCuentaDestino !== undefined
-            ) {
-                res.status(400).json({
-                    mensaje:
-                        "Indica la cuenta destino local por ID o por número, no por ambos"
-                });
-
-                return;
-            }
-
             if (codigoBancoDestino !== undefined) {
                 res.status(400).json({
                     mensaje:
@@ -141,28 +127,10 @@ export class ValidacionMiddleware {
             typeof codigoBancoDestino === "string" &&
             codigoBancoDestino.trim().length > 0;
 
-        if (!numeroCuentaDestinoValido) {
-            res.status(400).json({
-                mensaje:
-                    "Debes indicar el número de cuenta destino"
-            });
-
-            return;
-        }
-
         if (!bancoDestinoValido) {
             res.status(400).json({
                 mensaje:
                     "Debes indicar el código del banco destino"
-            });
-
-            return;
-        }
-
-        if (cuentaDestinoId !== undefined) {
-            res.status(400).json({
-                mensaje:
-                    "Una transferencia interbancaria no debe contener cuentaDestinoId"
             });
 
             return;
@@ -177,7 +145,9 @@ export class ValidacionMiddleware {
         next: NextFunction
     ): void => {
         const clave =
-            req.header("Idempotency-Key");
+            req.header(
+                "Idempotency-Key"
+            );
 
         if (clave === undefined) {
             next();

@@ -3,6 +3,8 @@ import { Box, Text } from "ink";
 import SelectInput from "ink-select-input";
 import { opcionRegresar } from "../TuiOptions";
 import { HistorialItemTui } from "../TuiTypes";
+import { NaturalezaMovimiento } from "../../../../Domain/Enums/NaturalezaMovimiento";
+
 
 interface HistorialScreenProps {
     items: HistorialItemTui[];
@@ -70,7 +72,7 @@ export function HistorialScreen(
 }
 
 function obtenerColorMovimiento(
-    naturaleza?: "CREDITO" | "DEBITO"
+    naturaleza?: NaturalezaMovimiento
 ): "green" | "red" | "white" {
     if (naturaleza === "CREDITO") {
         return "green";

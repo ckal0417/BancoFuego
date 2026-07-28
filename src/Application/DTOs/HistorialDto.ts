@@ -1,5 +1,6 @@
 import { EstadoTransaccion } from "../../Domain/Enums/EstadoTransaccion";
 import { TipoTransaccion } from "../../Domain/Enums/TipoTransaccion";
+import { NaturalezaMovimiento } from "../../Domain/Enums/NaturalezaMovimiento";
 
 export interface HistorialItemDto {
     movimientoId: number;
@@ -8,7 +9,7 @@ export interface HistorialItemDto {
     monto: number;
     estado: EstadoTransaccion;
     fecha: Date;
-    naturaleza?: string;
+    naturaleza?: NaturalezaMovimiento;
     saldoAnterior: number;
     saldoPosterior: number;
 }

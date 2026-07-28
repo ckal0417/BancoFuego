@@ -1,6 +1,5 @@
+import { NaturalezaMovimiento } from "../Enums/NaturalezaMovimiento";
 import { Dinero } from "../ValueObjects/Dinero";
-
-export type NaturalezaMovimiento = "DEBITO" | "CREDITO";
 
 export class Movimiento {
     private constructor(
@@ -41,7 +40,10 @@ export class Movimiento {
         idCuenta: number;
         idTransaccion: number;
     }): Movimiento {
-        return this.crear({ naturaleza: "DEBITO", ...datos });
+        return this.crear({
+            naturaleza: "DEBITO",
+            ...datos
+        });
     }
 
     public static credito(datos: {
@@ -51,12 +53,15 @@ export class Movimiento {
         idCuenta: number;
         idTransaccion: number;
     }): Movimiento {
-        return this.crear({ naturaleza: "CREDITO", ...datos });
+        return this.crear({
+            naturaleza: "CREDITO",
+            ...datos
+        });
     }
 
     public static reconstruir(datos: {
         id: number;
-        naturaleza: NaturalezaMovimiento,
+        naturaleza: NaturalezaMovimiento;
         monto: Dinero;
         saldoAnterior: Dinero;
         saldoPosterior: Dinero;

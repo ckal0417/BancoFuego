@@ -1,56 +1,86 @@
-import {
-    TransferenciaRequestDto,
-    TransferenciaResponseDto
-} from "../../DTOs/Transferencias/TransferenciaDto";
+import { TransferenciaLocalResponseDto } from "../../DTOs/Transferencias/Local/TransferenciaLocalDto";
+import { TransferenciaInterbancariaResponseDto} from "../../DTOs/Transferencias/Interbancaria/TransferenciaInterbancariaDto";
 import { TiposEvento } from "../../Events/TiposEvento";
-import { TransferenciaLocalService } from "./Local/TransferenciaLocalService";
+import { PrepararTransferenciaLocalService} from "./Local/PrepararTransferenciaLocalService";
 import { TransferenciaInterbancariaService } from "./Interbancaria/TransferenciaInterbancariaService";
 import { EventBus } from "../../../Shared/Events/EventBus";
 import { Evento } from "../../../Shared/Events/Evento";
 
+export type EjecutarTransferenciaRequest =
+    | {
+        tipoTransferencia: "LOCAL";
+        cuentaOrigenId: number;
+        numeroCuentaDestino: string;
+        monto: number;
+        idempotencyKey?: string;
+        correoCliente?: string;
+    }
+    | {
+        tipoTransferencia: "INTERBANCARIA";
+        cuentaOrigenId: number;
+        numeroCuentaDestino: string;
+        codigoBancoDestino: string;
+        monto: number;
+        concepto?: string;
+        idempotencyKey?: string;
+        correoCliente?: string;
+    };
+
+export type EjecutarTransferenciaResponse =
+    | TransferenciaLocalResponseDto
+    | TransferenciaInterbancariaResponseDto;
+
 export class TransferenciaService {
     constructor(
-        private readonly transferenciaLocalService:
-            TransferenciaLocalService,
 
-        private readonly transferenciaInterbancariaService:
-            TransferenciaInterbancariaService,
-
+        private readonly prepararTransferenciaLocalService: PrepararTransferenciaLocalService,
+        private readonly transferenciaInterbancariaService: TransferenciaInterbancariaService,
         private readonly eventBus: EventBus
     ) {}
 
     public async ejecutar(
-        datos: TransferenciaRequestDto
-    ): Promise<TransferenciaResponseDto> {
+        datos: EjecutarTransferenciaRequest
+    ): Promise<EjecutarTransferenciaResponse> {
         const resultado =
             datos.tipoTransferencia === "LOCAL"
-                ? await this.transferenciaLocalService.ejecutar(
-                    datos
-                )
-                : await this.transferenciaInterbancariaService.ejecutar(
-                    datos
-                );
+                ? await this.prepararTransferenciaLocalService.ejecutar({
+                    
+                    cuentaOrigenId: datos.cuentaOrigenId,
+                    numeroCuentaDestino: datos.numeroCuentaDestino,
+                    monto: datos.monto,
+                    idempotencyKey:datos.idempotencyKey,
+                    correoCliente: datos.correoCliente
+                })
+                : await this.transferenciaInterbancariaService.ejecutar({
+                    
+                    cuentaOrigenId: datos.cuentaOrigenId,
+                    numeroCuentaDestino: datos.numeroCuentaDestino,
+                    codigoBancoDestino: datos.codigoBancoDestino,
+                    monto: datos.monto,
+                    concepto: datos.concepto,
+                    idempotencyKey: datos.idempotencyKey,
+                    correoCliente: datos.correoCliente
+                });
 
         /*
          * No publicamos nuevamente el evento cuando la respuesta
          * proviene de una petición idempotente repetida.
          */
         if (resultado.operacionNueva) {
-            const datosEntrada = datos as Record<string, any>;
             this.eventBus.publicar(
                 new Evento(
                     TiposEvento.TRANSFERENCIA_REALIZADA,
                     {
                         ...resultado.respuesta,
+
                         cuentaId: datos.cuentaOrigenId,
                         monto: datos.monto,
                         correoCliente: datos.correoCliente,
-                        numeroCuentaDestino: datosEntrada.numeroCuentaDestino ?? String(datosEntrada.cuentaDestinoId ?? '')
+                        numeroCuentaDestino: datos.numeroCuentaDestino
                     }
                 )
             );
         }
-
 
         return resultado.respuesta;
     }

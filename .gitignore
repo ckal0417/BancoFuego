@@ -23,3 +23,8 @@ Thumbs.db
 # Archivos temporales
 *.tmp
 *.temp
+
+# Variables de entorno
+.env
+.env.*
+!.env.example

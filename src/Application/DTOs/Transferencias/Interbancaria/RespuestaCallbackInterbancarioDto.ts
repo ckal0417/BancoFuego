@@ -1,7 +1,8 @@
+import { EstadoRespuestaInterbancaria } from "./EstadoRespuestaInterbancaria";
 
 export interface RespuestaCallbackInterbancarioRequestDto {
     referenciaExterna: string;
-    estado: "ACEPTADA" | "RECHAZADA";
+    estado: EstadoRespuestaInterbancaria;
     codigoError?: string;
     mensaje?: string;
 }

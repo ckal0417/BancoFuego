@@ -1,10 +1,5 @@
-import {
-    TransferenciaLocalRequestDto, TransferenciaLocalResponseDto
-} from "./Local/TransferenciaLocalDto";
-import {
-    TransferenciaInterbancariaRequestDto, TransferenciaInterbancariaResponseDto
-} from "./Interbancaria/TransferenciaInterbancariaDto";
-import { TipoTransferencia } from "../../../Domain/Enums/Transferencias/TipoTransferencia";
+import { TransferenciaLocalRequestDto, TransferenciaLocalResponseDto } from "./Local/TransferenciaLocalDto";
+import { TransferenciaInterbancariaRequestDto, TransferenciaInterbancariaResponseDto } from "./Interbancaria/TransferenciaInterbancariaDto";
 
 export type TransferenciaRequestDto =
     | ({
@@ -17,11 +12,3 @@ export type TransferenciaRequestDto =
 export type TransferenciaResponseDto =
     | TransferenciaLocalResponseDto
     | TransferenciaInterbancariaResponseDto;
-
-export interface TransferenciaBaseDto {
-    tipoTransferencia: TipoTransferencia;
-    cuentaOrigenId: number;
-    monto: number;
-    idempotencyKey?: string;
-    correoCliente?: string;
-}

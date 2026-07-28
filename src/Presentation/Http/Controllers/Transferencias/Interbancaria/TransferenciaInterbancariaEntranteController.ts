@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { RecibirTransferenciaInterbancariaRequestDto } from "../../../../../Application/DTOs/Transferencias/Interbancaria/RecibirTransferenciaInterbancaria";
-import { RecibirTransferenciaInterbancariaService } from "../../../../../Application/Services/Transferencias/Interbancaria/RecibirTransferenciaInterbacariaService";
+import { RecibirTransferenciaInterbancariaService } from "../../../../../Application/Services/Transferencias/Interbancaria/RecibirTransferenciaInterbancariaService";
 
 export class TransferenciaInterbancariaEntranteController {
     constructor(

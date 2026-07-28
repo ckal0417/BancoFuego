@@ -1,3 +1,5 @@
+import { NaturalezaMovimiento } from "../../../Domain/Enums/NaturalezaMovimiento";
+
 export type PantallaTui =
     | "LOGIN_TARJETA"
     | "LOGIN_PIN"
@@ -47,7 +49,7 @@ export type PasoTransferenciaInterbancaria =
 export interface HistorialItemTui {
     fecha: string | Date;
     tipo: string;
-    naturaleza?: "CREDITO" | "DEBITO";
+    naturaleza?: NaturalezaMovimiento;
     monto: number;
     saldoPosterior: number;
 }
@@ -56,54 +58,3 @@ export interface ItemSeleccion {
     label: string;
     value: string;
 }
-
-export type TipoTransferenciaTui =
-    | "LOCAL"
-    | "INTERBANCARIA";
-
-export interface TransferenciaLocalResponseTui {
-    mensaje?: string;
-    monto?: number;
-    cuentaDestino?: string;
-    saldoActual?: number;
-
-    tipo?: "TRANSFERENCIA_INTERNA";
-
-    origen?: {
-        cuentaId: number;
-        saldoAnterior: number;
-        saldoNuevo: number;
-    };
-
-    destino?: {
-        cuentaId: number;
-        saldoAnterior: number;
-        saldoNuevo: number;
-    };
-
-    transaccionId?: number;
-}
-
-export interface TransferenciaInterbancariaResponseTui {
-    tipo: "TRANSFERENCIA_EXTERNA";
-
-    origen: {
-        cuentaId: number;
-        saldoAnterior: number;
-        saldoNuevo: number;
-    };
-
-    transaccionId: number;
-
-    estado:
-        | "PENDIENTE"
-        | "EXITOSA"
-        | "FALLIDA";
-
-    referenciaExterna?: string;
-
-    mensaje?: string;
-}
-
-export type PasoTransferencia =
-    PasoTransferenciaLocal;

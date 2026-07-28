@@ -18,28 +18,23 @@ export const openApiConfig = {
     tags: [
         {
             name: "Sistema",
-            description:
-                "Estado general de la API"
+            description: "Estado general de la API"
         },
         {
             name: "Autenticación",
-            description:
-                "Inicio de sesión mediante tarjeta y PIN"
+            description: "Inicio de sesión mediante tarjeta y PIN"
         },
         {
             name: "Operaciones",
-            description:
-                "Depósitos y retiros"
+            description: "Depósitos y retiros"
         },
         {
             name: "Transferencias",
-            description:
-                "Transferencias internas e interbancarias"
+            description:  "Transferencias internas e interbancarias"
         },
         {
             name: "Historial",
-            description:
-                "Historial de la cuenta autenticada"
+            description: "Historial de la cuenta autenticada"
         }
     ],
 
@@ -57,14 +52,12 @@ export const openApiConfig = {
                 name: "Idempotency-Key",
                 in: "header",
                 required: false,
-                description:
-                    "Clave única para evitar que una operación repetida se ejecute más de una vez.",
+                description: "Clave única para evitar que una operación repetida se ejecute más de una vez.",
                 schema: {
                     type: "string",
                     minLength: 1,
                     maxLength: 100,
-                    example:
-                        "operacion-2026-0001"
+                    example: "operacion-2026-0001"
                 }
             }
         },
@@ -78,13 +71,11 @@ export const openApiConfig = {
                 properties: {
                     mensaje: {
                         type: "string",
-                        example:
-                            "La solicitud no pudo ser procesada"
+                        example:  "La solicitud no pudo ser procesada"
                     },
                     codigo: {
                         type: "string",
-                        example:
-                            "REGLA_NEGOCIO"
+                        example:  "REGLA_NEGOCIO"
                     },
                     fecha: {
                         type: "string",
@@ -102,13 +93,11 @@ export const openApiConfig = {
                 properties: {
                     numeroTarjeta: {
                         type: "string",
-                        example:
-                            "4000000000000001"
+                        example: "4000000000000001"
                     },
                     pin: {
                         type: "string",
-                        example:
-                            "1234"
+                        example: "1234"
                     }
                 }
             },
@@ -124,8 +113,7 @@ export const openApiConfig = {
                 properties: {
                     token: {
                         type: "string",
-                        example:
-                            "eyJhbGciOiJIUzI1NiIs..."
+                        example: "eyJhbGciOiJIUzI1NiIs..."
                     },
                     cuentaId: {
                         type: "integer",
@@ -133,8 +121,7 @@ export const openApiConfig = {
                     },
                     numeroCuenta: {
                         type: "string",
-                        example:
-                            "2200000001"
+                        example: "2200000001"
                     },
                     saldo: {
                         type: "number",
@@ -192,14 +179,21 @@ export const openApiConfig = {
             TransferenciaInternaRequest: {
                 type: "object",
                 required: [
-                    "cuentaDestinoId",
+                    "tipoTransferencia",
+                    "numeroCuentaDestino",
                     "monto"
                 ],
                 properties: {
-                    cuentaDestinoId: {
-                        type: "integer",
-                        minimum: 1,
-                        example: 2
+                    tipoTransferencia: {
+                        type: "string",
+                        enum: [
+                            "LOCAL"
+                        ],
+                        example: "LOCAL"
+                    },
+                    numeroCuentaDestino: {
+                        type: "string",
+                        example: "3300000002"
                     },
                     monto: {
                         type: "number",
@@ -213,26 +207,36 @@ export const openApiConfig = {
             TransferenciaInterbancariaRequest: {
                 type: "object",
                 required: [
+                    "tipoTransferencia",
                     "numeroCuentaDestino",
                     "codigoBancoDestino",
                     "monto"
                 ],
                 properties: {
+                    tipoTransferencia: {
+                        type: "string",
+                        enum: [
+                            "INTERBANCARIA"
+                        ],
+                        example: "INTERBANCARIA"
+                    },
                     numeroCuentaDestino: {
                         type: "string",
-                        example:
-                            "3300000002"
+                        example: "3300000002"
                     },
                     codigoBancoDestino: {
                         type: "string",
-                        example:
-                            "BANCO2"
+                        example: "BANCO2"
                     },
                     monto: {
                         type: "number",
                         format: "double",
                         minimum: 0.01,
                         example: 75
+                    },
+                    concepto: {
+                        type: "string",
+                        example: "Pago de servicios"
                     }
                 }
             },
@@ -351,8 +355,7 @@ export const openApiConfig = {
                                         },
                                         servicio: {
                                             type: "string",
-                                            example:
-                                                "BancoFuego API"
+                                            example: "BancoFuego API"
                                         },
                                         fecha: {
                                             type: "string",
@@ -372,43 +375,36 @@ export const openApiConfig = {
                 tags: [
                     "Autenticación"
                 ],
-                summary:
-                    "Autentica una tarjeta mediante su PIN",
+                summary: "Autentica una tarjeta mediante su PIN",
                 requestBody: {
                     required: true,
                     content: {
                         "application/json": {
                             schema: {
-                                $ref:
-                                    "#/components/schemas/LoginRequest"
+                                $ref: "#/components/schemas/LoginRequest"
                             }
                         }
                     }
                 },
                 responses: {
                     "200": {
-                        description:
-                            "Autenticación correcta",
+                        description: "Autenticación correcta",
                         content: {
                             "application/json": {
                                 schema: {
-                                    $ref:
-                                        "#/components/schemas/LoginResponse"
+                                    $ref: "#/components/schemas/LoginResponse"
                                 }
                             }
                         }
                     },
                     "400": {
-                        description:
-                            "Datos de entrada incorrectos"
+                        description:"Datos de entrada incorrectos"
                     },
                     "401": {
-                        description:
-                            "PIN incorrecto"
+                        description: "PIN incorrecto"
                     },
                     "404": {
-                        description:
-                            "Tarjeta, autenticación o cuenta no encontrada"
+                        description: "Tarjeta, autenticación o cuenta no encontrada"
                     }
                 }
             }
@@ -419,8 +415,7 @@ export const openApiConfig = {
                 tags: [
                     "Operaciones"
                 ],
-                summary:
-                    "Realiza un depósito en la cuenta autenticada",
+                summary: "Realiza un depósito en la cuenta autenticada",
                 security: [
                     {
                         bearerAuth: []
@@ -428,8 +423,7 @@ export const openApiConfig = {
                 ],
                 parameters: [
                     {
-                        $ref:
-                            "#/components/parameters/IdempotencyKey"
+                        $ref: "#/components/parameters/IdempotencyKey"
                     }
                 ],
                 requestBody: {

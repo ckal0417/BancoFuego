@@ -1,18 +1,7 @@
-import {
-    TransferenciaLocalResponseDto
-} from "../../../DTOs/Transferencias/Local/TransferenciaLocalDto";
-
-import {
-    ICuentaRepository
-} from "../../../Ports/ICuentaRepository";
-
-import {
-    CuentaNoEncontradaError
-} from "../../../../Domain/Errors/DomainErrors";
-
-import {
-    TransferenciaLocalService
-} from "./TransferenciaLocalService";
+import { TransferenciaLocalResponseDto } from "../../../DTOs/Transferencias/Local/TransferenciaLocalDto";
+import { ICuentaRepository } from "../../../Ports/ICuentaRepository";
+import { CuentaNoEncontradaError } from "../../../../Domain/Errors/DomainErrors";
+import { TransferenciaLocalService } from "./TransferenciaLocalService";
 
 export interface PrepararTransferenciaLocalRequest {
     cuentaOrigenId: number;
@@ -29,28 +18,21 @@ export interface ResultadoPrepararTransferenciaLocal {
 
 export class PrepararTransferenciaLocalService {
     constructor(
-        private readonly cuentaRepository:
-            ICuentaRepository,
 
-        private readonly transferenciaLocalService:
-            TransferenciaLocalService
+        private readonly cuentaRepository: ICuentaRepository,
+        private readonly transferenciaLocalService: TransferenciaLocalService
     ) {}
 
     public async ejecutar(
         datos: PrepararTransferenciaLocalRequest
     ): Promise<ResultadoPrepararTransferenciaLocal> {
-        const numeroCuentaDestino =
-            datos.numeroCuentaDestino.trim();
-
+        const numeroCuentaDestino = datos.numeroCuentaDestino.trim();
         const cuentaDestino =
             await this.cuentaRepository
                 .buscarPorNumeroCuentaParaActualizar(
                     numeroCuentaDestino
                 );
-
-        const cuentaDestinoId =
-            cuentaDestino?.obtenerId();
-
+        const cuentaDestinoId = cuentaDestino?.obtenerId();
         if (
             !cuentaDestino ||
             cuentaDestinoId === undefined
@@ -61,19 +43,12 @@ export class PrepararTransferenciaLocalService {
         }
 
         return this.transferenciaLocalService.ejecutar({
-            cuentaOrigenId:
-                datos.cuentaOrigenId,
-
+            
+            cuentaOrigenId: datos.cuentaOrigenId,
             cuentaDestinoId,
-
-            monto:
-                datos.monto,
-
-            idempotencyKey:
-                datos.idempotencyKey,
-
-            correoCliente:
-                datos.correoCliente
+            monto: datos.monto,
+            idempotencyKey: datos.idempotencyKey,
+            correoCliente: datos.correoCliente
         });
     }
 }

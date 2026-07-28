@@ -1,39 +1,18 @@
 import { useState } from "react";
-
-import {
-    ServiciosTui
-} from "../../TuiServices";
-
-import {
-    MensajeTui,
-    PantallaTui,
-    PasoTransferenciaLocal,
-    SesionTui
-} from "../../TuiTypes";
-
-import {
-    pasoTransferenciaLocalInicial
-} from "../../TuiState";
-
-import {
-    TuiMensajes
-} from "../../TuiMensajes";
-
-import {
-    TuiValidaciones
-} from "../../TuiValidaciones";
+import { ServiciosTui } from "../../TuiServices";
+import { MensajeTui, PantallaTui,  PasoTransferenciaLocal, SesionTui } from "../../TuiTypes";
+import { pasoTransferenciaLocalInicial } from "../../TuiState";
+import { TuiMensajes } from "../../TuiMensajes";
+import { TuiValidaciones } from "../../TuiValidaciones";
 
 interface UseTransferenciaLocalControllerParametros {
+    
     servicios: ServiciosTui;
-
     sesion: SesionTui | null;
 
     actualizarSesion: (
-        actualizador: (
-            sesionActual: SesionTui
-        ) => SesionTui
+        actualizador: ( sesionActual: SesionTui ) => SesionTui
     ) => void;
-
     mostrarMensaje: (
         mensaje: MensajeTui,
         pantallaSiguiente: PantallaTui
@@ -41,8 +20,7 @@ interface UseTransferenciaLocalControllerParametros {
 }
 
 export function useTransferenciaLocalController(
-    parametros:
-        UseTransferenciaLocalControllerParametros
+    parametros: UseTransferenciaLocalControllerParametros
 ) {
     const {
         servicios,
@@ -105,9 +83,7 @@ export function useTransferenciaLocalController(
 
         setMontoTransferenciaLocal("");
 
-        setPasoTransferenciaLocal(
-            "MONTO"
-        );
+        setPasoTransferenciaLocal( "MONTO" );
     }
 
     async function ejecutar():
@@ -120,14 +96,10 @@ export function useTransferenciaLocalController(
                 ),
                 "LOGIN_TARJETA"
             );
-
             return;
         }
 
-        const monto =
-            TuiValidaciones.monto(
-                montoTransferenciaLocal
-            );
+        const monto = TuiValidaciones.monto( montoTransferenciaLocal);
 
         if (monto === null) {
             mostrarMensaje(
@@ -137,66 +109,39 @@ export function useTransferenciaLocalController(
                 ),
                 "TRANSFERENCIA_LOCAL"
             );
+            return;
+        }
+
+        const numeroDestino = numeroCuentaDestino.trim();
+
+        if (
+            numeroDestino ===
+            sesion.numeroCuenta
+        ) {
+            mostrarMensaje(
+                TuiMensajes.error(
+                    "Cuenta inválida",
+                    "No puede transferir dinero a la misma cuenta de origen."
+                ),
+                "TRANSFERENCIA_LOCAL"
+            );
 
             return;
         }
 
-        setCargandoTransferenciaLocal(
-            true
-        );
+        setCargandoTransferenciaLocal( true );
 
         try {
-            const numeroDestino =
-                numeroCuentaDestino.trim();
-
-            const cuentaDestino =
-                await servicios
-                    .cuentaRepository
-                    .buscarPorNumeroCuentaParaActualizar(
-                        numeroDestino
-                    );
-
-            const cuentaDestinoId =
-                cuentaDestino?.obtenerId();
-
-            if (
-                !cuentaDestino ||
-                cuentaDestinoId === undefined
-            ) {
-                throw new Error(
-                    "La cuenta destino no pertenece a Banco Fuego."
-                );
-            }
-
-            if (
-                cuentaDestinoId ===
-                sesion.cuentaId
-            ) {
-                throw new Error(
-                    "No puede transferir dinero a la misma cuenta de origen."
-                );
-            }
-
-            const resultado =
-                await servicios
-                    .transferenciaService
-                    .ejecutar({
-                        tipoTransferencia:
-                            "LOCAL",
-
-                        cuentaOrigenId:
-                            sesion.cuentaId,
-
-                        cuentaDestinoId,
-
-                        monto,
-
-                        correoCliente:
-                            sesion.correoCliente
-                    });
-
-            const nuevoSaldo =
-                resultado.origen.saldoNuevo;
+            const resultado = await servicios
+                .transferenciaService
+                .ejecutar({
+                    tipoTransferencia: "LOCAL",
+                    cuentaOrigenId: sesion.cuentaId,
+                    numeroCuentaDestino: numeroDestino,
+                    monto, 
+                    correoCliente: sesion.correoCliente
+                });
+            const nuevoSaldo = resultado.origen.saldoNuevo;
 
             actualizarSesion(
                 (sesionActual) => ({
@@ -206,11 +151,9 @@ export function useTransferenciaLocalController(
             );
 
             limpiar();
-
             mostrarMensaje(
                 TuiMensajes.exito(
                     "Transferencia local exitosa",
-
                     `Se transfirieron $${monto.toFixed(2)} a la cuenta ${numeroDestino}.\nNuevo saldo: $${nuevoSaldo.toFixed(2)}`
                 ),
                 "MENU_PRINCIPAL"
@@ -219,32 +162,22 @@ export function useTransferenciaLocalController(
             mostrarMensaje(
                 TuiMensajes.desdeError(
                     "Error en transferencia local",
-
                     error,
-
                     "No se pudo procesar la transferencia local."
                 ),
                 "TRANSFERENCIA_LOCAL"
             );
         } finally {
-            setCargandoTransferenciaLocal(
-                false
-            );
+            setCargandoTransferenciaLocal(false);
         }
     }
 
     function limpiar(): void {
+
         setNumeroCuentaDestino("");
-
         setMontoTransferenciaLocal("");
-
-        setPasoTransferenciaLocal(
-            pasoTransferenciaLocalInicial
-        );
-
-        setCargandoTransferenciaLocal(
-            false
-        );
+        setPasoTransferenciaLocal(pasoTransferenciaLocalInicial);
+        setCargandoTransferenciaLocal(false);
     }
 
     return {
@@ -252,17 +185,12 @@ export function useTransferenciaLocalController(
         montoTransferenciaLocal,
         pasoTransferenciaLocal,
         cargandoTransferenciaLocal,
-
         setNumeroCuentaDestino,
         setMontoTransferenciaLocal,
-
         continuar,
         ejecutar,
         limpiar
     };
 }
 
-export type TransferenciaLocalController =
-    ReturnType<
-        typeof useTransferenciaLocalController
-    >;
+export type TransferenciaLocalController = ReturnType< typeof useTransferenciaLocalController >;

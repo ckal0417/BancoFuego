@@ -1,13 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { BancoApiClient } from "../Clients/BancoApiClient";
 import {
-    ConsultaTransferenciaInterbancariaResponse,
-    TransferenciaInterbancariaRequest,
-    TransferenciaInterbancariaResponse,
-    TransferenciaLocalRequest,
-    TransferenciaLocalResponse,
-    TransferenciaResponse
-} from "../Types/TransferenciaTypes";
+    ConsultaTransferenciaInterbancariaResponse, TransferenciaInterbancariaRequest,
+    TransferenciaInterbancariaResponse, TransferenciaLocalRequest,
+    TransferenciaLocalResponse,TransferenciaResponse
+} from "../../Contracts/Api/Transferencias/TransferenciaContracts";
 
 export class TransferenciaApiService {
     constructor(
@@ -27,7 +24,7 @@ export class TransferenciaApiService {
             {
                 tipoTransferencia: "LOCAL",
                 numeroCuentaDestino: datos.numeroCuentaDestino,
-                monto:datos.monto
+                monto: datos.monto
             },
             undefined,
             this.crearHeadersIdempotencia()
@@ -45,20 +42,11 @@ export class TransferenciaApiService {
         >(
             "/transferencias",
             {
-                tipoTransferencia:
-                    "INTERBANCARIA",
-
-                numeroCuentaDestino:
-                    datos.numeroCuentaDestino,
-
-                codigoBancoDestino:
-                    datos.codigoBancoDestino,
-
-                monto:
-                    datos.monto,
-
-                concepto:
-                    datos.concepto
+                tipoTransferencia: "INTERBANCARIA",
+                numeroCuentaDestino: datos.numeroCuentaDestino,
+                codigoBancoDestino: datos.codigoBancoDestino,
+                monto: datos.monto,
+                concepto: datos.concepto
             },
             undefined,
             this.crearHeadersIdempotencia()
@@ -78,28 +66,23 @@ export class TransferenciaApiService {
             | TransferenciaLocalRequest
             | TransferenciaInterbancariaRequest
     ): Promise<TransferenciaResponse> {
-        if (datos.tipoTransferencia === "LOCAL") {
+        if (
+            datos.tipoTransferencia === "LOCAL"
+        ) {
             return this.transferirLocal({
-                numeroCuentaDestino:
-                    datos.numeroCuentaDestino,
 
-                monto:
-                    datos.monto
+                numeroCuentaDestino: datos.numeroCuentaDestino,
+                monto: datos.monto
             });
         }
 
         return this.transferirInterbancaria({
-            numeroCuentaDestino:
-                datos.numeroCuentaDestino,
 
-            codigoBancoDestino:
-                datos.codigoBancoDestino,
-
-            monto:
-                datos.monto,
-
-            concepto:
-                datos.concepto
+            numeroCuentaDestino: datos.numeroCuentaDestino,
+            codigoBancoDestino: datos.codigoBancoDestino,
+            monto: datos.monto,
+            concepto: datos.concepto
+            
         });
     }
 
@@ -113,10 +96,10 @@ export class TransferenciaApiService {
         );
     }
 
-    private crearHeadersIdempotencia(): Record<string, string> {
+    private crearHeadersIdempotencia():
+        Record<string, string> {
         return {
-            "Idempotency-Key":
-                randomUUID()
+            "Idempotency-Key":  randomUUID()
         };
     }
 }

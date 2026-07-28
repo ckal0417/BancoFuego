@@ -1,4 +1,10 @@
 import { SubscriberFactory } from "../Application/Events/SubscriberFactory";
+import { AplicarResultadoInterbancarioService } from "../Application/Services/Transferencias/Interbancaria/AplicarResultadoInterbancarioService";
+import { ProcesarRespuestaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/ProcesarRespuestaInterbancariaService";
+import { RecibirTransferenciaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/RecibirTransferenciaInterbancariaService";
+import { TransferenciaInterbancariaEstadoService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaEstadoService";
+import { TransferenciaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaService";
+import { TransferenciaLocalService } from "../Application/Services/Transferencias/Local/TransferenciaLocalService";
 import { AutenticacionService } from "../Application/Services/AutenticacionService";
 import { CuentaService } from "../Application/Services/CuentaService";
 import { DepositoService } from "../Application/Services/DepositoService";
@@ -6,12 +12,10 @@ import { HistorialService } from "../Application/Services/HistorialService";
 import { IdempotenciaService } from "../Application/Services/IdempotenciaService";
 import { RetiroService } from "../Application/Services/RetiroService";
 import { TransferenciaService } from "../Application/Services/Transferencias/TransferenciaService";
-import { TransferenciaLocalService } from "../Application/Services/Transferencias/Local/TransferenciaLocalService";
-import { TransferenciaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaService";
-import { TransferenciaInterbancariaEstadoService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaEstadoService";
 import { RedBancariaSimuladaClient } from "../Infrastructure/Clients/Transferencias/Interbancaria/RedBancariaSimuladaClient";
 import { PostgresUnidadDeTrabajo } from "../Infrastructure/Database/PostgresUnidadDeTrabajo";
 import { AutenticacionRepositoryPostgres } from "../Infrastructure/Database/Repositories/AutenticacionRepositoryPostgres";
+import { ClienteRepositoryPostgres } from "../Infrastructure/Database/Repositories/ClienteRepositoryPostgres";
 import { CuentaRepositoryPostgres } from "../Infrastructure/Database/Repositories/CuentaRepositoryPostgres";
 import { MovimientoRepositoryPostgres } from "../Infrastructure/Database/Repositories/MovimientoRepositoryPostgres";
 import { TarjetaRepositoryPostgres } from "../Infrastructure/Database/Repositories/TarjetaRepositoryPostgres";
@@ -23,17 +27,23 @@ import { CuentaController } from "../Presentation/Http/Controllers/CuentaControl
 import { HistorialController } from "../Presentation/Http/Controllers/HistorialController";
 import { OperacionController } from "../Presentation/Http/Controllers/OperacionController";
 import { TransferenciaController } from "../Presentation/Http/Controllers/Transferencias/TransferenciaController";
+import { TransferenciaInterbancariaCallbackController } from "../Presentation/Http/Controllers/Transferencias/Interbancaria/TransferenciaInterbancariaCallbackController";
+import { TransferenciaInterbancariaEntranteController } from "../Presentation/Http/Controllers/Transferencias/Interbancaria/TransferenciaInterbancariaEntranteController";
 import { TransferenciaInterbancariaEstadoController } from "../Presentation/Http/Controllers/Transferencias/Interbancaria/TransferenciaInterbancariaEstadoController";
 import { AuthMiddleware } from "../Presentation/Http/Middleware/AuthMiddleware";
 import { EventBus } from "../Shared/Events/EventBus";
-import { AplicarResultadoInterbancarioService } from "../Application/Services/Transferencias/Interbancaria/AplicarResultadoInterbancarioService";
+import { PrepararTransferenciaLocalService } from "../Application/Services/Transferencias/Local/PrepararTransferenciaLocalService";
+
 
 /*
- * Eventos
+ * Eventos.
  */
-const eventBus = new EventBus();
+const eventBus =
+    new EventBus();
 
-SubscriberFactory.crear(eventBus);
+SubscriberFactory.crear(
+    eventBus
+);
 
 /*
  * Repositorios usados directamente por servicios de consulta.
@@ -52,6 +62,9 @@ const transaccionRepository =
 
 const movimientoRepository =
     new MovimientoRepositoryPostgres();
+
+const clienteRepository =
+    new ClienteRepositoryPostgres();
 
 /*
  * Unidad de trabajo para operaciones bancarias atómicas.
@@ -85,14 +98,6 @@ const cuentaService =
         cuentaRepository
     );
 
-import { ClienteRepositoryPostgres } from "../Infrastructure/Database/Repositories/ClienteRepositoryPostgres";
-import { ProcesarRespuestaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/ProcesarRespuestaInterbancariaService";
-import { TransferenciaInterbancariaCallbackController } from "../Presentation/Http/Controllers/Transferencias/Interbancaria/TransferenciaInterbancariaCallbackController";
-import { RecibirTransferenciaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/RecibirTransferenciaInterbacariaService";
-import { TransferenciaInterbancariaEntranteController } from "../Presentation/Http/Controllers/Transferencias/Interbancaria/TransferenciaInterbancariaEntranteController";
-
-const clienteRepository = new ClienteRepositoryPostgres();
-
 const autenticacionService =
     new AutenticacionService(
         tarjetaRepository,
@@ -102,7 +107,6 @@ const autenticacionService =
         tokenService,
         clienteRepository
     );
-
 
 const depositoService =
     new DepositoService(
@@ -133,6 +137,12 @@ const transferenciaLocalService =
         idempotenciaService
     );
 
+const prepararTransferenciaLocalService =
+    new PrepararTransferenciaLocalService(
+        cuentaRepository,
+        transferenciaLocalService
+    );
+
 const transferenciaInterbancariaService =
     new TransferenciaInterbancariaService(
         unidadDeTrabajo,
@@ -142,7 +152,7 @@ const transferenciaInterbancariaService =
 
 const transferenciaService =
     new TransferenciaService(
-        transferenciaLocalService,
+        prepararTransferenciaLocalService,
         transferenciaInterbancariaService,
         eventBus
     );
@@ -169,7 +179,6 @@ const recibirTransferenciaInterbancariaService =
     new RecibirTransferenciaInterbancariaService(
         unidadDeTrabajo
     );
-
 
 /*
  * Controladores.
@@ -230,9 +239,13 @@ function obtenerEnteroPositivo(
     valor: string | undefined,
     predeterminado: number
 ): number {
-    const numero = Number(valor);
+    const numero =
+        Number(valor);
 
-    return Number.isInteger(numero) && numero > 0
+    return (
+        Number.isInteger(numero) &&
+        numero > 0
+    )
         ? numero
         : predeterminado;
 }
