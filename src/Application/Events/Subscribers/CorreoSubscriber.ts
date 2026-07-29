@@ -15,7 +15,7 @@ interface DatosCorreoEvento {
     numeroCuentaDestino?: string;
     cuentaDestinoId?: number;
     tipo?: string;
-
+    naturaleza?: "DEBITO" | "CREDITO";
     origen?: {
         cuentaId?: number;
         saldoNuevo?: number;
@@ -94,7 +94,7 @@ export class CorreoSubscriber implements IEventSubscriber {
                     <h2 style="color: #28a745;">🔥 Banco Fuego - Depósito Confirmado</h2>
                     <p>Se ha abonado exitosamente a su cuenta.</p>
                     <p><strong>Monto Depositado:</strong> $${datos.monto ?? "0.00"}</p>
-                    <p><strong>Nuevo Saldo:</strong> $${datos.saldoNuevo ?? "0.00"}</p>
+        
                     <p style="color: #666; font-size: 12px;">
                         Gracias por confiar en Banco Fuego.
                     </p>
@@ -107,40 +107,28 @@ export class CorreoSubscriber implements IEventSubscriber {
                     <h2 style="color: #dc3545;">🔥 Banco Fuego - Retiro de Efectivo</h2>
                     <p>Se ha realizado un retiro de dinero en su cuenta.</p>
                     <p><strong>Monto Retirado:</strong> $${datos.monto ?? "0.00"}</p>
-                    <p><strong>Nuevo Saldo:</strong> $${datos.saldoNuevo ?? "0.00"}</p>
+                    
                     <p style="color: #666; font-size: 12px;">
                         Si no realizó esta transacción, bloquee su tarjeta o comuníquese con el banco.
                     </p>
                 </div>
             `;
-        } else if (
-            evento.nombre === "TRANSFERENCIA_REALIZADA"
-        ) {
-            const saldoNuevo =
-                datos.origen?.saldoNuevo ??
-                datos.saldoNuevoOrigen ??
-                "0.00";
-            const montoStr =
-                datos.monto !== undefined
-                ? datos.monto.toFixed(2)
-                : "0.00";
+        } else if (evento.nombre === "TRANSFERENCIA_REALIZADA") {
+            const montoStr = datos.monto !== undefined ? datos.monto.toFixed(2) : "0.00";
+            const esCredito = datos.naturaleza === "CREDITO";
+
             let cuentaDestinoTexto = datos.numeroCuentaDestino;
-            const idDestino =
-                datos.destino?.cuentaId ??
-                datos.cuentaDestinoId;
+            const idDestino = datos.destino?.cuentaId ?? datos.cuentaDestinoId;
 
             if (idDestino !== undefined) {
                 try {
-                    const cuentaDestino = await this.cuentaRepo.buscarPorId( idDestino);
+                    const cuentaDestino = await this.cuentaRepo.buscarPorId(idDestino);
+
                     if (cuentaDestino) {
-                        cuentaDestinoTexto =
-                            cuentaDestino
-                                .obtenerNumeroCuenta()
-                                .toString();
+                        cuentaDestinoTexto = cuentaDestino.obtenerNumeroCuenta().toString();
                     }
                 } catch {
-                    // Si falla la búsqueda por ID,
-                    // mantenemos la cuenta recibida.
+                    // Conservamos el número recibido en el evento.
                 }
             }
 
@@ -148,28 +136,39 @@ export class CorreoSubscriber implements IEventSubscriber {
                 cuentaDestinoTexto = "No especificada";
             }
 
-            asunto = "🔥 Banco Fuego - Comprobante de Transferencia Bancaria";
-            htmlContent = `
-                <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #007bff; border-radius: 8px;">
-                    <h2 style="color: #007bff;">🔥 Banco Fuego - Transferencia Realizada</h2>
-                    <p>Se ha completado exitosamente la transferencia de fondos desde su cuenta.</p>
-                    <p><strong>Monto Transferido:</strong> $${montoStr}</p>
-                    <p><strong>Cuenta Destino:</strong> ${cuentaDestinoTexto}</p>
-                    <p>
-                        <strong>Tipo de Transferencia:</strong>
-                        ${
-                            datos.tipo ===
-                            "TRANSFERENCIA_EXTERNA"
-                                ? "Interbancaria"
-                                : "Interna (Banco Fuego)"
-                        }
-                    </p>
-                    <p><strong>Nuevo Saldo Disponible:</strong> $${saldoNuevo}</p>
-                    <p style="color: #666; font-size: 12px;">
-                        Gracias por utilizar nuestros servicios financieros.
-                    </p>
-                </div>
-            `;
+            if (esCredito) {
+                asunto = "🔥 Banco Fuego - Transferencia Recibida";
+
+                htmlContent = `
+                    <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #28a745; border-radius: 8px;">
+                        <h2 style="color: #28a745;">🔥 Banco Fuego - Dinero Recibido</h2>
+                        <p>Se ha acreditado una transferencia en su cuenta.</p>
+                        <p><strong>Monto Depositado:</strong> $${montoStr}</p>
+                        <p><strong>Tipo de Movimiento:</strong> Crédito recibido</p>
+                        <p style="color: #666; font-size: 12px;">
+                            El dinero fue depositado correctamente en su cuenta.
+                        </p>
+                    </div>
+                `;
+            } else {
+                asunto = "🔥 Banco Fuego - Débito por Transferencia";
+
+                htmlContent = `
+                    <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #dc3545; border-radius: 8px;">
+                        <h2 style="color: #dc3545;">🔥 Banco Fuego - Transferencia Debitada</h2>
+                        <p>Se ha debitado dinero de su cuenta para realizar una transferencia.</p>
+                        <p><strong>Monto Debitado:</strong> $${montoStr}</p>
+                        <p><strong>Cuenta Destino:</strong> ${cuentaDestinoTexto}</p>
+                        <p>
+                            <strong>Tipo de Transferencia:</strong>
+                            ${datos.tipo === "TRANSFERENCIA_EXTERNA" ? "Interbancaria" : "Interna (Banco Fuego)"}
+                        </p>
+                        <p style="color: #666; font-size: 12px;">
+                            Si no reconoce esta operación, comuníquese inmediatamente con el banco.
+                        </p>
+                    </div>
+                `;
+            }
         }
 
         await this.emailService.enviarCorreo({

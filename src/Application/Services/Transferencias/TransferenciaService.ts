@@ -68,18 +68,27 @@ export class TransferenciaService {
          */
         if (resultado.operacionNueva) {
             this.eventBus.publicar(
-                new Evento(
-                    TiposEvento.TRANSFERENCIA_REALIZADA,
-                    {
-                        ...resultado.respuesta,
-
-                        cuentaId: datos.cuentaOrigenId,
-                        monto: datos.monto,
-                        correoCliente: datos.correoCliente,
-                        numeroCuentaDestino: datos.numeroCuentaDestino
-                    }
-                )
+                new Evento(TiposEvento.TRANSFERENCIA_REALIZADA, {
+                    ...resultado.respuesta,
+                    naturaleza: "DEBITO",
+                    cuentaId: datos.cuentaOrigenId,
+                    monto: datos.monto,
+                    correoCliente: datos.correoCliente,
+                    numeroCuentaDestino: datos.numeroCuentaDestino
+                })
             );
+
+            if (datos.tipoTransferencia === "LOCAL" && resultado.respuesta.tipo === "TRANSFERENCIA_INTERNA") {
+                this.eventBus.publicar(
+                    new Evento(TiposEvento.TRANSFERENCIA_REALIZADA, {
+                        naturaleza: "CREDITO",
+                        cuentaId: resultado.respuesta.destino.cuentaId,
+                        cuentaDestinoId: resultado.respuesta.destino.cuentaId,
+                        monto: datos.monto,
+                        tipo: resultado.respuesta.tipo
+                    })
+                );
+            }
         }
 
         return resultado.respuesta;
