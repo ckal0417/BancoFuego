@@ -1,276 +1,123 @@
 import { useState } from "react";
-
-import {
-    ServiciosTui
-} from "../../TuiServices";
-
-import {
-    MensajeTui,
-    PantallaTui,
-    PasoTransferenciaInterbancaria,
-    SesionTui
-} from "../../TuiTypes";
-
-import {
-    pasoTransferenciaInterbancariaInicial
-} from "../../TuiState";
-
-import {
-    TuiMensajes
-} from "../../TuiMensajes";
-
-import {
-    TuiValidaciones
-} from "../../TuiValidaciones";
+import { ServiciosTui } from "../../TuiServices";
+import { MensajeTui, PantallaTui, PasoTransferenciaInterbancaria, SesionTui } from "../../TuiTypes";
+import { pasoTransferenciaInterbancariaInicial } from "../../TuiState";
+import { TuiMensajes } from "../../TuiMensajes";
+import { TuiValidaciones } from "../../TuiValidaciones";
 
 interface UseTransferenciaInterbancariaControllerParametros {
     servicios: ServiciosTui;
-
     sesion: SesionTui | null;
-
-    actualizarSesion: (
-        actualizador: (
-            sesionActual: SesionTui
-        ) => SesionTui
-    ) => void;
-
-    mostrarMensaje: (
-        mensaje: MensajeTui,
-        pantallaSiguiente: PantallaTui
-    ) => void;
+    actualizarSesion: (actualizador: (sesionActual: SesionTui) => SesionTui) => void;
+    mostrarMensaje: (mensaje: MensajeTui, pantallaSiguiente: PantallaTui) => void;
 }
 
 export function useTransferenciaInterbancariaController(
-    parametros:
-        UseTransferenciaInterbancariaControllerParametros
+    parametros: UseTransferenciaInterbancariaControllerParametros
 ) {
-    const {
-        servicios,
-        sesion,
-        actualizarSesion,
-        mostrarMensaje
-    } = parametros;
-
-    const [
-        codigoBancoDestino,
-        setCodigoBancoDestino
-    ] = useState("");
-
-    const [
-        numeroCuentaDestino,
-        setNumeroCuentaDestino
-    ] = useState("");
-
-    const [
-        montoTransferenciaInterbancaria,
-        setMontoTransferenciaInterbancaria
-    ] = useState("");
-
-    const [
-        conceptoTransferencia,
-        setConceptoTransferencia
-    ] = useState("");
-
-    const [
-        pasoTransferenciaInterbancaria,
-        setPasoTransferenciaInterbancaria
-    ] =
-        useState<PasoTransferenciaInterbancaria>(
-            pasoTransferenciaInterbancariaInicial
-        );
-
-    const [
-        cargandoTransferenciaInterbancaria,
-        setCargandoTransferenciaInterbancaria
-    ] = useState(false);
+    const { servicios, sesion, actualizarSesion, mostrarMensaje } = parametros;
+    const [codigoBancoDestino, setCodigoBancoDestino] = useState("");
+    const [numeroCuentaDestino, setNumeroCuentaDestino] = useState("");
+    const [montoTransferenciaInterbancaria, setMontoTransferenciaInterbancaria] = useState("");
+    const [conceptoTransferencia, setConceptoTransferencia] = useState("");
+    const [pasoTransferenciaInterbancaria, setPasoTransferenciaInterbancaria] =
+        useState<PasoTransferenciaInterbancaria>(pasoTransferenciaInterbancariaInicial);
+    const [cargandoTransferenciaInterbancaria, setCargandoTransferenciaInterbancaria] = useState(false);
 
     function continuar(): void {
-        switch (
-        pasoTransferenciaInterbancaria
-        ) {
-            case "BANCO_DESTINO":
-                validarBancoDestino();
-                return;
+        switch (pasoTransferenciaInterbancaria) {
+            case "BANCO_DESTINO": validarBancoDestino();
+            return;
 
-            case "CUENTA_DESTINO":
-                validarCuentaDestino();
-                return;
+            case "CUENTA_DESTINO": validarCuentaDestino();
+            return;
 
-            case "MONTO":
-                validarMonto();
-                return;
+            case "MONTO": validarMonto();
+            return;
 
-            case "CONCEPTO":
-                void ejecutar();
-                return;
+            case "CONCEPTO": void ejecutar();
+            return;
         }
     }
 
-    function validarBancoDestino():
-        void {
-        const error =
-            TuiValidaciones.codigoBanco(
-                codigoBancoDestino
-            );
+    function validarBancoDestino(): void {
+        const error = TuiValidaciones.codigoBanco(codigoBancoDestino);
 
         if (error) {
-            mostrarMensaje(
-                TuiMensajes.error(
-                    "Banco inválido",
-                    error
-                ),
-                "TRANSFERENCIA_INTERBANCARIA"
-            );
-
+            mostrarError("Banco inválido", error);
             return;
         }
-
-        setPasoTransferenciaInterbancaria(
-            "CUENTA_DESTINO"
-        );
+        setCodigoBancoDestino(codigoBancoDestino.trim());
+        setPasoTransferenciaInterbancaria("CUENTA_DESTINO");
     }
 
-    function validarCuentaDestino():
-        void {
-        const error =
-            TuiValidaciones.cuentaDestino(
-                numeroCuentaDestino
-            );
+    function validarCuentaDestino(): void {
+        const error = TuiValidaciones.cuentaDestino(numeroCuentaDestino);
 
         if (error) {
-            mostrarMensaje(
-                TuiMensajes.error(
-                    "Cuenta inválida",
-                    error
-                ),
-                "TRANSFERENCIA_INTERBANCARIA"
-            );
-
+            mostrarError("Cuenta inválida", error);
             return;
         }
 
-        setMontoTransferenciaInterbancaria(
-            ""
-        );
-
-        setPasoTransferenciaInterbancaria(
-            "MONTO"
-        );
+        setNumeroCuentaDestino(numeroCuentaDestino.trim());
+        setMontoTransferenciaInterbancaria("");
+        setPasoTransferenciaInterbancaria("MONTO");
     }
 
     function validarMonto(): void {
-        const monto =
-            TuiValidaciones.monto(
-                montoTransferenciaInterbancaria
-            );
-
-        if (monto === null) {
-            mostrarMensaje(
-                TuiMensajes.error(
-                    "Monto inválido",
-                    "Ingrese un monto superior a 0."
-                ),
-                "TRANSFERENCIA_INTERBANCARIA"
-            );
-
+        if (obtenerMontoValidado() === null) {
+            mostrarMontoInvalido();
             return;
         }
-
-        setPasoTransferenciaInterbancaria(
-            "CONCEPTO"
-        );
+        setPasoTransferenciaInterbancaria("CONCEPTO");
     }
 
-    async function ejecutar():
-        Promise<void> {
+    async function ejecutar(): Promise<void> {
         if (!sesion) {
             mostrarMensaje(
-                TuiMensajes.error(
-                    "Sesión inválida",
-                    "No existe una sesión activa."
-                ),
+                TuiMensajes.error("Sesión inválida", "No existe una sesión activa."),
                 "LOGIN_TARJETA"
             );
-
             return;
         }
 
-        const monto =
-            TuiValidaciones.monto(
-                montoTransferenciaInterbancaria
-            );
+        const monto = obtenerMontoValidado();
 
         if (monto === null) {
-            mostrarMensaje(
-                TuiMensajes.error(
-                    "Monto inválido",
-                    "Ingrese un monto superior a 0."
-                ),
-                "TRANSFERENCIA_INTERBANCARIA"
-            );
-
+            mostrarMontoInvalido();
             return;
         }
 
-        setCargandoTransferenciaInterbancaria(
-            true
-        );
+        const numeroDestino = numeroCuentaDestino.trim();
+        const bancoDestino = codigoBancoDestino.trim();
+        const concepto = conceptoTransferencia.trim();
+
+        setCargandoTransferenciaInterbancaria(true);
 
         try {
-            const numeroDestino =
-                numeroCuentaDestino.trim();
+            const resultado = await servicios.transferenciaService.ejecutar({
+                tipoTransferencia: "INTERBANCARIA",
+                cuentaOrigenId: sesion.cuentaId,
+                numeroCuentaDestino: numeroDestino,
+                codigoBancoDestino: bancoDestino,
+                monto,
+                concepto: concepto || undefined,
+                correoCliente: sesion.correoCliente
+            });
 
-            const bancoDestino =
-                codigoBancoDestino.trim();
+            const nuevoSaldo = resultado.origen.saldoNuevo;
 
-            const resultado =
-                await servicios
-                    .transferenciaService
-                    .ejecutar({
-                        tipoTransferencia:
-                            "INTERBANCARIA",
-
-                        cuentaOrigenId:
-                            sesion.cuentaId,
-
-                        numeroCuentaDestino:
-                            numeroDestino,
-
-                        codigoBancoDestino:
-                            bancoDestino,
-
-                        monto,
-
-                        correoCliente:
-                            sesion.correoCliente
-                    });
-
-            const nuevoSaldo =
-                resultado.origen.saldoNuevo;
-
-            actualizarSesion(
-                (sesionActual) => ({
-                    ...sesionActual,
-                    saldo: nuevoSaldo
-                })
-            );
-
-            const concepto =
-                conceptoTransferencia
-                    .trim();
-
-            const detalleConcepto =
-                concepto.length > 0
-                    ? `\nConcepto: ${concepto}`
-                    : "";
+            actualizarSesion(sesionActual => ({
+                ...sesionActual,
+                saldo: nuevoSaldo
+            }));
 
             limpiar();
 
             mostrarMensaje(
                 TuiMensajes.exito(
                     "Transferencia interbancaria en proceso",
-
-                    `Se enviaron $${monto.toFixed(2)} a la cuenta ${numeroDestino} del banco ${bancoDestino}.${detalleConcepto}\nNuevo saldo: $${nuevoSaldo.toFixed(2)}`
+                    construirMensajeExito(monto, numeroDestino, bancoDestino, concepto, nuevoSaldo)
                 ),
                 "MENU_PRINCIPAL"
             );
@@ -278,38 +125,47 @@ export function useTransferenciaInterbancariaController(
             mostrarMensaje(
                 TuiMensajes.desdeError(
                     "Error en transferencia interbancaria",
-
                     error,
-
                     "No se pudo procesar la transferencia interbancaria."
                 ),
                 "TRANSFERENCIA_INTERBANCARIA"
             );
         } finally {
-            setCargandoTransferenciaInterbancaria(
-                false
-            );
+            setCargandoTransferenciaInterbancaria(false);
         }
+    }
+
+    function obtenerMontoValidado(): number | null {
+        return TuiValidaciones.monto(montoTransferenciaInterbancaria);
+    }
+
+    function mostrarMontoInvalido(): void {
+        mostrarError("Monto inválido", "Ingrese un monto superior a 0.");
+    }
+
+    function mostrarError(titulo: string, detalle: string): void {
+        mostrarMensaje(TuiMensajes.error(titulo, detalle), "TRANSFERENCIA_INTERBANCARIA");
+    }
+
+    function construirMensajeExito(
+        monto: number,
+        numeroDestino: string,
+        bancoDestino: string,
+        concepto: string,
+        nuevoSaldo: number
+    ): string {
+        const detalleConcepto = concepto ? `\nConcepto: ${concepto}` : "";
+
+        return `Se enviaron $${monto.toFixed(2)} a la cuenta ${numeroDestino} del banco ${bancoDestino}.${detalleConcepto}\nNuevo saldo: $${nuevoSaldo.toFixed(2)}`;
     }
 
     function limpiar(): void {
         setCodigoBancoDestino("");
-
         setNumeroCuentaDestino("");
-
-        setMontoTransferenciaInterbancaria(
-            ""
-        );
-
+        setMontoTransferenciaInterbancaria("");
         setConceptoTransferencia("");
-
-        setPasoTransferenciaInterbancaria(
-            pasoTransferenciaInterbancariaInicial
-        );
-
-        setCargandoTransferenciaInterbancaria(
-            false
-        );
+        setPasoTransferenciaInterbancaria(pasoTransferenciaInterbancariaInicial);
+        setCargandoTransferenciaInterbancaria(false);
     }
 
     return {
@@ -319,19 +175,14 @@ export function useTransferenciaInterbancariaController(
         conceptoTransferencia,
         pasoTransferenciaInterbancaria,
         cargandoTransferenciaInterbancaria,
-
         setCodigoBancoDestino,
         setNumeroCuentaDestino,
         setMontoTransferenciaInterbancaria,
         setConceptoTransferencia,
-
         continuar,
         ejecutar,
         limpiar
     };
 }
 
-export type TransferenciaInterbancariaController =
-    ReturnType<
-        typeof useTransferenciaInterbancariaController
-    >;
+export type TransferenciaInterbancariaController = ReturnType<typeof useTransferenciaInterbancariaController>;

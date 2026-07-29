@@ -1,155 +1,82 @@
 import { useState } from "react";
 import { ServiciosTui } from "../../TuiServices";
-import { MensajeTui, PantallaTui,  PasoTransferenciaLocal, SesionTui } from "../../TuiTypes";
+import { MensajeTui, PantallaTui, PasoTransferenciaLocal, SesionTui } from "../../TuiTypes";
 import { pasoTransferenciaLocalInicial } from "../../TuiState";
 import { TuiMensajes } from "../../TuiMensajes";
 import { TuiValidaciones } from "../../TuiValidaciones";
 
 interface UseTransferenciaLocalControllerParametros {
-    
     servicios: ServiciosTui;
     sesion: SesionTui | null;
-
-    actualizarSesion: (
-        actualizador: ( sesionActual: SesionTui ) => SesionTui
-    ) => void;
-    mostrarMensaje: (
-        mensaje: MensajeTui,
-        pantallaSiguiente: PantallaTui
-    ) => void;
+    actualizarSesion: (actualizador: (sesionActual: SesionTui) => SesionTui) => void;
+    mostrarMensaje: (mensaje: MensajeTui, pantallaSiguiente: PantallaTui) => void;
 }
 
-export function useTransferenciaLocalController(
-    parametros: UseTransferenciaLocalControllerParametros
-) {
-    const {
-        servicios,
-        sesion,
-        actualizarSesion,
-        mostrarMensaje
-    } = parametros;
-
-    const [
-        numeroCuentaDestino,
-        setNumeroCuentaDestino
-    ] = useState("");
-
-    const [
-        montoTransferenciaLocal,
-        setMontoTransferenciaLocal
-    ] = useState("");
-
-    const [
-        pasoTransferenciaLocal,
-        setPasoTransferenciaLocal
-    ] = useState<PasoTransferenciaLocal>(
-        pasoTransferenciaLocalInicial
-    );
-
-    const [
-        cargandoTransferenciaLocal,
-        setCargandoTransferenciaLocal
-    ] = useState(false);
+export function useTransferenciaLocalController(parametros: UseTransferenciaLocalControllerParametros) {
+    
+    const { servicios, sesion, actualizarSesion, mostrarMensaje } = parametros;
+    const [numeroCuentaDestino, setNumeroCuentaDestino] = useState("");
+    const [montoTransferenciaLocal, setMontoTransferenciaLocal] = useState("");
+    const [pasoTransferenciaLocal, setPasoTransferenciaLocal] = useState<PasoTransferenciaLocal>(pasoTransferenciaLocalInicial);
+    const [cargandoTransferenciaLocal, setCargandoTransferenciaLocal] = useState(false);
 
     function continuar(): void {
-        if (
-            pasoTransferenciaLocal ===
-            "CUENTA_DESTINO"
-        ) {
+        if (pasoTransferenciaLocal === "CUENTA_DESTINO") {
             validarCuentaDestino();
             return;
         }
-
         void ejecutar();
     }
 
     function validarCuentaDestino(): void {
-        const error =
-            TuiValidaciones.cuentaDestino(
-                numeroCuentaDestino
-            );
 
+        const numeroDestino = numeroCuentaDestino.trim();
+        const error = TuiValidaciones.cuentaDestino(numeroDestino);
         if (error) {
-            mostrarMensaje(
-                TuiMensajes.error(
-                    "Cuenta inválida",
-                    error
-                ),
-                "TRANSFERENCIA_LOCAL"
-            );
-
+            mostrarError("Cuenta inválida", error);
             return;
         }
-
+        if (sesion && numeroDestino === sesion.numeroCuenta) {
+            mostrarError("Cuenta inválida", "No puede transferir dinero a la misma cuenta de origen.");
+            return;
+        }
+        setNumeroCuentaDestino(numeroDestino);
         setMontoTransferenciaLocal("");
-
-        setPasoTransferenciaLocal( "MONTO" );
+        setPasoTransferenciaLocal("MONTO");
     }
 
-    async function ejecutar():
-        Promise<void> {
+    async function ejecutar(): Promise<void> {
         if (!sesion) {
             mostrarMensaje(
-                TuiMensajes.error(
-                    "Sesión inválida",
-                    "No existe una sesión activa."
-                ),
+                TuiMensajes.error("Sesión inválida", "No existe una sesión activa."),
                 "LOGIN_TARJETA"
             );
             return;
         }
-
-        const monto = TuiValidaciones.monto( montoTransferenciaLocal);
-
+        const monto = TuiValidaciones.monto(montoTransferenciaLocal);
         if (monto === null) {
-            mostrarMensaje(
-                TuiMensajes.error(
-                    "Monto inválido",
-                    "Ingrese un monto superior a 0."
-                ),
-                "TRANSFERENCIA_LOCAL"
-            );
+            mostrarError("Monto inválido", "Ingrese un monto superior a 0.");
             return;
         }
-
         const numeroDestino = numeroCuentaDestino.trim();
-
-        if (
-            numeroDestino ===
-            sesion.numeroCuenta
-        ) {
-            mostrarMensaje(
-                TuiMensajes.error(
-                    "Cuenta inválida",
-                    "No puede transferir dinero a la misma cuenta de origen."
-                ),
-                "TRANSFERENCIA_LOCAL"
-            );
-
+        if (numeroDestino === sesion.numeroCuenta) {
+            mostrarError("Cuenta inválida", "No puede transferir dinero a la misma cuenta de origen.");
             return;
         }
-
-        setCargandoTransferenciaLocal( true );
-
+        setCargandoTransferenciaLocal(true);
         try {
-            const resultado = await servicios
-                .transferenciaService
-                .ejecutar({
-                    tipoTransferencia: "LOCAL",
-                    cuentaOrigenId: sesion.cuentaId,
-                    numeroCuentaDestino: numeroDestino,
-                    monto, 
-                    correoCliente: sesion.correoCliente
-                });
+            const resultado = await servicios.transferenciaService.ejecutar({
+                tipoTransferencia: "LOCAL",
+                cuentaOrigenId: sesion.cuentaId,
+                numeroCuentaDestino: numeroDestino,
+                monto,
+                correoCliente: sesion.correoCliente
+            });
             const nuevoSaldo = resultado.origen.saldoNuevo;
-
-            actualizarSesion(
-                (sesionActual) => ({
-                    ...sesionActual,
-                    saldo: nuevoSaldo
-                })
-            );
-
+            actualizarSesion(sesionActual => ({
+                ...sesionActual,
+                saldo: nuevoSaldo
+            }));
             limpiar();
             mostrarMensaje(
                 TuiMensajes.exito(
@@ -172,8 +99,11 @@ export function useTransferenciaLocalController(
         }
     }
 
-    function limpiar(): void {
+    function mostrarError(titulo: string, detalle: string): void {
+        mostrarMensaje(TuiMensajes.error(titulo, detalle), "TRANSFERENCIA_LOCAL");
+    }
 
+    function limpiar(): void {
         setNumeroCuentaDestino("");
         setMontoTransferenciaLocal("");
         setPasoTransferenciaLocal(pasoTransferenciaLocalInicial);
@@ -192,5 +122,4 @@ export function useTransferenciaLocalController(
         limpiar
     };
 }
-
-export type TransferenciaLocalController = ReturnType< typeof useTransferenciaLocalController >;
+export type TransferenciaLocalController = ReturnType<typeof useTransferenciaLocalController>;

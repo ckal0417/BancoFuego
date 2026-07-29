@@ -1,38 +1,70 @@
-import {ConsultaTransferenciaInterbancariaResponseDto} from "../../../DTOs/Transferencias/Interbancaria/TransferenciaInterbancariaDto";
-import { IRedBancariaClient } from "../../../Ports/Transferencias/Interbancaria/IRedBancariaClient";
-import { IUnidadDeTrabajo} from "../../../Ports/IUnidadDeTrabajo";
-import {Transaccion} from "../../../../Domain/Entities/Transaccion";
-import { BusinessRuleError} from "../../../../Domain/Errors/DomainErrors";
-import {TiposEvento} from "../../../Events/TiposEvento";
-import {EventBus} from "../../../../Shared/Events/EventBus";
-import {Evento} from "../../../../Shared/Events/Evento";
+import {
+    ConsultaTransferenciaInterbancariaResponseDto
+} from "../../../DTOs/Transferencias/Interbancaria/TransferenciaInterbancariaDto";
+
+import {
+    IRedBancariaClient
+} from "../../../Ports/Transferencias/Interbancaria/IRedBancariaClient";
+
+import {
+    IUnidadDeTrabajo
+} from "../../../Ports/IUnidadDeTrabajo";
+
+import {
+    Transaccion
+} from "../../../../Domain/Entities/Transaccion";
+
+import {
+    BusinessRuleError
+} from "../../../../Domain/Errors/DomainErrors";
+
+import {
+    TiposEvento
+} from "../../../Events/TiposEvento";
+
+import {
+    EventBus
+} from "../../../../Shared/Events/EventBus";
+
+import {
+    Evento
+} from "../../../../Shared/Events/Evento";
+
 import logger from "../../../../Shared/Logging/Logger";
-import {AplicarResultadoInterbancarioService} from "./AplicarResultadoInterbancarioService";
+
+import {
+    AplicarResultadoInterbancarioService
+} from "./AplicarResultadoInterbancarioService";
 
 export class TransferenciaInterbancariaEstadoService {
     constructor(
-        private readonly unidadDeTrabajo:IUnidadDeTrabajo,
-        private readonly redBancariaClient: IRedBancariaClient,
-        private readonly eventBus: EventBus,
-        private readonly aplicarResultadoService:AplicarResultadoInterbancarioService
+        private readonly unidadDeTrabajo:
+            IUnidadDeTrabajo,
+
+        private readonly redBancariaClient:
+            IRedBancariaClient,
+
+        private readonly eventBus:
+            EventBus,
+
+        private readonly aplicarResultadoService:
+            AplicarResultadoInterbancarioService
     ) { }
 
     public async consultarPorId(
         transaccionId: number
     ): Promise<ConsultaTransferenciaInterbancariaResponseDto> {
-        if (
-            !Number.isInteger(transaccionId) ||
-            transaccionId <= 0
-        ) {
-            throw new BusinessRuleError(
-                "El ID de la transacción no es válido.",
-                "TRANSACCION_ID_INVALIDO"
-            );
-        }
+        this.validarTransaccionId(
+            transaccionId
+        );
 
         const transaccion =
             await this.unidadDeTrabajo.ejecutar(
-                async repositorios => repositorios.transacciones.buscarPorId(transaccionId)
+                async repositorios =>
+                    repositorios.transacciones
+                        .buscarPorId(
+                            transaccionId
+                        )
             );
 
         if (!transaccion) {
@@ -42,15 +74,26 @@ export class TransferenciaInterbancariaEstadoService {
             );
         }
 
-        this.validarInterbancaria(transaccion);
+        this.validarInterbancaria(
+            transaccion
+        );
 
         if (transaccion.esPendiente()) {
+            const referenciaExterna =
+                this.extraerReferencia(
+                    transaccion
+                );
+
             return this.sincronizarTransaccion(
-                transaccionId
+                transaccionId,
+                referenciaExterna
             );
         }
 
-        return this.aplicarResultadoService.aRespuesta(transaccion);
+        return this.aplicarResultadoService
+            .aRespuesta(
+                transaccion
+            );
     }
 
     public async sincronizarPendientes(
@@ -109,7 +152,8 @@ export class TransferenciaInterbancariaEstadoService {
                 );
 
             actualizadas += resultados.filter(
-                actualizada => actualizada
+                actualizada =>
+                    actualizada
             ).length;
         }
 
@@ -141,9 +185,11 @@ export class TransferenciaInterbancariaEstadoService {
     }
 
     private async sincronizarTransaccion(
-        transaccionId: number
+        transaccionId: number,
+        referenciaExistente?: string
     ): Promise<ConsultaTransferenciaInterbancariaResponseDto> {
         const referenciaExterna =
+            referenciaExistente ??
             await this.obtenerReferencia(
                 transaccionId
             );
@@ -230,6 +276,14 @@ export class TransferenciaInterbancariaEstadoService {
             transaccion
         );
 
+        return this.extraerReferencia(
+            transaccion
+        );
+    }
+
+    private extraerReferencia(
+        transaccion: Transaccion
+    ): string {
         const referencia =
             transaccion.obtenerReferenciaExterna();
 
@@ -241,6 +295,22 @@ export class TransferenciaInterbancariaEstadoService {
         }
 
         return referencia;
+    }
+
+    private validarTransaccionId(
+        transaccionId: number
+    ): void {
+        if (
+            !Number.isInteger(
+                transaccionId
+            ) ||
+            transaccionId <= 0
+        ) {
+            throw new BusinessRuleError(
+                "El ID de la transacción no es válido.",
+                "TRANSACCION_ID_INVALIDO"
+            );
+        }
     }
 
     private validarInterbancaria(
@@ -269,6 +339,7 @@ export class TransferenciaInterbancariaEstadoService {
                 TiposEvento.TRANSFERENCIA_REALIZADA,
                 {
                     canal: "INTERBANCARIA",
+
                     transaccionId:
                         respuesta.transaccionId,
 

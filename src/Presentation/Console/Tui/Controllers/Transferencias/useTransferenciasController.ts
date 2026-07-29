@@ -1,24 +1,12 @@
-import {
-    ItemSeleccion,
-    PantallaTui
-} from "../../TuiTypes";
+import { ItemSeleccion, PantallaTui } from "../../TuiTypes";
 
 interface UseTransferenciasControllerParametros {
-    cambiarPantalla: (
-        pantalla: PantallaTui
-    ) => void;
-
-    limpiarTransferenciaLocal:
-        () => void;
-
-    limpiarTransferenciaInterbancaria:
-        () => void;
+    cambiarPantalla: (pantalla: PantallaTui) => void;
+    limpiarTransferenciaLocal: () => void;
+    limpiarTransferenciaInterbancaria: () => void;
 }
 
-export function useTransferenciasController(
-    parametros:
-        UseTransferenciasControllerParametros
-) {
+export function useTransferenciasController(parametros: UseTransferenciasControllerParametros) {
     const {
         cambiarPantalla,
         limpiarTransferenciaLocal,
@@ -27,45 +15,29 @@ export function useTransferenciasController(
 
     function iniciar(): void {
         limpiarTodas();
-
-        cambiarPantalla(
-            "TIPO_TRANSFERENCIA"
-        );
+        cambiarPantalla("TIPO_TRANSFERENCIA");
     }
 
-    function seleccionarTipo(
-        item: ItemSeleccion
-    ): void {
-        switch (item.value) {
-            case "local":
-                limpiarTransferenciaLocal();
+    function seleccionarTipo(item: ItemSeleccion): void {
+        const acciones: Record<string, () => void> = {
+            local: () => abrirTransferencia("TRANSFERENCIA_LOCAL", limpiarTransferenciaLocal),
+            interbancaria: () => abrirTransferencia(
+                "TRANSFERENCIA_INTERBANCARIA",
+                limpiarTransferenciaInterbancaria
+            ),
+            regresar: () => cambiarPantalla("MENU_PRINCIPAL")
+        };
+        const accion = acciones[item.value] ?? acciones.regresar;
+        accion();
+    }
 
-                cambiarPantalla(
-                    "TRANSFERENCIA_LOCAL"
-                );
-
-                return;
-
-            case "interbancaria":
-                limpiarTransferenciaInterbancaria();
-
-                cambiarPantalla(
-                    "TRANSFERENCIA_INTERBANCARIA"
-                );
-
-                return;
-
-            case "regresar":
-            default:
-                cambiarPantalla(
-                    "MENU_PRINCIPAL"
-                );
-        }
+    function abrirTransferencia(pantalla: PantallaTui, limpiar: () => void): void {
+        limpiar();
+        cambiarPantalla(pantalla);
     }
 
     function limpiarTodas(): void {
         limpiarTransferenciaLocal();
-
         limpiarTransferenciaInterbancaria();
     }
 
@@ -75,8 +47,4 @@ export function useTransferenciasController(
         limpiarTodas
     };
 }
-
-export type TransferenciasController =
-    ReturnType<
-        typeof useTransferenciasController
-    >;
+export type TransferenciasController = ReturnType<typeof useTransferenciasController>;
