@@ -50,8 +50,7 @@ export class TransferenciaInterbancariaEstadoService {
             );
         }
 
-        return this.aplicarResultadoService
-            .aRespuesta(transaccion);
+        return this.aplicarResultadoService.aRespuesta(transaccion);
     }
 
     public async sincronizarPendientes(
