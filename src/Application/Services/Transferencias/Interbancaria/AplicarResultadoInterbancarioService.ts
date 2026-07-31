@@ -1,5 +1,3 @@
-// Application/Services/Transferencias/Interbancaria/AplicarResultadoInterbancarioService.ts
-
 import { ConsultaTransferenciaInterbancariaResponseDto } from "../../../DTOs/Transferencias/Interbancaria/TransferenciaInterbancariaDto";
 import { ResultadoTransferenciaInterbancaria } from "../../../Ports/Transferencias/Interbancaria/IRedBancariaClient";
 import { RepositoriosTransaccionales } from "../../../Ports/IUnidadDeTrabajo";
@@ -11,10 +9,11 @@ export interface ResultadoAplicacion {
     respuesta: ConsultaTransferenciaInterbancariaResponseDto;
     cambioEstado: boolean;
     reversaAplicada: boolean;
+    cuentaOrigenId?: number;
+    montoRevertido?: number;
 }
 
 export class AplicarResultadoInterbancarioService {
-
     public async aplicar(
         transaccion: Transaccion,
         resultadoExterno: ResultadoTransferenciaInterbancaria,
@@ -25,8 +24,7 @@ export class AplicarResultadoInterbancarioService {
         if (resultadoExterno.estado === "PENDIENTE") {
             transaccion.marcarPendiente(
                 resultadoExterno.referenciaExterna,
-                resultadoExterno.mensaje ??
-                "La transferencia continúa pendiente."
+                resultadoExterno.mensaje ?? "La transferencia continúa pendiente."
             );
 
             await repositorios.transacciones.actualizar(transaccion);
@@ -41,8 +39,7 @@ export class AplicarResultadoInterbancarioService {
         if (resultadoExterno.estado === "ACEPTADA") {
             transaccion.marcarExitosa(
                 resultadoExterno.referenciaExterna,
-                resultadoExterno.mensaje ??
-                "Transferencia aceptada por la red bancaria."
+                resultadoExterno.mensaje ?? "Transferencia aceptada por la red bancaria."
             );
 
             await repositorios.transacciones.actualizar(transaccion);
@@ -54,15 +51,14 @@ export class AplicarResultadoInterbancarioService {
             };
         }
 
-        const reversaAplicada =
-            await this.aplicarReversa(transaccion, repositorios);
+        const reversa = await this.aplicarReversa(transaccion, repositorios);
 
         const detalleBase =
             resultadoExterno.mensaje ??
             `Transferencia rechazada: ${resultadoExterno.codigoError}`;
 
         transaccion.marcarFallida(
-            reversaAplicada
+            reversa.aplicada
                 ? `${detalleBase}. Reversa aplicada a la cuenta origen.`
                 : `${detalleBase}. No fue posible identificar el movimiento original.`
         );
@@ -72,44 +68,39 @@ export class AplicarResultadoInterbancarioService {
         return {
             respuesta: this.aRespuesta(transaccion),
             cambioEstado: true,
-            reversaAplicada
+            reversaAplicada: reversa.aplicada,
+            cuentaOrigenId: reversa.cuentaOrigenId,
+            montoRevertido: reversa.aplicada ? transaccion.obtenerMonto().toNumber() : undefined
         };
     }
 
     private async aplicarReversa(
         transaccion: Transaccion,
         repositorios: RepositoriosTransaccionales
-    ): Promise<boolean> {
+    ): Promise<{ aplicada: boolean; cuentaOrigenId?: number }> {
         const transaccionId = transaccion.obtenerId();
 
         if (transaccionId === undefined) {
-            return false;
+            return { aplicada: false };
         }
 
-        const movimientos =
-            await repositorios.movimientos
-                .buscarPorTransaccionId(transaccionId);
-
+        const movimientos = await repositorios.movimientos.buscarPorTransaccionId(transaccionId);
         const movimientoOriginal = movimientos.find(
             movimiento => movimiento.obtenerNaturaleza() === "DEBITO"
         );
 
         if (!movimientoOriginal) {
-            return false;
+            return { aplicada: false };
         }
 
         const cuentaOrigenId = movimientoOriginal.obtenerIdCuenta();
-
-        const cuentaOrigen =
-            await repositorios.cuentas
-                .buscarPorIdParaActualizar(cuentaOrigenId);
+        const cuentaOrigen = await repositorios.cuentas.buscarPorIdParaActualizar(cuentaOrigenId);
 
         if (!cuentaOrigen) {
-            return false;
+            return { aplicada: false };
         }
 
-        const deposito =
-            cuentaOrigen.depositar(transaccion.obtenerMonto());
+        const deposito = cuentaOrigen.depositar(transaccion.obtenerMonto());
 
         const movimientoReversa = Movimiento.credito({
             monto: transaccion.obtenerMonto(),
@@ -122,7 +113,10 @@ export class AplicarResultadoInterbancarioService {
         await repositorios.cuentas.actualizar(cuentaOrigen);
         await repositorios.movimientos.crear(movimientoReversa);
 
-        return true;
+        return {
+            aplicada: true,
+            cuentaOrigenId
+        };
     }
 
     private validarInterbancaria(transaccion: Transaccion): void {
@@ -134,9 +128,7 @@ export class AplicarResultadoInterbancarioService {
         }
     }
 
-    public aRespuesta(
-        transaccion: Transaccion
-    ): ConsultaTransferenciaInterbancariaResponseDto {
+    public aRespuesta(transaccion: Transaccion): ConsultaTransferenciaInterbancariaResponseDto {
         const id = transaccion.obtenerId();
         const referencia = transaccion.obtenerReferenciaExterna();
 
@@ -149,11 +141,7 @@ export class AplicarResultadoInterbancarioService {
 
         const estado = transaccion.obtenerEstado();
 
-        if (
-            estado !== "PENDIENTE" &&
-            estado !== "EXITOSA" &&
-            estado !== "FALLIDA"
-        ) {
+        if (estado !== "PENDIENTE" && estado !== "EXITOSA" && estado !== "FALLIDA") {
             throw new BusinessRuleError(
                 "La transferencia tiene un estado no consultable.",
                 "ESTADO_TRANSFERENCIA_INVALIDO"

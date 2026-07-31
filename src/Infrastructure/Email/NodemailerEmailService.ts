@@ -1,14 +1,8 @@
 import nodemailer from "nodemailer";
 import logger from "../../Shared/Logging/Logger";
+import { IEmailService, OpcionesCorreo } from "../../Application/Ports/IEmailService";
 
-export interface OpcionesCorreo {
-    para: string;
-    asunto: string;
-    html: string;
-    texto?: string;
-}
-
-export class NodemailerEmailService {
+export class NodemailerEmailService implements IEmailService {
     private transporter:
     nodemailer.Transporter | null = null;
 
@@ -67,10 +61,7 @@ export class NodemailerEmailService {
         }
 
         try {
-            const remitente =
-                process.env.SMTP_FROM ??
-                '"Banco Fuego" <notificaciones@bancofuego.com>';
-
+            const remitente = process.env.SMTP_FROM ?? '"Banco Fuego" <notificaciones@bancofuego.com>';
             const info =
                 await this.transporter.sendMail({
                     from: remitente,
