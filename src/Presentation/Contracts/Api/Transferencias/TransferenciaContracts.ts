@@ -37,7 +37,7 @@ export interface TransferenciaLocalResponse {
 
 
 export interface TransferenciaInterbancariaResponse {
-    tipo: "TRANSFERENCIA_EXTERNA";
+    tipo: "TRANSFERENCIA_EXTERNA_SALIENTE";
     origen: CuentaTransferenciaResponse;
     transaccionId: number;
     estado: EstadoTransferenciaInterbancaria;
@@ -71,6 +71,6 @@ export function esTransferenciaInterbancaria(
 ): respuesta is TransferenciaInterbancariaResponse {
     return (
         respuesta.tipo ===
-        "TRANSFERENCIA_EXTERNA"
+        "TRANSFERENCIA_EXTERNA_SALIENTE"
     );
 }

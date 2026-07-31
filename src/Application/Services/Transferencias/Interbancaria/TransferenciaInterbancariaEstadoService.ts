@@ -318,7 +318,7 @@ export class TransferenciaInterbancariaEstadoService {
     ): void {
         if (
             transaccion.obtenerTipo() !==
-            "TRANSFERENCIA_EXTERNA"
+            "TRANSFERENCIA_EXTERNA_SALIENTE"
         ) {
             throw new BusinessRuleError(
                 "La transacción no corresponde a una transferencia interbancaria.",

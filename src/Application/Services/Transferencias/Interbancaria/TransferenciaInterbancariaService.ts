@@ -122,7 +122,7 @@ export class TransferenciaInterbancariaService extends TransferenciaBaseService 
 
     private crearHashSolicitud(datos: TransferenciaInterbancariaRequestDto): string {
         return this.idempotenciaService.crearHash({
-            tipoTransferencia: "TRANSFERENCIA_EXTERNA",
+            tipoTransferencia: "TRANSFERENCIA_EXTERNA_SALIENTE",
             cuentaOrigenId: datos.cuentaOrigenId,
             numeroCuentaDestino: datos.numeroCuentaDestino,
             codigoBancoDestino: datos.codigoBancoDestino,
@@ -142,7 +142,7 @@ export class TransferenciaInterbancariaService extends TransferenciaBaseService 
         const { datos, monto, estado, referenciaExterna, mensaje } = datosCreacion;
 
         return Transaccion.crear({
-            tipo: "TRANSFERENCIA_EXTERNA",
+            tipo: "TRANSFERENCIA_EXTERNA_SALIENTE",
             monto,
             estado,
             descripcion: datos.concepto ?? `Transferencia hacia ${datos.codigoBancoDestino}`,
@@ -177,7 +177,7 @@ export class TransferenciaInterbancariaService extends TransferenciaBaseService 
         mensaje?: string;
     }): TransferenciaInterbancariaResponseDto {
         return {
-            tipo: "TRANSFERENCIA_EXTERNA",
+            tipo: "TRANSFERENCIA_EXTERNA_SALIENTE",
             origen: {
                 cuentaId: datos.cuentaOrigenId,
                 saldoAnterior: datos.saldoAnterior,

@@ -44,8 +44,19 @@ const transaccionRepository = new TransaccionRepositoryPostgres();
 const movimientoRepository = new MovimientoRepositoryPostgres();
 const clienteRepository = new ClienteRepositoryPostgres();
 
+import { ConfigLoader } from "../Infrastructure/Config/RedBancariaConfig";
+import { RedBancariaClientFactory } from "../Infrastructure/Factories/RedBancariaClientFactory";
+
 const unidadDeTrabajo = new PostgresUnidadDeTrabajo();
-const redBancariaClient = new RedBancariaSimuladaClient();
+
+// NOTA DE VERIFICACIÓN DE INTEGRACIÓN:
+// Una vez verificada la correcta comunicación entre las transacciones, las notificaciones
+// y los callbacks, comunicar al usuario para cambiar o dejar el modelo de lo que debe ir
+// en el campo para que se comunique correctamente con el integrator real.
+const redBancariaConfig = ConfigLoader.cargarRedBancaria();
+const redBancariaClient = RedBancariaClientFactory.crear(redBancariaConfig);
+
+
 const tokenService = new JwtTokenService();
 const idempotenciaService = new IdempotenciaService();
 

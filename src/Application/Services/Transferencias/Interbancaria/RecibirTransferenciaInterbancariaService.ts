@@ -67,7 +67,7 @@ export class RecibirTransferenciaInterbancariaService {
 
             // 4. Registrar transacción como EXITOSA (ya se resolvió en el momento)
             const transaccion = Transaccion.crear({
-                tipo: "TRANSFERENCIA_ENTRANTE",
+                tipo: "TRANSFERENCIA_EXTERNA_ENTRANTE",
                 monto,
                 estado: "EXITOSA",
                 descripcion:

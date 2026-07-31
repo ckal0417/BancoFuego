@@ -4,6 +4,8 @@ import {
     Text
 } from "ink";
 import TextInput from "ink-text-input";
+import SelectInput from "ink-select-input";
+import { opcionesBancosDestino } from "../TuiOptions";
 
 import {
     PasoTransferenciaInterbancaria
@@ -18,6 +20,12 @@ interface TransferenciaInterbancariaScreenProps {
     concepto: string;
 
     cargando: boolean;
+
+    seleccionarBanco: (
+        codigo: string
+    ) => void;
+
+
 
     cambiarCodigoBancoDestino: (
         valor: string
@@ -41,6 +49,38 @@ interface TransferenciaInterbancariaScreenProps {
 export function TransferenciaInterbancariaScreen(
     props: TransferenciaInterbancariaScreenProps
 ): React.ReactElement {
+    if (props.paso === "BANCO_DESTINO") {
+        return (
+            <Box flexDirection="column">
+                <Text color="yellow" bold>
+                    TRANSFERENCIA INTERBANCARIA
+                </Text>
+
+                <Text color="gray">
+                    Selecciona la entidad bancaria de destino.
+                </Text>
+
+                <Box marginTop={1}>
+                    <SelectInput
+                        items={opcionesBancosDestino}
+                        onSelect={(item) => {
+                            props.seleccionarBanco(item.value);
+                        }}
+
+
+                    />
+                </Box>
+
+
+                {props.cargando && (
+                    <Text color="cyan">
+                        Enviando operación a la red bancaria...
+                    </Text>
+                )}
+            </Box>
+        );
+    }
+
     const campo =
         obtenerCampo(props);
 
@@ -80,6 +120,7 @@ export function TransferenciaInterbancariaScreen(
         </Box>
     );
 }
+
 
 interface CampoInterbancario {
     etiqueta: string;

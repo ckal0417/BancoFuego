@@ -161,7 +161,7 @@ export class CorreoSubscriber implements IEventSubscriber {
                         <p><strong>Cuenta Destino:</strong> ${cuentaDestinoTexto}</p>
                         <p>
                             <strong>Tipo de Transferencia:</strong>
-                            ${datos.tipo === "TRANSFERENCIA_EXTERNA" ? "Interbancaria" : "Interna (Banco Fuego)"}
+                            ${datos.tipo === "TRANSFERENCIA_EXTERNA_SALIENTE" ? "Interbancaria" : "Interna (Banco Fuego)"}
                         </p>
                         <p style="color: #666; font-size: 12px;">
                             Si no reconoce esta operación, comuníquese inmediatamente con el banco.

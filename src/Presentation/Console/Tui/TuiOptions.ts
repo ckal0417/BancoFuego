@@ -48,6 +48,53 @@ export const opcionesTipoTransferencia:
         }
     ];
 
+export const opcionesBancosDestino:
+    ItemSeleccion[] = [
+        {
+            label: "💎 Banco Rubyy",
+            value: "bank_b"
+        },
+        {
+            label: "🏦 Banco Pichincha",
+            value: "XGKIPAQV"
+        },
+        {
+            label: "🌊 Banco del Pacífico",
+            value: "6FMAET9E"
+        },
+        {
+            label: "🏢 Produbanco",
+            value: "BB1PY2WP"
+        },
+        {
+            label: "🌐 Banco de Guayaquil",
+            value: "359E5JQV"
+        },
+        {
+            label: "🌎 Banco Internacional",
+            value: "L1Y90DPU"
+        },
+        {
+            label: "🏛️ Banco Bolivariano",
+            value: "FJ4KVFYH"
+        },
+        {
+            label: "🤝 Banco Solidario",
+            value: "4XILP4HU"
+        },
+        {
+            label: "🏔️ Banco del Austro",
+            value: "4KYBIBTA"
+        },
+        {
+            label: "🌿 Banco de Loja",
+            value: "NVNDIG4Y"
+        }
+    ];
+
+
+
+
 export const opcionRegresar:
     ItemSeleccion[] = [
         {

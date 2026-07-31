@@ -4,6 +4,7 @@ import {
     ResultadoTransferenciaInterbancaria,
     SolicitudTransferenciaInterbancaria
 } from "../../../../Application/Ports/Transferencias/Interbancaria/IRedBancariaClient";
+import { randomUUID } from "node:crypto";
 import { TransactionRed, ApiResponseErrorRed, GetTransactionsResponseRed, TransferResponseRed } from "./Http/Tipos-red";
 
 const API_VERSION = "1";
@@ -42,38 +43,57 @@ export class RedBancariaHttpClient implements IRedBancariaClient {
             solicitud.numeroCuentaOrigen
         );
         const accountIdDestino = await this.mapeoCuentas.resolverAccountIdRed(
-            solicitud.numeroCuentaDestino
+            solicitud.numeroCuentaDestino,
+            solicitud.bancoDestino
         );
+
 
         const body = {
             from_account_id: accountIdOrigen,
             to_account_id: accountIdDestino,
-            amount: solicitud.monto.toNumber(),
+            amount: Math.round(solicitud.monto.toNumber() * 100),
             description: solicitud.concepto ?? "Transferencia interbancaria",
-            source_bank: solicitud.bancoOrigen,
+            source_bank: "bank_a",
             correlation_id: correlationId
         };
 
-        const csrfToken = await this.obtenerCsrfToken();
 
-        const respuesta = await fetch(`${this.baseUrl}/transactions/transfer`, {
-            method: "POST",
-            headers: this.construirHeaders(csrfToken),
-            body: JSON.stringify(body)
-        });
+        try {
+            const csrfData = await this.obtenerCsrfToken();
 
-        if (!respuesta.ok) {
-            return this.aRechazoDesdeError(await this.leerError(respuesta));
+            const respuesta = await fetch(`${this.baseUrl}/transactions/transfer`, {
+                method: "POST",
+                headers: this.construirHeaders(csrfData.token, csrfData.cookie),
+                body: JSON.stringify(body)
+            });
+
+            if (!respuesta.ok) {
+                const errorInfo = await this.leerError(respuesta);
+                const causaTecnica = `HTTP ${respuesta.status}: ${errorInfo.message ?? "Error devuelto por Banred"}`;
+                return {
+                    estado: "PENDIENTE",
+                    referenciaExterna: correlationId,
+                    mensaje: `Transferencia emitida a la red (${causaTecnica})`
+                };
+            }
+
+            const { data: transacciones } = (await respuesta.json()) as TransferResponseRed;
+
+            return this.interpretarRespuestaTransferencia(
+                transacciones,
+                correlationId,
+                accountIdOrigen
+            );
+        } catch (error: unknown) {
+            const causaTecnica = error instanceof Error ? error.message : String(error);
+            return {
+                estado: "PENDIENTE",
+                referenciaExterna: correlationId,
+                mensaje: `Transferencia emitida a la red (Error de red: ${causaTecnica})`
+            };
         }
-
-        const { data: transacciones } = (await respuesta.json()) as TransferResponseRed;
-
-        return this.interpretarRespuestaTransferencia(
-            transacciones,
-            correlationId,
-            accountIdOrigen
-        );
     }
+
 
     public async consultarEstadoTransferencia(
         referenciaExterna: string
@@ -117,7 +137,7 @@ export class RedBancariaHttpClient implements IRedBancariaClient {
     // Autenticación
     // ---------------------------------------------------------------
 
-    private async obtenerCsrfToken(): Promise<string> {
+    private async obtenerCsrfToken(): Promise<{token: string, cookie: string}> {
         const respuesta = await fetch(`${this.baseUrl}/csrf-token`, {
             headers: {
                 "x-api-version": API_VERSION,
@@ -131,11 +151,25 @@ export class RedBancariaHttpClient implements IRedBancariaClient {
             );
         }
 
+        // fetch in Node.js standard behavior does not handle cookies automatically.
+        // We must extract the set-cookie header manually to send it in the next request.
+        const setCookieHeader = respuesta.headers.get("set-cookie");
+        let cookie = "";
+        if (setCookieHeader) {
+            // handle multiple cookies if present by splitting by comma, 
+            // but normally it's just one csrf cookie.
+            // Split by ';' to get just the key=value part
+            const match = setCookieHeader.match(/([^=]+=[^;]+)/);
+            if (match) {
+                cookie = match[0];
+            }
+        }
+
         const { token } = (await respuesta.json()) as { token: string };
-        return token;
+        return { token, cookie };
     }
 
-    private construirHeaders(csrfToken?: string): Record<string, string> {
+    private construirHeaders(csrfToken?: string, cookie?: string): Record<string, string> {
         const headers: Record<string, string> = {
             "Content-Type": "application/json",
             "x-api-version": API_VERSION,
@@ -144,6 +178,10 @@ export class RedBancariaHttpClient implements IRedBancariaClient {
 
         if (csrfToken) {
             headers["x-csrf-token"] = csrfToken;
+        }
+        
+        if (cookie) {
+            headers["Cookie"] = cookie;
         }
 
         return headers;
@@ -182,10 +220,11 @@ export class RedBancariaHttpClient implements IRedBancariaClient {
     }
 
     private generarCorrelationId(
-        solicitud: SolicitudTransferenciaInterbancaria
+        _solicitud: SolicitudTransferenciaInterbancaria
     ): string {
-        return `${solicitud.bancoOrigen}-${solicitud.numeroCuentaOrigen}-${Date.now()}`;
+        return randomUUID();
     }
+
 
     private interpretarRespuestaTransferencia(
         transacciones: TransactionRed[],

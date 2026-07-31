@@ -193,7 +193,9 @@ export function useTuiController() {
         setPinNuevoInput: cambioPin.setPinNuevo,
         setCuentaDestinoInput: campos.setCuentaDestinoMostrada,
         setCodigoBancoDestino: transferenciaInterbancaria.setCodigoBancoDestino,
+        seleccionarBanco: transferenciaInterbancaria.seleccionarBanco,
         setConceptoTransferencia: transferenciaInterbancaria.setConceptoTransferencia,
+
 
         handleTarjetaSubmit: autenticacion.continuarTarjeta,
         handlePinSubmit: autenticacion.autenticar,

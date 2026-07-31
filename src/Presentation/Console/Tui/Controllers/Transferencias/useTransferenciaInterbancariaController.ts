@@ -40,6 +40,19 @@ export function useTransferenciaInterbancariaController(
         }
     }
 
+    function seleccionarBanco(codigo: string): void {
+        const codigoLimpio = codigo.trim();
+        const error = TuiValidaciones.codigoBanco(codigoLimpio);
+
+        if (error) {
+            mostrarError("Banco inválido", error);
+            return;
+        }
+
+        setCodigoBancoDestino(codigoLimpio);
+        setPasoTransferenciaInterbancaria("CUENTA_DESTINO");
+    }
+
     function validarBancoDestino(): void {
         const error = TuiValidaciones.codigoBanco(codigoBancoDestino);
 
@@ -50,6 +63,7 @@ export function useTransferenciaInterbancariaController(
         setCodigoBancoDestino(codigoBancoDestino.trim());
         setPasoTransferenciaInterbancaria("CUENTA_DESTINO");
     }
+
 
     function validarCuentaDestino(): void {
         const error = TuiValidaciones.cuentaDestino(numeroCuentaDestino);
@@ -176,7 +190,9 @@ export function useTransferenciaInterbancariaController(
         pasoTransferenciaInterbancaria,
         cargandoTransferenciaInterbancaria,
         setCodigoBancoDestino,
+        seleccionarBanco,
         setNumeroCuentaDestino,
+
         setMontoTransferenciaInterbancaria,
         setConceptoTransferencia,
         continuar,

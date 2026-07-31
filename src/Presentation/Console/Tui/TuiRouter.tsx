@@ -137,9 +137,13 @@ export function TuiRouter( props: TuiRouterProps ): React.ReactElement | null {
                         tui.conceptoTransferencia
                     }
                     cargando={tui.cargando}
+                    seleccionarBanco={tui.seleccionarBanco}
                     cambiarCodigoBancoDestino={
                         tui.setCodigoBancoDestino
                     }
+
+
+
                     cambiarNumeroCuentaDestino={
                         tui.setCuentaDestinoInput
                     }

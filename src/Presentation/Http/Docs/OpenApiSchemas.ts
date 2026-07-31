@@ -210,7 +210,7 @@ export const openApiSchemas = {
                         type: "string",
                         enum: [
                             "TRANSFERENCIA_INTERNA",
-                            "TRANSFERENCIA_EXTERNA"
+                            "TRANSFERENCIA_EXTERNA_SALIENTE"
                         ]
                     },
                     origen: {

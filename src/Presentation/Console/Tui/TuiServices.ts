@@ -8,7 +8,8 @@ import { TransferenciaService } from "../../../Application/Services/Transferenci
 import { TransferenciaInterbancariaService } from "../../../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaService";
 import { PrepararTransferenciaLocalService } from "../../../Application/Services/Transferencias/Local/PrepararTransferenciaLocalService";
 import { TransferenciaLocalService } from "../../../Application/Services/Transferencias/Local/TransferenciaLocalService";
-import { RedBancariaSimuladaClient } from "../../../Infrastructure/Clients/Transferencias/Interbancaria/RedBancariaSimuladaClient";
+import { RedBancariaClientFactory } from "../../../Infrastructure/Factories/RedBancariaClientFactory";
+import { ConfigLoader } from "../../../Infrastructure/Config/RedBancariaConfig";
 import { PostgresUnidadDeTrabajo } from "../../../Infrastructure/Database/PostgresUnidadDeTrabajo";
 import { AutenticacionRepositoryPostgres } from "../../../Infrastructure/Database/Repositories/AutenticacionRepositoryPostgres";
 import { ClienteRepositoryPostgres } from "../../../Infrastructure/Database/Repositories/ClienteRepositoryPostgres";
@@ -32,7 +33,10 @@ export function crearServiciosTui() {
     const unidadDeTrabajo = new PostgresUnidadDeTrabajo();
     const tokenService = new JwtTokenService();
     const idempotenciaService =  new IdempotenciaService();
-    const redBancariaClient = new RedBancariaSimuladaClient();
+    
+    const configRedBancaria = ConfigLoader.cargarRedBancaria();
+    const redBancariaClient = RedBancariaClientFactory.crear(configRedBancaria);
+    
     const autenticacionService =
         new AutenticacionService(
             tarjetaRepository,
