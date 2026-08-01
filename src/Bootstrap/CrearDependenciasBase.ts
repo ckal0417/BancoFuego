@@ -1,5 +1,5 @@
 import { IdempotenciaService } from "../Application/Services/IdempotenciaService";
-import { RedBancariaSimuladaClient } from "../Infrastructure/Clients/Transferencias/Interbancaria/RedBancariaSimuladaClient";
+import { RedBancariaSimuladaClient } from "../Infrastructure/Clients/RedBancaria/Http/RedBancariaSimuladaClient";
 import { PostgresUnidadDeTrabajo } from "../Infrastructure/Database/PostgresUnidadDeTrabajo";
 import { AutenticacionRepositoryPostgres } from "../Infrastructure/Database/Repositories/AutenticacionRepositoryPostgres";
 import { ClienteRepositoryPostgres } from "../Infrastructure/Database/Repositories/ClienteRepositoryPostgres";

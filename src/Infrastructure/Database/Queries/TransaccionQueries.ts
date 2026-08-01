@@ -81,7 +81,7 @@ export class TransaccionQueries {
             estado_detalle,
             updated_at
         FROM BancoFuego.Transaccion
-        WHERE tipo = 'TRANSFERENCIA_EXTERNA'
+        WHERE tipo = 'TRANSFERENCIA_EXTERNA_SALIENTE'
             AND estado = 'PENDIENTE'
             AND referencia_externa IS NOT NULL
         ORDER BY updated_at ASC, id_transaccion ASC

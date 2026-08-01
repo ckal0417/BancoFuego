@@ -4,6 +4,8 @@ import { DepositoService } from "../Application/Services/DepositoService";
 import { HistorialService } from "../Application/Services/HistorialService";
 import { RetiroService } from "../Application/Services/RetiroService";
 import { AplicarResultadoInterbancarioService } from "../Application/Services/Transferencias/Interbancaria/AplicarResultadoInterbancarioService";
+import { ProcesarTransferenciaEntranteService } from "../Application/Services/Transferencias/Interbancaria/Entrante/ProcesarTransferenciaEntranteService";
+import { ProcesarTransferenciasEntrantesService } from "../Application/Services/Transferencias/Interbancaria/Entrante/ProcesarTransferenciasEntrantesService";
 import { ProcesarRespuestaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/ProcesarRespuestaInterbancariaService";
 import { RecibirTransferenciaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/RecibirTransferenciaInterbancariaService";
 import { TransferenciaInterbancariaEstadoService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaEstadoService";
@@ -12,6 +14,7 @@ import { PrepararTransferenciaLocalService } from "../Application/Services/Trans
 import { TransferenciaLocalService } from "../Application/Services/Transferencias/Local/TransferenciaLocalService";
 import { TransferenciaService } from "../Application/Services/Transferencias/TransferenciaService";
 import { TransferenciaInterbancariaPollingWorker } from "../Infrastructure/Workers/Transferencias/Interbancaria/TransferenciaInterbancariaPollingWorker";
+import { TransferenciasEntrantesPollingWorker } from "../Infrastructure/Workers/Transferencias/Interbancaria/TransferenciasEntrantePollingWorker";
 import { AuthController } from "../Presentation/Http/Controllers/AuthController";
 import { CuentaController } from "../Presentation/Http/Controllers/CuentaController";
 import { HistorialController } from "../Presentation/Http/Controllers/HistorialController";
@@ -23,7 +26,7 @@ import { TransferenciaController } from "../Presentation/Http/Controllers/Transf
 import { AuthMiddleware } from "../Presentation/Http/Middleware/AuthMiddleware";
 import { crearDependenciasBase } from "./CrearDependenciasBase";
 
-const {
+export const {
     eventBus,
     cuentaRepository,
     tarjetaRepository,
@@ -96,6 +99,18 @@ const recibirTransferenciaInterbancariaService = new RecibirTransferenciaInterba
     eventBus
 );
 
+const procesarTransferenciaEntranteService =
+    new ProcesarTransferenciaEntranteService(
+        unidadDeTrabajo,
+        idempotenciaService
+    );
+
+const procesarTransferenciasEntrantesService =
+    new ProcesarTransferenciasEntrantesService(
+        redBancariaClient,
+        procesarTransferenciaEntranteService
+    );
+
 export const cuentaController = new CuentaController(cuentaService);
 export const authController = new AuthController(autenticacionService);
 export const operacionController = new OperacionController(depositoService, retiroService);
@@ -120,7 +135,7 @@ function obtenerEnteroPositivo(
     predeterminado: number
 ): number {
     const numero = Number(valor);
-    return Number.isInteger(numero) && numero > 0? numero : predeterminado;
+    return Number.isInteger(numero) && numero > 0 ? numero : predeterminado;
 }
 const intervaloPolling = obtenerEnteroPositivo(
     process.env.INTERBANK_POLLING_INTERVAL_MS,
@@ -136,3 +151,9 @@ export const transferenciaInterbancariaPollingWorker = new TransferenciaInterban
     intervaloPolling,
     lotePolling
 );
+
+export const transferenciasEntrantesPollingWorker =
+    new TransferenciasEntrantesPollingWorker(
+        procesarTransferenciasEntrantesService,
+        intervaloPolling
+    );

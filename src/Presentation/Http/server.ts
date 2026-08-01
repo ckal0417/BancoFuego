@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { app } from "./app";
-import { transferenciaInterbancariaPollingWorker } from "../../Bootstrap/CompositionRoot";
+import { transferenciaInterbancariaPollingWorker, transferenciasEntrantesPollingWorker } from "../../Bootstrap/CompositionRoot";
 import { PostgresConnection } from "../../Infrastructure/Database/PostgresConnection";
 import logger from "../../Shared/Logging/Logger";
 
@@ -30,8 +30,8 @@ async function iniciarServidor():
                     );
 
                     if (pollingHabilitado) {
-                        transferenciaInterbancariaPollingWorker
-                            .iniciar();
+                        transferenciaInterbancariaPollingWorker.iniciar();
+                        transferenciasEntrantesPollingWorker.iniciar();
                     }
                 }
             );
@@ -43,8 +43,8 @@ async function iniciarServidor():
                 `Se recibió ${señal}. Cerrando BancoFuego...`
             );
 
-            transferenciaInterbancariaPollingWorker
-                .detener();
+            transferenciaInterbancariaPollingWorker.detener();
+            transferenciasEntrantesPollingWorker.detener();
 
             servidor.close(
                 () => {

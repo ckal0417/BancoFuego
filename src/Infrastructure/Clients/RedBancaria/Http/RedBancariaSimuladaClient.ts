@@ -1,8 +1,11 @@
+
+import { TransaccionRedBancariaDto } from "../../../../Application/DTOs/Transferencias/Interbancaria/TransaccionRedBancariaDto";
 import {
     IRedBancariaClient,
     ResultadoTransferenciaInterbancaria,
     SolicitudTransferenciaInterbancaria
 } from "../../../../Application/Ports/Transferencias/Interbancaria/IRedBancariaClient";
+import { CorrelationId } from "../../../../Domain/ValueObjects/CorrelationId";
 
 // Códigos de banco reservados solo para pruebas manuales.
 // Cualquier otro código se comporta como el camino feliz (ACEPTADA inmediata).
@@ -16,8 +19,34 @@ type EscenarioPendiente =
     | "LUEGO_RECHAZA"
     | "INDEFINIDO";
 
-export class RedBancariaSimuladaClient
-    implements IRedBancariaClient {
+export class RedBancariaSimuladaClient implements IRedBancariaClient {
+
+    private readonly transferenciasEntrantesPendientes:
+        TransaccionRedBancariaDto[] = [];
+
+
+    public async obtenerTransferenciasEntrantesPendientes():
+        Promise<readonly TransaccionRedBancariaDto[]> {
+
+        return [...this.transferenciasEntrantesPendientes];
+    }
+    public async confirmarTransferenciaEntrantesProcesada(correlationId: CorrelationId): Promise<void> {
+        const indice = this.transferenciasEntrantesPendientes
+            .findIndex(
+                transferencia =>
+                    transferencia.correlationId ===
+                    correlationId.toString()
+            );
+
+        if (indice >= 0) {
+            this.transferenciasEntrantesPendientes.splice(indice, 1);
+        }
+    }
+
+    agregarTransferenciaEntrante(transferencia: TransaccionRedBancariaDto): void {
+        this.transferenciasEntrantesPendientes.push(transferencia);
+    }
+
     // Recuerda qué escenario le prometimos a cada referencia externa
     // para poder resolverlo en la siguiente consulta (simula polling real).
     private readonly pendientesEnCurso =

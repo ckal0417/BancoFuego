@@ -1,9 +1,11 @@
-import { IMapeoCuentaRedBancaria } from "../../../../Application/Ports/Transferencias/Interbancaria/IMapeoCuentaBancaria";
+/*import { TransaccionRedBancariaDto } from "../../../Application/DTOs/Transferencias/Interbancaria/TransaccionRedBancariaDto";
+import { IMapeoCuentaRedBancaria } from "../../../Application/Ports/Transferencias/Interbancaria/IMapeoCuentaBancaria";
 import {
     IRedBancariaClient,
     ResultadoTransferenciaInterbancaria,
     SolicitudTransferenciaInterbancaria
-} from "../../../../Application/Ports/Transferencias/Interbancaria/IRedBancariaClient";
+} from "../../../Application/Ports/Transferencias/Interbancaria/IRedBancariaClient";
+import { CorrelationId } from "../../../Domain/ValueObjects/CorrelationId";
 import { TransactionRed, ApiResponseErrorRed, GetTransactionsResponseRed, TransferResponseRed } from "./Http/Tipos-red";
 
 const API_VERSION = "1";
@@ -23,12 +25,20 @@ const API_VERSION = "1";
  *     correlation_id disponible en este punto del flujo. Falta probar
  *     contra el servidor real si de verdad son obligatorios.
  */
+
+/*
 export class RedBancariaHttpClient implements IRedBancariaClient {
     constructor(
         private readonly baseUrl: string, // debe incluir el prefijo /api
         private readonly apiKey: string,
         private readonly mapeoCuentas: IMapeoCuentaRedBancaria
-    ) {}
+    ) { }
+    obtenerTransferenciasEntrantesPendientes(): Promise<readonly TransaccionRedBancariaDto[]> {
+        throw new Error("Method not implemented.");
+    }
+    confirmarTransferenciaEntrantesProcesada(correlationId: CorrelationId): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
     public async consultarEstado(referenciaExterna: string): Promise<ResultadoTransferenciaInterbancaria> {
         return this.consultarEstadoTransferencia(referenciaExterna);
     }
@@ -95,7 +105,7 @@ export class RedBancariaHttpClient implements IRedBancariaClient {
             return this.aRechazoDesdeError(await this.leerError(respuesta));
         }
 
-        const { data: transacciones } = (await respuesta.json()) as  GetTransactionsResponseRed;
+        const { data: transacciones } = (await respuesta.json()) as GetTransactionsResponseRed;
 
         if (transacciones.length === 0) {
             return {
@@ -234,4 +244,4 @@ export class RedBancariaHttpClient implements IRedBancariaClient {
                 );
         }
     }
-}
+}*/

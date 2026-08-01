@@ -1,7 +1,7 @@
 export class Dinero {
     private constructor(
         private readonly centavos: number
-    ) {}
+    ) { }
 
     public static desde(monto: number): Dinero {
         if (!Number.isFinite(monto)) {
@@ -13,6 +13,23 @@ export class Dinero {
         const centavos = Math.round(monto * 100);
 
         return new Dinero(centavos);
+    }
+
+    public static desdeCentavos(centavos: number): Dinero {
+
+        if (!Number.isFinite(centavos)) {
+            throw new Error(
+                "El monto debe ser un número finito."
+            );
+        }
+
+        return new Dinero(
+            Math.round(centavos)
+        );
+    }
+
+    public toCentavos(): number {
+        return this.centavos;
     }
 
     public static cero(): Dinero {

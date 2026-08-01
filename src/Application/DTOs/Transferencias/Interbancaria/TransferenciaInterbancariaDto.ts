@@ -21,27 +21,22 @@ export interface CuentaOrigenInterbancariaDto {
 }
 
 export interface TransferenciaInterbancariaResponseDto {
+
     tipo: "TRANSFERENCIA_EXTERNA_SALIENTE";
-
     origen: CuentaOrigenInterbancariaDto;
-
     transaccionId: number;
-
     estado: EstadoTransferenciaInterbancaria;
-
     referenciaExterna?: string;
-
     mensaje?: string;
+
 }
 
 export interface ConsultaTransferenciaInterbancariaResponseDto {
+
     transaccionId: number;
-
     referenciaExterna: string;
-
     estado: EstadoTransferenciaInterbancaria;
-
     mensaje?: string;
-
     actualizadoEn?: string;
+
 }

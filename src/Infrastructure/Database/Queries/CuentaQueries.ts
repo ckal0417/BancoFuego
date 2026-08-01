@@ -59,9 +59,16 @@ export class CuentaQueries {
         UPDATE BancoFuego.Cuenta
         SET
             saldo = $1,
-            activa = $2
-        WHERE id_cuenta = $3
+            activa = $2,
+            switch_account_id = $3
+        WHERE id_cuenta = $4
     `;
 
+    public static readonly OBTENER_CUENTAS_SINCRONIZADAS = `
+        SELECT *
+        FROM cuentas
+        WHERE switch_account_id IS NOT NULL
+        AND activa = TRUE;
+    `;
 
 }

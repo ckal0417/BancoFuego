@@ -14,11 +14,9 @@ export interface CuentaTransferenciaLocalDto {
 }
 
 export interface TransferenciaLocalResponseDto {
+
     tipo: "TRANSFERENCIA_INTERNA";
-
     origen: CuentaTransferenciaLocalDto;
-
     destino: CuentaTransferenciaLocalDto;
-
     transaccionId: number;
 }

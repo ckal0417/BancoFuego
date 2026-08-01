@@ -6,6 +6,7 @@ import {
 } from "../Errors/DomainErrors";
 import { Dinero } from "../ValueObjects/Dinero";
 import { NumeroCuenta } from "../ValueObjects/NumeroCuenta";
+import { SwitchAccountId } from "../ValueObjects/SwitchAccountId";
 
 export class Cuenta {
     private constructor(
@@ -16,8 +17,9 @@ export class Cuenta {
         private readonly fechaCreacion: Date,
         private activa: boolean,
         private readonly idCliente: number,
-        private readonly idBanco: number
-    ) {}
+        private readonly idBanco: number,
+        private switchAccountId?: SwitchAccountId
+    ) { }
 
     public static crear(datos: {
         numeroCuenta: NumeroCuenta;
@@ -34,7 +36,8 @@ export class Cuenta {
             new Date(),
             true,
             datos.idCliente,
-            datos.idBanco
+            datos.idBanco,
+            undefined
         );
     }
 
@@ -47,6 +50,7 @@ export class Cuenta {
         activa: boolean;
         idCliente: number;
         idBanco: number;
+        switchAccountId?: SwitchAccountId;
     }): Cuenta {
         return new Cuenta(
             datos.id,
@@ -56,7 +60,8 @@ export class Cuenta {
             datos.fechaCreacion,
             datos.activa,
             datos.idCliente,
-            datos.idBanco
+            datos.idBanco,
+            datos.switchAccountId
         );
     }
 
@@ -118,6 +123,18 @@ export class Cuenta {
         }
     }
 
+    public registrarEnSwitch(switchAccountId: SwitchAccountId
+    ): void {
+
+        if (this.switchAccountId) {
+            throw new Error(
+                "La cuenta ya se encuentra registrada en la Red Bancaria"
+            );
+        }
+
+        this.switchAccountId = switchAccountId;
+    }
+
     public bloquear(): void {
         this.activa = false;
     }
@@ -162,5 +179,13 @@ export class Cuenta {
 
     public estaActiva(): boolean {
         return this.activa;
+    }
+
+    public obtenerSwitchAccountId(): SwitchAccountId | undefined {
+        return this.switchAccountId;
+    }
+
+    public estaRegistradaEnSwitch(): boolean {
+        return this.switchAccountId !== undefined;
     }
 }

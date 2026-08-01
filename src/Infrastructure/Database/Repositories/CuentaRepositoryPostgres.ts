@@ -6,6 +6,7 @@ import { TipoCuenta } from "../../../Domain/Enums/TipoCuenta";
 import { PostgresConnection } from "../PostgresConnection";
 import { CuentaQueries } from "../Queries/CuentaQueries";
 import { QueryExecutor } from "../QueryExecutor";
+import { SwitchAccountId } from "../../../Domain/ValueObjects/SwitchAccountId";
 
 
 interface FilaCuenta {
@@ -17,6 +18,7 @@ interface FilaCuenta {
     activa: boolean;
     id_cliente: number;
     id_banco: number;
+    switch_account_id: string | null;
 }
 
 export class CuentaRepositoryPostgres implements ICuentaRepository {
@@ -27,6 +29,17 @@ export class CuentaRepositoryPostgres implements ICuentaRepository {
     ) {
         this.executor = executor;
     }
+
+
+    public async obtenerCuentasSincronizadas(): Promise<Cuenta[]> {
+        const resultado = await this.executor.query<FilaCuenta>(
+            CuentaQueries.OBTENER_CUENTAS_SINCRONIZADAS
+        );
+
+        return resultado.rows.map(fila => this.aEntidad(fila));
+    }
+
+
     public async buscarPorNumeroCuentaParaActualizar(numeroCuenta: string): Promise<Cuenta | null> {
         const resultado = await this.executor.query<FilaCuenta>(
             CuentaQueries.BUSCAR_POR_NUMERO_CUENTA_PARA_ACTUALIZAR,
@@ -40,6 +53,7 @@ export class CuentaRepositoryPostgres implements ICuentaRepository {
             : null;
     }
 
+
     async buscarPorId(id: number): Promise<Cuenta | null> {
         const resultado = await this.executor.query<FilaCuenta>(
             CuentaQueries.BUSCAR_POR_ID,
@@ -48,6 +62,7 @@ export class CuentaRepositoryPostgres implements ICuentaRepository {
         if (resultado.rowCount === 0) return null;
         return this.aEntidad(resultado.rows[0]!);
     }
+
 
     public async buscarPorIdParaActualizar(
         id: number
@@ -65,6 +80,7 @@ export class CuentaRepositoryPostgres implements ICuentaRepository {
             : null;
     }
 
+
     async crear(cuenta: Cuenta): Promise<number> {
         const resultado = await this.executor.query<{ id_cuenta: number }>(
             CuentaQueries.CREAR,
@@ -79,6 +95,7 @@ export class CuentaRepositoryPostgres implements ICuentaRepository {
         return resultado.rows[0]!.id_cuenta;
     }
 
+
     async actualizar(cuenta: Cuenta): Promise<void> {
         const id = cuenta.obtenerId();
         if (id === undefined) {
@@ -87,9 +104,11 @@ export class CuentaRepositoryPostgres implements ICuentaRepository {
         await this.executor.query(CuentaQueries.ACTUALIZAR, [
             cuenta.obtenerSaldo().toNumber(),
             cuenta.estaActiva(),
+            cuenta.obtenerSwitchAccountId()?.toString() ?? null,
             id,
         ]);
     }
+
 
     private aEntidad(fila: FilaCuenta): Cuenta {
         return Cuenta.reconstruir({
@@ -101,6 +120,9 @@ export class CuentaRepositoryPostgres implements ICuentaRepository {
             activa: fila.activa,
             idCliente: fila.id_cliente,
             idBanco: fila.id_banco,
+            switchAccountId:
+                fila.switch_account_id ? SwitchAccountId.
+                    desde(fila.switch_account_id) : undefined
         });
     }
 

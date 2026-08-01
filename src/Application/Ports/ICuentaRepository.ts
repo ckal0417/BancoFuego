@@ -6,4 +6,5 @@ export interface ICuentaRepository {
     buscarPorNumeroCuentaParaActualizar(numeroCuenta: string): Promise<Cuenta | null>;
     crear(cuenta: Cuenta): Promise<number>;    // siempre INSERT, devuelve id generado
     actualizar(cuenta: Cuenta): Promise<void>; // siempre UPDATE, la cuenta ya tiene id
+    obtenerCuentasSincronizadas(): Promise<Cuenta[]>;
 }

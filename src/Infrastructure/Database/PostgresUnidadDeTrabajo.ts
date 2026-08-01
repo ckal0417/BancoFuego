@@ -3,7 +3,9 @@ import { PostgresConnection } from "./PostgresConnection";
 import { CuentaRepositoryPostgres } from "./Repositories/CuentaRepositoryPostgres";
 import { IdempotenciaRepositoryPostgres } from "./Repositories/IdempotenciaRepositoryPostgres";
 import { MovimientoRepositoryPostgres } from "./Repositories/MovimientoRepositoryPostgres";
+import { RegistroTransferenciaEntranteRepositoryPostgres } from "./Repositories/RegistroTransferenciasEntrantesRepositoryPostgres";
 import { TransaccionRepositoryPostgres } from "./Repositories/TransaccionRepositoryPostgres";
+
 
 export class PostgresUnidadDeTrabajo
     implements IUnidadDeTrabajo {
@@ -27,26 +29,30 @@ export class PostgresUnidadDeTrabajo
 
             const repositorios:
                 RepositoriosTransaccionales = {
-                    cuentas:
-                        new CuentaRepositoryPostgres(
-                            cliente
-                        ),
+                cuentas:
+                    new CuentaRepositoryPostgres(
+                        cliente
+                    ),
 
-                    movimientos:
-                        new MovimientoRepositoryPostgres(
-                            cliente
-                        ),
+                movimientos:
+                    new MovimientoRepositoryPostgres(
+                        cliente
+                    ),
 
-                    transacciones:
-                        new TransaccionRepositoryPostgres(
-                            cliente
-                        ),
+                transacciones:
+                    new TransaccionRepositoryPostgres(
+                        cliente
+                    ),
 
-                    idempotencias:
-                        new IdempotenciaRepositoryPostgres(
-                            cliente
-                        )
-                };
+                idempotencias:
+                    new IdempotenciaRepositoryPostgres(
+                        cliente
+                    ),
+                registroTransferenciasEntrantes:
+                    new RegistroTransferenciaEntranteRepositoryPostgres(
+                        cliente
+                    )
+            };
 
             const resultado =
                 await operacion(

@@ -1,4 +1,7 @@
 import { Dinero } from "../../../../Domain/ValueObjects/Dinero";
+import { TransaccionRedBancariaDto } from "../../../DTOs/Transferencias/Interbancaria/TransaccionRedBancariaDto";
+import { CorrelationId } from "../../../../Domain/ValueObjects/CorrelationId";
+
 
 export interface SolicitudTransferenciaInterbancaria {
     bancoOrigen: string;
@@ -38,4 +41,13 @@ export interface IRedBancariaClient {
     consultarEstado(
         referenciaExterna: string
     ): Promise<ResultadoTransferenciaInterbancaria>;
+
+    obtenerTransferenciasEntrantesPendientes():
+        Promise<readonly TransaccionRedBancariaDto[]>;
+
+    //este metodo es para avisarle a la red qua ya procesamos la 
+    //la transacion para que no la siga enviando
+    confirmarTransferenciaEntrantesProcesada(
+        correlationId: CorrelationId
+    ): Promise<void>;
 }

@@ -16,6 +16,7 @@ import { requestIdMiddleware } from "./Middleware/RequestIdMiddleware";
 import { apiRoutes } from "./Routes";
 import { docsRoutes } from "./Routes/DocsRoutes";
 import helmet from "helmet";
+import TestingRoutes from "./Routes/TestingRoutes";
 
 const app: Application =
     express();
@@ -159,6 +160,11 @@ app.get(
 app.use(
     "/api",
     apiRoutes
+);
+
+app.use(
+    "/api/testing",
+    TestingRoutes
 );
 
 /*

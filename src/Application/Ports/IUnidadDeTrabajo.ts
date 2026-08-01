@@ -2,19 +2,23 @@ import { ICuentaRepository } from "./ICuentaRepository";
 import { IIdempotenciaRepository } from "./IIdempotenciaRepository";
 import { IMovimientoRepository } from "./IMovimientoRepository";
 import { ITransaccionRepository } from "./ITransaccionRepository";
+import { IRegistroTransferenciaEntranteRepository } from "./Transferencias/Interbancaria/IRegistroTransferenciaEntranteRepository";
 
 export interface RepositoriosTransaccionales {
     cuentas:
-        ICuentaRepository;
+    ICuentaRepository;
 
     movimientos:
-        IMovimientoRepository;
+    IMovimientoRepository;
 
     transacciones:
-        ITransaccionRepository;
+    ITransaccionRepository;
 
     idempotencias:
-        IIdempotenciaRepository;
+    IIdempotenciaRepository;
+
+    registroTransferenciasEntrantes:
+    IRegistroTransferenciaEntranteRepository;
 }
 
 export interface IUnidadDeTrabajo {
