@@ -120,7 +120,7 @@ export class AplicarResultadoInterbancarioService {
     }
 
     private validarInterbancaria(transaccion: Transaccion): void {
-        if (transaccion.obtenerTipo() !== "TRANSFERENCIA_EXTERNA") {
+        if (transaccion.obtenerTipo() !== "TRANSFERENCIA_EXTERNA_SALIENTE") {
             throw new BusinessRuleError(
                 "La transacción no corresponde a una transferencia interbancaria.",
                 "TRANSACCION_NO_INTERBANCARIA"

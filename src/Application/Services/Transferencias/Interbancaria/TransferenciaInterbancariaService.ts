@@ -62,7 +62,7 @@ export class TransferenciaInterbancariaService extends TransferenciaBaseService 
             if (resultadoExterno.estado === "RECHAZADA") {
                 throw new BusinessRuleError(
                     resultadoExterno.mensaje ??
-                        "La transferencia fue rechazada por la red bancaria.",
+                    "La transferencia fue rechazada por la red bancaria.",
                     "TRANSFERENCIA_RECHAZADA"
                 );
             }
@@ -119,7 +119,7 @@ export class TransferenciaInterbancariaService extends TransferenciaBaseService 
         datos: TransferenciaInterbancariaRequestDto
     ): string {
         return this.idempotenciaService.crearHash({
-            tipoTransferencia: "TRANSFERENCIA_EXTERNA",
+            tipoTransferencia: "TRANSFERENCIA_EXTERNA_SALIENTE",
             cuentaOrigenId: datos.cuentaOrigenId,
             numeroCuentaDestino: datos.numeroCuentaDestino,
             codigoBancoDestino: datos.codigoBancoDestino,
@@ -143,7 +143,7 @@ export class TransferenciaInterbancariaService extends TransferenciaBaseService 
             mensaje
         } = datosCreacion;
         return Transaccion.crear({
-            tipo: "TRANSFERENCIA_EXTERNA",
+            tipo: "TRANSFERENCIA_EXTERNA_SALIENTE",
             monto,
             estado,
             descripcion:
@@ -179,7 +179,7 @@ export class TransferenciaInterbancariaService extends TransferenciaBaseService 
         mensaje?: string;
     }): TransferenciaInterbancariaResponseDto {
         return {
-            tipo: "TRANSFERENCIA_EXTERNA",
+            tipo: "TRANSFERENCIA_EXTERNA_SALIENTE",
             origen: {
                 cuentaId: datos.cuentaOrigenId,
                 saldoAnterior: datos.saldoAnterior,

@@ -16,7 +16,7 @@ export class TransferenciaInterbancariaEstadoService {
         private readonly redBancariaClient: IRedBancariaClient,
         private readonly eventBus: EventBus,
         private readonly aplicarResultadoService: AplicarResultadoInterbancarioService
-    ) {}
+    ) { }
     public async consultarPorId(
         transaccionId: number
     ): Promise<ConsultaTransferenciaInterbancariaResponseDto> {
@@ -83,7 +83,7 @@ export class TransferenciaInterbancariaEstadoService {
         transaccionId: number,
         referenciaExistente?: string
     ): Promise<ConsultaTransferenciaInterbancariaResponseDto> {
-        const referenciaExterna =referenciaExistente ?? await this.obtenerReferencia(transaccionId);
+        const referenciaExterna = referenciaExistente ?? await this.obtenerReferencia(transaccionId);
         const resultadoExterno = await this.redBancariaClient.consultarEstado(referenciaExterna);
         const resultado = await this.unidadDeTrabajo.ejecutar(async repositorios => {
             const transaccion = await repositorios.transacciones.buscarPorIdParaActualizar(
@@ -155,7 +155,7 @@ export class TransferenciaInterbancariaEstadoService {
     }
 
     private validarInterbancaria(transaccion: Transaccion): void {
-        if (transaccion.obtenerTipo() !== "TRANSFERENCIA_EXTERNA") {
+        if (transaccion.obtenerTipo() !== "TRANSFERENCIA_EXTERNA_SALIENTE") {
             throw new BusinessRuleError(
                 "La transacción no corresponde a una transferencia interbancaria.",
                 "TRANSACCION_NO_INTERBANCARIA"

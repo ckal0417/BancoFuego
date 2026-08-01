@@ -24,8 +24,7 @@ export interface ResultadoTransferenciaLocal {
 }
 
 export class TransferenciaLocalService
-    extends TransferenciaBaseService
-{
+    extends TransferenciaBaseService {
     constructor(
         private readonly unidadDeTrabajo: IUnidadDeTrabajo,
         private readonly idempotenciaService: IdempotenciaService
@@ -54,12 +53,12 @@ export class TransferenciaLocalService
         const hashSolicitud =
             clave
                 ? this.idempotenciaService.crearHash({
-                      tipoTransferencia: "LOCAL",
-                      cuentaOrigenId: datos.cuentaOrigenId,
-                      cuentaDestinoId: datos.cuentaDestinoId,
-                      monto: datos.monto,
-                      operacion: "TRANSFERENCIA"
-                  })
+                    tipoTransferencia: "LOCAL",
+                    cuentaOrigenId: datos.cuentaOrigenId,
+                    cuentaDestinoId: datos.cuentaDestinoId,
+                    monto: datos.monto,
+                    operacion: "TRANSFERENCIA"
+                })
                 : undefined;
 
         return this.unidadDeTrabajo.ejecutar(
@@ -175,28 +174,28 @@ export class TransferenciaLocalService
 
                 const respuesta:
                     TransferenciaLocalResponseDto = {
-                        tipo: "TRANSFERENCIA_INTERNA",
+                    tipo: "TRANSFERENCIA_INTERNA",
 
-                        origen: {
-                            cuentaId:
-                                datos.cuentaOrigenId,
-                            saldoAnterior:
-                                retiro.saldoAnterior.toNumber(),
-                            saldoNuevo:
-                                retiro.saldoNuevo.toNumber()
-                        },
+                    origen: {
+                        cuentaId:
+                            datos.cuentaOrigenId,
+                        saldoAnterior:
+                            retiro.saldoAnterior.toNumber(),
+                        saldoNuevo:
+                            retiro.saldoNuevo.toNumber()
+                    },
 
-                        destino: {
-                            cuentaId:
-                                datos.cuentaDestinoId,
-                            saldoAnterior:
-                                deposito.saldoAnterior.toNumber(),
-                            saldoNuevo:
-                                deposito.saldoNuevo.toNumber()
-                        },
+                    destino: {
+                        cuentaId:
+                            datos.cuentaDestinoId,
+                        saldoAnterior:
+                            deposito.saldoAnterior.toNumber(),
+                        saldoNuevo:
+                            deposito.saldoNuevo.toNumber()
+                    },
 
-                        transaccionId
-                    };
+                    transaccionId
+                };
 
                 await this.completarIdempotencia(
                     repositorios.idempotencias,

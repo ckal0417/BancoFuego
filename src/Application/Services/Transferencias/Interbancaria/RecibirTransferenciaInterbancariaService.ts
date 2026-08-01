@@ -14,7 +14,7 @@ export class RecibirTransferenciaInterbancariaService {
     constructor(
         private readonly unidadDeTrabajo: IUnidadDeTrabajo,
         private readonly eventBus: EventBus
-    ) {}
+    ) { }
 
     public async recibir(
         datos: RecibirTransferenciaInterbancariaRequestDto
@@ -69,7 +69,7 @@ export class RecibirTransferenciaInterbancariaService {
                 };
             }
             const transaccion = Transaccion.crear({
-                tipo: "TRANSFERENCIA_ENTRANTE",
+                tipo: "TRANSFERENCIA_EXTERNA_ENTRANTE",
                 monto,
                 estado: "EXITOSA",
                 descripcion: datos.concepto ?? `Transferencia recibida de ${datos.bancoOrigen}`,
@@ -104,7 +104,7 @@ export class RecibirTransferenciaInterbancariaService {
             this.eventBus.publicar(
                 new Evento(TiposEvento.TRANSFERENCIA_REALIZADA, {
                     naturaleza: "CREDITO",
-                    tipo: "TRANSFERENCIA_ENTRANTE",
+                    tipo: "TRANSFERENCIA_EXTERNA_ENTRANTE",
                     cuentaId: resultado.cuentaDestinoId,
                     cuentaDestinoId: resultado.cuentaDestinoId,
                     numeroCuentaDestino: datos.numeroCuentaDestino,
