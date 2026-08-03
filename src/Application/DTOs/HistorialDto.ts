@@ -12,4 +12,7 @@ export interface HistorialItemDto {
     naturaleza?: NaturalezaMovimiento;
     saldoAnterior: number;
     saldoPosterior: number;
+
+    numeroCuentaOrigen?: string;
+    codigoBancoOrigen?: string;
 }

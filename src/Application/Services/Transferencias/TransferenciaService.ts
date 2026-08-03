@@ -1,7 +1,13 @@
-import { TransferenciaLocalResponseDto } from "../../DTOs/Transferencias/Local/TransferenciaLocalDto";
-import { TransferenciaInterbancariaResponseDto} from "../../DTOs/Transferencias/Interbancaria/TransferenciaInterbancariaDto";
+import {
+    TransferenciaLocalResponseDto
+} from "../../DTOs/Transferencias/Local/TransferenciaLocalDto";
+
+import {
+    TransferenciaInterbancariaResponseDto
+} from "../../DTOs/Transferencias/Interbancaria/TransferenciaInterbancariaDto";
+
 import { TiposEvento } from "../../Events/TiposEvento";
-import { PrepararTransferenciaLocalService} from "./Local/PrepararTransferenciaLocalService";
+import { PrepararTransferenciaLocalService } from "./Local/PrepararTransferenciaLocalService";
 import { TransferenciaInterbancariaService } from "./Interbancaria/TransferenciaInterbancariaService";
 import { EventBus } from "../../../Shared/Events/EventBus";
 import { Evento } from "../../../Shared/Events/Evento";
@@ -26,13 +32,10 @@ export type EjecutarTransferenciaRequest =
         correoCliente?: string;
     };
 
-export type EjecutarTransferenciaResponse =
-    | TransferenciaLocalResponseDto
-    | TransferenciaInterbancariaResponseDto;
+export type EjecutarTransferenciaResponse = | TransferenciaLocalResponseDto | TransferenciaInterbancariaResponseDto;
 
 export class TransferenciaService {
     constructor(
-
         private readonly prepararTransferenciaLocalService: PrepararTransferenciaLocalService,
         private readonly transferenciaInterbancariaService: TransferenciaInterbancariaService,
         private readonly eventBus: EventBus
@@ -41,56 +44,119 @@ export class TransferenciaService {
     public async ejecutar(
         datos: EjecutarTransferenciaRequest
     ): Promise<EjecutarTransferenciaResponse> {
+        if (datos.tipoTransferencia === "LOCAL") {
+            return this.ejecutarTransferenciaLocal(datos);
+        }
+        return this.ejecutarTransferenciaInterbancaria(datos);
+    }
+
+    private async ejecutarTransferenciaLocal(
+        datos: Extract<
+            EjecutarTransferenciaRequest,
+            { tipoTransferencia: "LOCAL" }
+        >
+    ): Promise<TransferenciaLocalResponseDto> {
         const resultado =
-            datos.tipoTransferencia === "LOCAL"
-                ? await this.prepararTransferenciaLocalService.ejecutar({
-                    
-                    cuentaOrigenId: datos.cuentaOrigenId,
-                    numeroCuentaDestino: datos.numeroCuentaDestino,
-                    monto: datos.monto,
-                    idempotencyKey:datos.idempotencyKey,
-                    correoCliente: datos.correoCliente
-                })
-                : await this.transferenciaInterbancariaService.ejecutar({
-                    
-                    cuentaOrigenId: datos.cuentaOrigenId,
-                    numeroCuentaDestino: datos.numeroCuentaDestino,
-                    codigoBancoDestino: datos.codigoBancoDestino,
-                    monto: datos.monto,
-                    concepto: datos.concepto,
-                    idempotencyKey: datos.idempotencyKey,
-                    correoCliente: datos.correoCliente
-                });
+            await this.prepararTransferenciaLocalService.ejecutar({
+                
+                cuentaOrigenId: datos.cuentaOrigenId,
+                numeroCuentaDestino: datos.numeroCuentaDestino,
+                monto: datos.monto,
+                idempotencyKey: datos.idempotencyKey,
+                correoCliente: datos.correoCliente
+            });
 
         /*
-         * No publicamos nuevamente el evento cuando la respuesta
+         * No se publican nuevamente los eventos cuando la respuesta
          * proviene de una petición idempotente repetida.
          */
         if (resultado.operacionNueva) {
+            /*
+             * Evento para el titular de la cuenta origen.
+             * Representa el dinero debitado.
+             */
             this.eventBus.publicar(
-                new Evento(TiposEvento.TRANSFERENCIA_REALIZADA, {
-                    ...resultado.respuesta,
-                    naturaleza: "DEBITO",
-                    cuentaId: datos.cuentaOrigenId,
-                    monto: datos.monto,
-                    correoCliente: datos.correoCliente,
-                    numeroCuentaDestino: datos.numeroCuentaDestino
-                })
+                new Evento(
+                    TiposEvento.TRANSFERENCIA_REALIZADA,
+                    {
+                        naturaleza: "DEBITO",
+                        tipo: resultado.respuesta.tipo,
+                        cuentaId: resultado.respuesta.origen.cuentaId,
+                        cuentaOrigenId: resultado.respuesta.origen.cuentaId,
+                        cuentaDestinoId: resultado.respuesta.destino.cuentaId,
+                        numeroCuentaDestino: datos.numeroCuentaDestino,
+                        monto: datos.monto,
+                        correoCliente: datos.correoCliente,
+                        bancoDestino: "Banco Fuego"
+                    }
+                )
             );
 
-            if (datos.tipoTransferencia === "LOCAL" && resultado.respuesta.tipo === "TRANSFERENCIA_INTERNA") {
-                this.eventBus.publicar(
-                    new Evento(TiposEvento.TRANSFERENCIA_REALIZADA, {
+            /*
+             * Evento para el titular de la cuenta destino.
+             * Representa el dinero recibido.
+             */
+            this.eventBus.publicar(
+                new Evento(
+                    TiposEvento.TRANSFERENCIA_REALIZADA,
+                    {
                         naturaleza: "CREDITO",
-                        cuentaId: resultado.respuesta.destino.cuentaId,
+                        tipo: resultado.respuesta.tipo,
+                        cuentaId:  resultado.respuesta.destino.cuentaId,
+                        cuentaOrigenId: resultado.respuesta.origen.cuentaId,
                         cuentaDestinoId: resultado.respuesta.destino.cuentaId,
-                        monto: datos.monto,
-                        tipo: resultado.respuesta.tipo
-                    })
-                );
-            }
+                        numeroCuentaDestino: datos.numeroCuentaDestino,
+                        monto:  datos.monto,
+                        bancoOrigen: "Banco Fuego"
+                    }
+                )
+            );
         }
+        return resultado.respuesta;
+    }
 
+    private async ejecutarTransferenciaInterbancaria(
+        datos: Extract<
+            EjecutarTransferenciaRequest,
+            { tipoTransferencia: "INTERBANCARIA" }
+        >
+    ): Promise<TransferenciaInterbancariaResponseDto> {
+        const resultado =
+            await this.transferenciaInterbancariaService.ejecutar({
+                cuentaOrigenId: datos.cuentaOrigenId,
+                numeroCuentaDestino: datos.numeroCuentaDestino,
+                codigoBancoDestino: datos.codigoBancoDestino,
+                monto: datos.monto,
+                concepto: datos.concepto,
+                idempotencyKey: datos.idempotencyKey,
+                correoCliente: datos.correoCliente
+            });
+
+        /*
+         * La transferencia interbancaria solo genera aquí
+         * el evento de débito para el remitente.
+         *
+         * No se usan origen ni destino porque la respuesta
+         * interbancaria no posee necesariamente esas propiedades.
+         */
+        if (resultado.operacionNueva) {
+            this.eventBus.publicar(
+                new Evento(
+                    TiposEvento.TRANSFERENCIA_REALIZADA,
+                    {
+                        naturaleza:  "DEBITO",
+                        tipo: resultado.respuesta.tipo,
+                        cuentaId: datos.cuentaOrigenId,
+                        cuentaOrigenId: datos.cuentaOrigenId,
+                        numeroCuentaDestino: datos.numeroCuentaDestino,
+                        bancoDestino: datos.codigoBancoDestino,
+                        monto: datos.monto,
+                        correoCliente: datos.correoCliente,
+                        referenciaExterna: resultado.respuesta.referenciaExterna
+                    }
+                )
+            );
+        }
         return resultado.respuesta;
     }
 }

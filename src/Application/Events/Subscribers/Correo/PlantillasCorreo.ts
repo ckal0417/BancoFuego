@@ -63,20 +63,54 @@ function crearPlantillaTransferencia(datos: DatosCorreoEvento): PlantillaCorreo 
     return crearPlantillaTransferenciaEnviada(datos);
 }
 
-function crearPlantillaTransferenciaEnviada(datos: DatosCorreoEvento): PlantillaCorreo {
-    const tipoTransferencia = datos.tipo === "TRANSFERENCIA_EXTERNA"
-        ? "Interbancaria"
-        : "Interna (Banco Fuego)";
+function crearPlantillaTransferenciaEnviada(
+    datos: DatosCorreoEvento
+): PlantillaCorreo {
+    const tipoTransferencia =
+        datos.tipo === "TRANSFERENCIA_EXTERNA" ||
+        datos.tipo === "TRANSFERENCIA_EXTERNA_SALIENTE"
+            ? "Interbancaria"
+            : "Interna (Banco Fuego)";
 
     return {
-        asunto: "🔥 Banco Fuego - Débito por Transferencia",
+        asunto:
+            "🔥 Banco Fuego - Débito por Transferencia",
+
         html: `
             <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #dc3545; border-radius: 8px;">
-                <h2 style="color: #dc3545;">🔥 Banco Fuego - Transferencia Debitada</h2>
-                <p>Se ha debitado dinero de su cuenta para realizar una transferencia.</p>
-                <p><strong>Monto debitado:</strong> $${formatearMonto(datos.monto)}</p>
-                <p><strong>Cuenta destino:</strong> ${datos.numeroCuentaDestino ?? "No especificada"}</p>
-                <p><strong>Tipo de transferencia:</strong> ${tipoTransferencia}</p>
+                <h2 style="color: #dc3545;">
+                    🔥 Banco Fuego - Transferencia Debitada
+                </h2>
+
+                <p>
+                    Se ha debitado dinero de su cuenta para realizar una transferencia.
+                </p>
+
+                <p>
+                    <strong>Monto debitado:</strong>
+                    $${formatearMonto(datos.monto)}
+                </p>
+
+                <p>
+                    <strong>Destinatario:</strong>
+                    ${datos.nombreTitularDestino ?? "No especificado"}
+                </p>
+
+                <p>
+                    <strong>Cuenta destino:</strong>
+                    ${datos.numeroCuentaDestino ?? "No especificada"}
+                </p>
+
+                <p>
+                    <strong>Banco destino:</strong>
+                    ${datos.bancoDestino ?? "Banco Fuego"}
+                </p>
+
+                <p>
+                    <strong>Tipo de transferencia:</strong>
+                    ${tipoTransferencia}
+                </p>
+
                 <p style="color: #666; font-size: 12px;">
                     Si no reconoce esta operación, comuníquese inmediatamente con el banco.
                 </p>
@@ -85,15 +119,43 @@ function crearPlantillaTransferenciaEnviada(datos: DatosCorreoEvento): Plantilla
     };
 }
 
-function crearPlantillaTransferenciaRecibida(datos: DatosCorreoEvento): PlantillaCorreo {
+function crearPlantillaTransferenciaRecibida(
+    datos: DatosCorreoEvento
+): PlantillaCorreo {
     return {
-        asunto: "🔥 Banco Fuego - Transferencia Recibida",
+        asunto:
+            "🔥 Banco Fuego - Transferencia Recibida",
+
         html: `
             <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #28a745; border-radius: 8px;">
-                <h2 style="color: #28a745;">🔥 Banco Fuego - Dinero Recibido</h2>
-                <p>Se ha acreditado una transferencia en su cuenta.</p>
-                <p><strong>Monto depositado:</strong> $${formatearMonto(datos.monto)}</p>
-                <p><strong>Cuenta origen:</strong> ${datos.numeroCuentaOrigen ?? "No especificada"}</p>
+                <h2 style="color: #28a745;">
+                    🔥 Banco Fuego - Dinero Recibido
+                </h2>
+
+                <p>
+                    Se ha acreditado una transferencia en su cuenta.
+                </p>
+
+                <p>
+                    <strong>Monto depositado:</strong>
+                    $${formatearMonto(datos.monto)}
+                </p>
+
+                <p>
+                    <strong>Enviado por:</strong>
+                    ${datos.nombreTitularOrigen ?? "No especificado"}
+                </p>
+
+                <p>
+                    <strong>Cuenta origen:</strong>
+                    ${datos.numeroCuentaOrigen ?? "No especificada"}
+                </p>
+
+                <p>
+                    <strong>Banco origen:</strong>
+                    ${datos.bancoOrigen ?? "Banco Fuego"}
+                </p>
+
                 <p style="color: #666; font-size: 12px;">
                     El dinero fue depositado correctamente en su cuenta.
                 </p>

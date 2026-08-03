@@ -64,25 +64,129 @@ export class CorreoSubscriber implements IEventSubscriber {
         }
     }
 
-    private async completarDatosCuenta(datos: DatosCorreoEvento): Promise<void> {
-        if (datos.numeroCuentaDestino) {
+private async completarDatosCuenta(
+    datos: DatosCorreoEvento
+): Promise<void> {
+    await this.completarDatosCuentaOrigen(datos);
+    await this.completarDatosCuentaDestino(datos);
+}
+
+private async completarDatosCuentaOrigen(
+    datos: DatosCorreoEvento
+): Promise<void> {
+    const cuentaOrigenId =
+        datos.origen?.cuentaId ??
+        datos.cuentaOrigenId ??
+        (
+            datos.naturaleza === "DEBITO"
+                ? datos.cuentaId
+                : undefined
+        );
+
+    if (cuentaOrigenId === undefined) {
+        return;
+    }
+
+    try {
+        const cuentaOrigen =
+            await this.cuentaRepo.buscarPorId(
+                cuentaOrigenId
+            );
+
+        if (!cuentaOrigen) {
             return;
         }
-        const cuentaDestinoId = datos.destino?.cuentaId ?? datos.cuentaDestinoId;
+
+        if (!datos.numeroCuentaOrigen) {
+            datos.numeroCuentaOrigen =
+                cuentaOrigen
+                    .obtenerNumeroCuenta()
+                    .toString();
+        }
+
+        if (!datos.nombreTitularOrigen) {
+            const clienteId =
+                cuentaOrigen.obtenerIdCliente();
+
+            const cliente =
+                await this.clienteRepo.buscarPorId(
+                    clienteId
+                );
+
+            if (cliente) {
+                datos.nombreTitularOrigen =
+                    cliente.nombreCompleto();
+            }
+        }
+    } catch (error: unknown) {
+        const mensaje =
+            error instanceof Error
+                ? error.message
+                : String(error);
+
+        logger.warn(
+            `[CORREO] No se pudieron completar los datos ` +
+            `de la cuenta origen ${cuentaOrigenId}: ${mensaje}`
+        );
+    }
+}
+
+    private async completarDatosCuentaDestino(
+        datos: DatosCorreoEvento
+    ): Promise<void> {
+        const cuentaDestinoId =
+            datos.destino?.cuentaId ??
+            datos.cuentaDestinoId ??
+            (
+                datos.naturaleza === "CREDITO"
+                    ? datos.cuentaId
+                    : undefined
+            );
+
         if (cuentaDestinoId === undefined) {
             return;
         }
-        try {
-            const cuentaDestino = await this.cuentaRepo.buscarPorId(cuentaDestinoId);
 
-            if (cuentaDestino) {
-                datos.numeroCuentaDestino = cuentaDestino.obtenerNumeroCuenta().toString();
+        try {
+            const cuentaDestino =
+                await this.cuentaRepo.buscarPorId(
+                    cuentaDestinoId
+                );
+
+            if (!cuentaDestino) {
+                return;
+            }
+
+            if (!datos.numeroCuentaDestino) {
+                datos.numeroCuentaDestino =
+                    cuentaDestino
+                        .obtenerNumeroCuenta()
+                        .toString();
+            }
+
+            if (!datos.nombreTitularDestino) {
+                const clienteId =
+                    cuentaDestino.obtenerIdCliente();
+
+                const cliente =
+                    await this.clienteRepo.buscarPorId(
+                        clienteId
+                    );
+
+                if (cliente) {
+                    datos.nombreTitularDestino =
+                        cliente.nombreCompleto();
+                }
             }
         } catch (error: unknown) {
-            const mensaje = error instanceof Error ? error.message : String(error);
+            const mensaje =
+                error instanceof Error
+                    ? error.message
+                    : String(error);
 
             logger.warn(
-                `[CORREO] No se pudo obtener el número de la cuenta destino ${cuentaDestinoId}: ${mensaje}`
+                `[CORREO] No se pudieron completar los datos ` +
+                `de la cuenta destino ${cuentaDestinoId}: ${mensaje}`
             );
         }
     }

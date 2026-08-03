@@ -1,10 +1,7 @@
 import { Movimiento } from "../../../../Domain/Entities/Movimiento";
 import { Transaccion } from "../../../../Domain/Entities/Transaccion";
 import { Dinero } from "../../../../Domain/ValueObjects/Dinero";
-import {
-    RecibirTransferenciaInterbancariaRequestDto,
-    RecibirTransferenciaInterbancariaResponseDto
-} from "../../../DTOs/Transferencias/Interbancaria/RecibirTransferenciaInterbancaria";
+import { RecibirTransferenciaInterbancariaRequestDto, RecibirTransferenciaInterbancariaResponseDto } from "../../../DTOs/Transferencias/Interbancaria/RecibirTransferenciaInterbancaria";
 import { IUnidadDeTrabajo } from "../../../Ports/IUnidadDeTrabajo";
 import { TiposEvento } from "../../../Events/TiposEvento";
 import { EventBus } from "../../../../Shared/Events/EventBus";
@@ -15,7 +12,6 @@ export class RecibirTransferenciaInterbancariaService {
         private readonly unidadDeTrabajo: IUnidadDeTrabajo,
         private readonly eventBus: EventBus
     ) { }
-
     public async recibir(
         datos: RecibirTransferenciaInterbancariaRequestDto
     ): Promise<RecibirTransferenciaInterbancariaResponseDto> {
@@ -102,16 +98,37 @@ export class RecibirTransferenciaInterbancariaService {
 
         if (resultado.operacionNueva && resultado.cuentaDestinoId !== undefined) {
             this.eventBus.publicar(
-                new Evento(TiposEvento.TRANSFERENCIA_REALIZADA, {
-                    naturaleza: "CREDITO",
-                    tipo: "TRANSFERENCIA_EXTERNA_ENTRANTE",
-                    cuentaId: resultado.cuentaDestinoId,
-                    cuentaDestinoId: resultado.cuentaDestinoId,
-                    numeroCuentaDestino: datos.numeroCuentaDestino,
-                    bancoOrigen: datos.bancoOrigen,
-                    monto: datos.monto,
-                    referenciaExterna: datos.referenciaExterna
-                })
+                new Evento(
+                    TiposEvento.TRANSFERENCIA_REALIZADA,
+                    {
+                        naturaleza: "CREDITO",
+                        tipo: "TRANSFERENCIA_EXTERNA_ENTRANTE",
+
+                        cuentaId:
+                            resultado.cuentaDestinoId,
+
+                        cuentaDestinoId:
+                            resultado.cuentaDestinoId,
+
+                        numeroCuentaOrigen:
+                            datos.numeroCuentaOrigen,
+
+                        numeroCuentaDestino:
+                            datos.numeroCuentaDestino,
+
+                        nombreTitularOrigen:
+                            datos.nombreTitularOrigen,
+
+                        bancoOrigen:
+                            datos.bancoOrigen,
+
+                        monto:
+                            datos.monto,
+
+                        referenciaExterna:
+                            datos.referenciaExterna
+                    }
+                )
             );
         }
         return resultado.respuesta;

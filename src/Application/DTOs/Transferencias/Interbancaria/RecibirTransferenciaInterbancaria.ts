@@ -2,16 +2,19 @@ import { EstadoRespuestaInterbancaria } from "./EstadoRespuestaInterbancaria";
 
 export interface RecibirTransferenciaInterbancariaRequestDto {
     bancoOrigen: string;
+
+    numeroCuentaOrigen: string;
+    nombreTitularOrigen?: string;
+
     numeroCuentaDestino: string;
+
     monto: number;
     concepto?: string;
-
-    // ID único que asigna el banco emisor a la operación.
     referenciaExterna: string;
 }
 
 export interface RecibirTransferenciaInterbancariaResponseDto {
-    estado: EstadoRespuestaInterbancaria;
+    estado: "ACEPTADA" | "RECHAZADA";
     referenciaExterna: string;
     transaccionId?: number;
     codigoError?: string;
