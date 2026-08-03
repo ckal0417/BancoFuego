@@ -25,6 +25,7 @@ import { TransferenciaInterbancariaEstadoController } from "../Presentation/Http
 import { TransferenciaController } from "../Presentation/Http/Controllers/Transferencias/TransferenciaController";
 import { AuthMiddleware } from "../Presentation/Http/Middleware/AuthMiddleware";
 import { crearDependenciasBase } from "./CrearDependenciasBase";
+import { WebhookSignatureMiddleware } from "../Presentation/Http/Middleware/WebhookSignatureMiddleware";
 
 export const {
     eventBus,
@@ -129,6 +130,22 @@ export const transferenciaInterbancariaEntranteController =
         recibirTransferenciaInterbancariaService
     );
 export const authMiddleware = new AuthMiddleware(tokenService);
+const webhookSecret = process.env.INTERBANK_WEBHOOK_SECRET;
+if (
+    !webhookSecret || webhookSecret.trim().length === 0
+) {
+    throw new Error(
+        "La variable INTERBANK_WEBHOOK_SECRET es obligatoria"
+    );
+}
+const tiempoMaximoWebhook = obtenerEnteroPositivo(
+    process.env.INTERBANK_WEBHOOK_MAX_AGE_SECONDS,
+    300
+);
+export const webhookSignatureMiddleware = new WebhookSignatureMiddleware(
+    webhookSecret,
+    tiempoMaximoWebhook
+);
 
 function obtenerEnteroPositivo(
     valor: string | undefined,

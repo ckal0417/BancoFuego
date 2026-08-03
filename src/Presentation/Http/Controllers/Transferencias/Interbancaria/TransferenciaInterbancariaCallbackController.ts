@@ -1,13 +1,11 @@
-
 import { NextFunction, Request, Response } from "express";
 import { ProcesarRespuestaInterbancariaService } from "../../../../../Application/Services/Transferencias/Interbancaria/ProcesarRespuestaInterbancariaService";
 import { RespuestaCallbackInterbancarioRequestDto } from "../../../../../Application/DTOs/Transferencias/Interbancaria/RespuestaCallbackInterbancarioDto";
 
 export class TransferenciaInterbancariaCallbackController {
     constructor(
-        private readonly procesarRespuestaService:
-            ProcesarRespuestaInterbancariaService
-    ) { }
+        private readonly procesarRespuestaService: ProcesarRespuestaInterbancariaService
+    ) {}
 
     public procesar = async (
         req: Request<
@@ -23,7 +21,11 @@ export class TransferenciaInterbancariaCallbackController {
                 req.body
             );
 
-            res.status(200).json({ recibido: true });
+            res.status(200).json({
+                recibido: true,
+                referenciaExterna: req.body.referenciaExterna,
+                fechaRecepcion: new Date().toISOString()
+            });
         } catch (error) {
             next(error);
         }
