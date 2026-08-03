@@ -4,8 +4,7 @@ import { RecibirTransferenciaInterbancariaService } from "../../../../../Applica
 
 export class TransferenciaInterbancariaEntranteController {
     constructor(
-        private readonly recibirService:
-            RecibirTransferenciaInterbancariaService
+        private readonly recibirService: RecibirTransferenciaInterbancariaService
     ) { }
 
     public recibir = async (

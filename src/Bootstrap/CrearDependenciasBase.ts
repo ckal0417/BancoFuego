@@ -20,7 +20,25 @@ export function crearDependenciasBase() {
     const movimientoRepository = new MovimientoRepositoryPostgres();
     const clienteRepository = new ClienteRepositoryPostgres();
     const unidadDeTrabajo = new PostgresUnidadDeTrabajo();
-    const redBancariaClient = new RedBancariaSimuladaClient();
+    const webhookSecret = process.env.INTERBANK_WEBHOOK_SECRET;
+    if (
+        !webhookSecret ||
+        webhookSecret.trim().length === 0
+    ) {
+        throw new Error(
+            "La variable INTERBANK_WEBHOOK_SECRET es obligatoria"
+        );
+    }
+    const retrasoWebhookMs =
+    Number(
+        process.env.INTERBANK_SIMULATED_WEBHOOK_DELAY_MS ??
+        3000
+    );
+    const redBancariaClient = new RedBancariaSimuladaClient(
+        webhookSecret.trim(),
+        Number.isInteger(retrasoWebhookMs) &&
+        retrasoWebhookMs > 0 ? retrasoWebhookMs: 3000
+    );
     const tokenService = new JwtTokenService();
     const idempotenciaService = new IdempotenciaService();
 

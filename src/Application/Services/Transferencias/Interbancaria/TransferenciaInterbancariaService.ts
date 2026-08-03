@@ -50,15 +50,26 @@ export class TransferenciaInterbancariaService extends TransferenciaBaseService 
                 throw new CuentaNoEncontradaError();
             }
             const retiro = cuentaOrigen.retirar(monto);
-            const resultadoExterno = await this.redBancariaClient.enviarTransferencia({
-                bancoOrigen: "BANCO_FUEGO",
-                bancoDestino: datos.codigoBancoDestino,
-                numeroCuentaOrigen: cuentaOrigen.obtenerNumeroCuenta().toString(),
-                numeroCuentaDestino: datos.numeroCuentaDestino,
-                monto,
-                concepto: datos.concepto,
-                fecha: new Date()
-            });
+            const callbackUrl = process.env.INTERBANK_WEBHOOK_URL;
+            if (
+                !callbackUrl ||
+                callbackUrl.trim().length === 0
+            ) {
+                throw new Error(
+                    "La variable INTERBANK_WEBHOOK_URL es obligatoria"
+                );
+            }
+            const resultadoExterno =
+                await this.redBancariaClient.enviarTransferencia({
+                    bancoOrigen: "BANCO_FUEGO",
+                    bancoDestino: datos.codigoBancoDestino,
+                    numeroCuentaOrigen: cuentaOrigen.obtenerNumeroCuenta().toString(),
+                    numeroCuentaDestino: datos.numeroCuentaDestino,
+                    monto,
+                    concepto: datos.concepto,
+                    fecha: new Date(),
+                    callbackUrl: callbackUrl.trim()
+                });
             if (resultadoExterno.estado === "RECHAZADA") {
                 throw new BusinessRuleError(
                     resultadoExterno.mensaje ??

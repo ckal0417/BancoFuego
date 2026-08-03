@@ -1,19 +1,17 @@
 import { Dinero } from "../../../../Domain/ValueObjects/Dinero";
-import { TransaccionRedBancariaDto } from "../../../DTOs/Transferencias/Interbancaria/TransaccionRedBancariaDto";
 import { CorrelationId } from "../../../../Domain/ValueObjects/CorrelationId";
-
+import { TransaccionRedBancariaDto } from "../../../DTOs/Transferencias/Interbancaria/TransaccionRedBancariaDto";
 
 export interface SolicitudTransferenciaInterbancaria {
+    
     bancoOrigen: string;
     bancoDestino: string;
-
     numeroCuentaOrigen: string;
     numeroCuentaDestino: string;
-
     monto: Dinero;
     concepto?: string;
-
     fecha: Date;
+    callbackUrl: string;
 }
 
 export type ResultadoTransferenciaInterbancaria =
@@ -45,8 +43,8 @@ export interface IRedBancariaClient {
     obtenerTransferenciasEntrantesPendientes():
         Promise<readonly TransaccionRedBancariaDto[]>;
 
-    //este metodo es para avisarle a la red qua ya procesamos la 
-    //la transacion para que no la siga enviando
+    // Avisa a la red que la transferencia entrante ya fue procesada
+    // para evitar que vuelva a enviarla.
     confirmarTransferenciaEntrantesProcesada(
         correlationId: CorrelationId
     ): Promise<void>;
