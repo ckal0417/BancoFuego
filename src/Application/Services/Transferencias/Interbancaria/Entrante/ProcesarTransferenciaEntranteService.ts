@@ -53,9 +53,28 @@ export class ProcesarTransferenciaEntranteService
 
         return this.unidadDeTrabajo.ejecutar(
             async repositorios => {
+                const cuentaDestino =
+                    await repositorios.cuentas
+                        .buscarPorNumeroCuentaParaActualizar(
+                            datos.numeroCuentaDestino
+                        );
+
+                if (!cuentaDestino) {
+                    throw new CuentaNoEncontradaError();
+                }
+
+                const cuentaDestinoId =
+                    cuentaDestino.obtenerId();
+
+                if (cuentaDestinoId === undefined) {
+                    throw new Error(
+                        "La cuenta destino no tiene un identificador válido."
+                    );
+                }
+
                 const idempotencia = await this.comprobarIdempotencia<ProcesarTransferenciaEntranteResponseDto>(
                     repositorios.idempotencias,
-                    0,
+                    cuentaDestinoId,
                     clave,
                     hashSolicitud
                 );
@@ -68,16 +87,6 @@ export class ProcesarTransferenciaEntranteService
                         respuesta: idempotencia.respuesta,
                         operacionNueva: false
                     };
-                }
-
-                const cuentaDestino =
-                    await repositorios.cuentas
-                        .buscarPorNumeroCuentaParaActualizar(
-                            datos.numeroCuentaDestino
-                        );
-
-                if (!cuentaDestino) {
-                    throw new CuentaNoEncontradaError();
                 }
 
                 const deposito = cuentaDestino.depositar(monto);
@@ -100,7 +109,7 @@ export class ProcesarTransferenciaEntranteService
                     saldoPosterior:
                         deposito.saldoNuevo,
                     idCuenta:
-                        cuentaDestino.obtenerId()!,
+                        cuentaDestinoId,
                     idTransaccion:
                         transaccionId
                 });
@@ -125,7 +134,7 @@ export class ProcesarTransferenciaEntranteService
                     ),
                     monto,
                     concepto: datos.concepto,
-                    idCuentaDestino: cuentaDestino.obtenerId()!
+                    idCuentaDestino: cuentaDestinoId
 
                 });
 
@@ -139,7 +148,7 @@ export class ProcesarTransferenciaEntranteService
                 const respuesta: ProcesarTransferenciaEntranteResponseDto = {
                     tipo: "TRANSFERENCIA_EXTERNA_ENTRANTE",
                     cuentaDestino: {
-                        cuentaId: cuentaDestino.obtenerId()!,
+                        cuentaId: cuentaDestinoId,
                         saldoAnterior: deposito
                             .saldoAnterior
                             .toNumber(),
@@ -154,7 +163,7 @@ export class ProcesarTransferenciaEntranteService
 
                 await this.completarIdempotencia(
                     repositorios.idempotencias,
-                    cuentaDestino.obtenerId()!,
+                    cuentaDestinoId,
                     clave,
                     respuesta
                 );
