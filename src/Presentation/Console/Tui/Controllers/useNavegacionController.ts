@@ -93,6 +93,17 @@ export function useNavegacionController() {
         );
     }
 
+    function mostrarConfirmacion(
+        nuevoMensaje: MensajeTui
+    ): void {
+        setMensaje(
+            nuevoMensaje
+        );
+        setPantalla(
+            "CONFIRMAR_CUENTA_DESTINO"
+        );
+    }
+
     function continuarMensaje(): void {
         setPantalla(
             pantallaSiguiente
@@ -108,6 +119,12 @@ export function useNavegacionController() {
     function abrirConfirmacionSalida(): void {
         setPantalla(
             "CONFIRMAR_SALIDA"
+        );
+    }
+
+    function abrirConfirmacionCuentaDestino(): void {
+        setPantalla(
+            "CONFIRMAR_CUENTA_DESTINO"
         );
     }
 
@@ -156,9 +173,11 @@ export function useNavegacionController() {
 
         cambiarPantalla,
         mostrarMensaje,
+        mostrarConfirmacion,
         continuarMensaje,
         regresarAlMenu,
         abrirConfirmacionSalida,
+        abrirConfirmacionCuentaDestino,
         abrirDespedida,
         regresarAlInicio,
         confirmarCancelacion,

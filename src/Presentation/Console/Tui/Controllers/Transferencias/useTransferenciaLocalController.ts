@@ -10,11 +10,12 @@ interface UseTransferenciaLocalControllerParametros {
     sesion: SesionTui | null;
     actualizarSesion: (actualizador: (sesionActual: SesionTui) => SesionTui) => void;
     mostrarMensaje: (mensaje: MensajeTui, pantallaSiguiente: PantallaTui) => void;
+    mostrarConfirmacion: (mensaje: MensajeTui) => void;
 }
 
 export function useTransferenciaLocalController(parametros: UseTransferenciaLocalControllerParametros) {
     
-    const { servicios, sesion, actualizarSesion, mostrarMensaje } = parametros;
+    const { servicios, sesion, actualizarSesion, mostrarMensaje, mostrarConfirmacion } = parametros;
     const [numeroCuentaDestino, setNumeroCuentaDestino] = useState("");
     const [montoTransferenciaLocal, setMontoTransferenciaLocal] = useState("");
     const [pasoTransferenciaLocal, setPasoTransferenciaLocal] = useState<PasoTransferenciaLocal>(pasoTransferenciaLocalInicial);
@@ -22,27 +23,52 @@ export function useTransferenciaLocalController(parametros: UseTransferenciaLoca
 
     function continuar(): void {
         if (pasoTransferenciaLocal === "CUENTA_DESTINO") {
-            validarCuentaDestino();
+            void validarCuentaDestino();
             return;
         }
         void ejecutar();
     }
 
-    function validarCuentaDestino(): void {
-
+    async function validarCuentaDestino(): Promise<void> {
         const numeroDestino = numeroCuentaDestino.trim();
         const error = TuiValidaciones.cuentaDestino(numeroDestino);
+
         if (error) {
             mostrarError("Cuenta inválida", error);
             return;
         }
+
         if (sesion && numeroDestino === sesion.numeroCuenta) {
             mostrarError("Cuenta inválida", "No puede transferir dinero a la misma cuenta de origen.");
             return;
         }
-        setNumeroCuentaDestino(numeroDestino);
-        setMontoTransferenciaLocal("");
-        setPasoTransferenciaLocal("MONTO");
+
+        try {
+            const resultado = await servicios.consultarTitularCuentaService.ejecutar(numeroDestino);
+
+            if (!resultado.existe) {
+                mostrarError("Cuenta inválida", resultado.mensaje);
+                return;
+            }
+
+            setNumeroCuentaDestino(numeroDestino);
+            setMontoTransferenciaLocal("");
+            mostrarConfirmacion(
+                TuiMensajes.exito(
+                    "Confirmar cuenta destino",
+                    `Titular: ${resultado.nombreTitular}. ¿Desea continuar al monto?`
+                )
+            );
+        } catch (error: unknown) {
+            mostrarMensaje(
+                TuiMensajes.desdeError(
+                    "Error al consultar cuenta destino",
+                    error,
+                    "No se pudo validar la cuenta destino."
+                ),
+                "TRANSFERENCIA_LOCAL"
+            );
+        }
     }
 
     async function ejecutar(): Promise<void> {
@@ -110,6 +136,29 @@ export function useTransferenciaLocalController(parametros: UseTransferenciaLoca
         setCargandoTransferenciaLocal(false);
     }
 
+    function confirmarCuentaDestino(seleccion: string): void {
+        if (seleccion === "si") {
+            setPasoTransferenciaLocal("MONTO");
+            mostrarMensaje(
+                TuiMensajes.exito(
+                    "Transferencia local",
+                    "Ingrese el monto a transferir. Presione Enter para continuar."
+                ),
+                "TRANSFERENCIA_LOCAL"
+            );
+            return;
+        }
+
+        setPasoTransferenciaLocal("CUENTA_DESTINO");
+        mostrarMensaje(
+            TuiMensajes.error(
+                "Cuenta destino no confirmada",
+                "Reingrese el número de cuenta destino."
+            ),
+            "TRANSFERENCIA_LOCAL"
+        );
+    }
+
     return {
         numeroCuentaDestino,
         montoTransferenciaLocal,
@@ -119,7 +168,8 @@ export function useTransferenciaLocalController(parametros: UseTransferenciaLoca
         setMontoTransferenciaLocal,
         continuar,
         ejecutar,
-        limpiar
+        limpiar,
+        confirmarCuentaDestino
     };
 }
 export type TransferenciaLocalController = ReturnType<typeof useTransferenciaLocalController>;

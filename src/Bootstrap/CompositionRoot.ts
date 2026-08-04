@@ -10,6 +10,7 @@ import { ProcesarRespuestaInterbancariaService } from "../Application/Services/T
 import { RecibirTransferenciaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/RecibirTransferenciaInterbancariaService";
 import { TransferenciaInterbancariaEstadoService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaEstadoService";
 import { TransferenciaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaService";
+import { ConsultarTitularCuentaService } from "../Application/Services/ConsultarTitularCuentaService";
 import { PrepararTransferenciaLocalService } from "../Application/Services/Transferencias/Local/PrepararTransferenciaLocalService";
 import { TransferenciaLocalService } from "../Application/Services/Transferencias/Local/TransferenciaLocalService";
 import { TransferenciaService } from "../Application/Services/Transferencias/TransferenciaService";
@@ -112,7 +113,15 @@ const procesarTransferenciasEntrantesService =
         procesarTransferenciaEntranteService
     );
 
-export const cuentaController = new CuentaController(cuentaService);
+const consultarTitularCuentaService = new ConsultarTitularCuentaService(
+    cuentaRepository,
+    clienteRepository
+);
+
+export const cuentaController = new CuentaController(
+    cuentaService,
+    consultarTitularCuentaService
+);
 export const authController = new AuthController(autenticacionService);
 export const operacionController = new OperacionController(depositoService, retiroService);
 export const transferenciaController = new TransferenciaController(transferenciaService);

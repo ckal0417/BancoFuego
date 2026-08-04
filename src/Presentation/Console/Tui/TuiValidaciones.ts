@@ -31,10 +31,10 @@ export class TuiValidaciones {
     public static cuentaDestino(
         numeroCuenta: string
     ): string | null {
-        if (
-            numeroCuenta.trim().length < 5
-        ) {
-            return "Ingrese un número de cuenta destino válido.";
+        const cuentaLimpia = numeroCuenta.trim();
+
+        if (!/^[0-9]{10}$/.test(cuentaLimpia)) {
+            return "El número de cuenta debe tener exactamente 10 dígitos numéricos.";
         }
 
         return null;

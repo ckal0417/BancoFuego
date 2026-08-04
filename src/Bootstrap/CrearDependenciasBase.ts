@@ -1,4 +1,5 @@
 import { IdempotenciaService } from "../Application/Services/IdempotenciaService";
+import { ConsultarTitularCuentaService } from "../Application/Services/ConsultarTitularCuentaService";
 import { RedBancariaSimuladaClient } from "../Infrastructure/Clients/RedBancaria/Http/RedBancariaSimuladaClient";
 import { PostgresUnidadDeTrabajo } from "../Infrastructure/Database/PostgresUnidadDeTrabajo";
 import { AutenticacionRepositoryPostgres } from "../Infrastructure/Database/Repositories/AutenticacionRepositoryPostgres";
@@ -41,6 +42,10 @@ export function crearDependenciasBase() {
     );
     const tokenService = new JwtTokenService();
     const idempotenciaService = new IdempotenciaService();
+    const consultarTitularCuentaService = new ConsultarTitularCuentaService(
+        cuentaRepository,
+        clienteRepository
+    );
 
     configurarSubscribers(
         eventBus,
@@ -59,7 +64,8 @@ export function crearDependenciasBase() {
         unidadDeTrabajo,
         redBancariaClient,
         tokenService,
-        idempotenciaService
+        idempotenciaService,
+        consultarTitularCuentaService
     };
 }
 

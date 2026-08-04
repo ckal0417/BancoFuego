@@ -31,13 +31,6 @@ export class TransferirCommand implements ICommandConsola {
             )
         ).trim();
 
-        const textoMonto =
-            await this.entrada.question(
-                "Monto a transferir: "
-            );
-
-        const monto = Number(textoMonto);
-
         if (!cuentaDestino) {
             Consola.error(
                 "La cuenta de destino es obligatoria."
@@ -58,6 +51,30 @@ export class TransferirCommand implements ICommandConsola {
             await this.continuar();
             return;
         }
+
+        try {
+            const titular = await this.apiClient.obtenerTitularCuenta(
+                cuentaDestino
+            );
+
+            Consola.exito(
+                `Titular encontrado: ${titular.nombreTitular}`
+            );
+        } catch (error) {
+            Consola.error(
+                this.obtenerMensaje(error)
+            );
+
+            await this.continuar();
+            return;
+        }
+
+        const textoMonto =
+            await this.entrada.question(
+                "Monto a transferir: "
+            );
+
+        const monto = Number(textoMonto);
 
         if (
             !Number.isFinite(monto) ||

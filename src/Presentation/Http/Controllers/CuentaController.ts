@@ -5,6 +5,7 @@ import {
 } from "express";
 
 import { CuentaService } from "../../../Application/Services/CuentaService";
+import { ConsultarTitularCuentaService } from "../../../Application/Services/ConsultarTitularCuentaService";
 
 interface DatosAutenticacion {
     cuentaId: number;
@@ -13,7 +14,8 @@ interface DatosAutenticacion {
 
 export class CuentaController {
     constructor(
-        private readonly cuentaService: CuentaService
+        private readonly cuentaService: CuentaService,
+        private readonly consultarTitularCuentaService: ConsultarTitularCuentaService
     ) {}
 
     public obtenerPorId = async (
@@ -58,6 +60,42 @@ export class CuentaController {
                 );
 
             res.status(200).json(cuenta);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    public obtenerTitularPorNumeroCuenta = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<void> => {
+        try {
+            const numeroCuenta = req.params.numeroCuenta;
+
+            if (typeof numeroCuenta !== "string") {
+                res.status(400).json({
+                    mensaje:
+                        "El número de cuenta destino no es válido."
+                });
+                return;
+            }
+
+            const resultado =
+                await this.consultarTitularCuentaService.ejecutar(
+                    numeroCuenta
+                );
+
+            if (!resultado.existe) {
+                res.status(404).json({
+                    mensaje: resultado.mensaje
+                });
+                return;
+            }
+
+            res.status(200).json({
+                nombreTitular: resultado.nombreTitular
+            });
         } catch (error) {
             next(error);
         }

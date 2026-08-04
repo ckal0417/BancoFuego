@@ -1,4 +1,5 @@
 import { AutenticacionService } from "../../../Application/Services/AutenticacionService";
+import { ConsultarTitularCuentaService } from "../../../Application/Services/ConsultarTitularCuentaService";
 import { DepositoService } from "../../../Application/Services/DepositoService";
 import { HistorialService } from "../../../Application/Services/HistorialService";
 import { RetiroService } from "../../../Application/Services/RetiroService";
@@ -65,6 +66,11 @@ export function crearServiciosTui() {
         idempotenciaService
     );
 
+    const consultarTitularCuentaService = new ConsultarTitularCuentaService(
+        cuentaRepository,
+        clienteRepository
+    );
+
     const transferenciaService = new TransferenciaService(
         prepararTransferenciaLocalService,
         transferenciaInterbancariaService,
@@ -77,7 +83,8 @@ export function crearServiciosTui() {
         depositoService,
         retiroService,
         historialService,
-        transferenciaService
+        transferenciaService,
+        consultarTitularCuentaService
     };
 }
 
