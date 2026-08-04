@@ -89,3 +89,15 @@ export const opcionesConfirmarCancelacion:
             value: "no"
         }
     ];
+
+export const opcionesConfirmarCuentaDestino:
+    ItemSeleccion[] = [
+        {
+            label: "✅ Sí",
+            value: "si"
+        },
+        {
+            label: "❌ No",
+            value: "no"
+        }
+    ];

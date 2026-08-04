@@ -69,6 +69,16 @@ export class BancoApiClient {
         });
     }
 
+    public obtenerTitularCuenta(
+        numeroCuenta: string,
+        token?: string
+    ): Promise<{ nombreTitular: string }> {
+        return this.get<{ nombreTitular: string }>(
+            `/cuentas/titular/${encodeURIComponent(numeroCuenta)}`,
+            token
+        );
+    }
+
     private async enviar<T>(
         ruta: string,
         opciones: OpcionesPeticion

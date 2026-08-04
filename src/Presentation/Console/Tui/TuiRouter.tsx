@@ -1,5 +1,5 @@
 import React from "react";
-import { opcionesConfirmarCancelacion, opcionesConfirmarSalida } from "./TuiOptions";
+import { opcionesConfirmarCancelacion, opcionesConfirmarCuentaDestino, opcionesConfirmarSalida } from "./TuiOptions";
 import { TuiController } from "./Controllers/useTuiController";
 import { LoginTarjetaScreen } from "./Screens/LoginTarjetaScreen";
 import { LoginPinScreen } from "./Screens/LoginPinScreen";
@@ -116,6 +116,20 @@ export function TuiRouter( props: TuiRouterProps ): React.ReactElement | null {
                     }
                     continuar={
                         tui.handleTransferenciaLocalContinuar
+                    }
+                />
+            );
+
+        case "CONFIRMAR_CUENTA_DESTINO":
+            return (
+                <ConfirmacionScreen
+                    titulo="CONFIRMAR CUENTA DESTINO"
+                    mensaje={tui.mensaje.contenido}
+                    opciones={
+                        opcionesConfirmarCuentaDestino
+                    }
+                    seleccionar={
+                        tui.handleConfirmarCuentaDestinoSelect
                     }
                 />
             );

@@ -11,6 +11,7 @@ export type PantallaTui =
     | "MENSAJE"
     | "CONFIRMAR_SALIDA"
     | "CONFIRMAR_CANCELACION"
+    | "CONFIRMAR_CUENTA_DESTINO"
     | "DESPEDIDA"
     | "CAMBIAR_PIN"
     | "TIPO_TRANSFERENCIA"

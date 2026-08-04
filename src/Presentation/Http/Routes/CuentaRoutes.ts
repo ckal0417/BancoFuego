@@ -10,6 +10,12 @@ cuentaRoutes.get(
 );
 
 cuentaRoutes.get(
+    "/titular/:numeroCuenta",
+    authMiddleware.verificar,
+    cuentaController.obtenerTitularPorNumeroCuenta
+);
+
+cuentaRoutes.get(
     "/:id",
     cuentaController.obtenerPorId
 );

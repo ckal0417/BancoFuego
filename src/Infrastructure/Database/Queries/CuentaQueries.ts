@@ -28,6 +28,21 @@ export class CuentaQueries {
         FOR UPDATE
     `;
 
+    public static readonly BUSCAR_POR_NUMERO_CUENTA = `
+        SELECT
+            id_cuenta,
+            numero_cuenta,
+            tipo,
+            saldo,
+            fecha_creacion,
+            activa,
+            id_cliente,
+            id_banco,
+            switch_account_id
+        FROM BancoFuego.Cuenta
+        WHERE numero_cuenta = $1
+    `;
+
     public static readonly BUSCAR_POR_NUMERO_CUENTA_PARA_ACTUALIZAR = `
         SELECT
             id_cuenta,

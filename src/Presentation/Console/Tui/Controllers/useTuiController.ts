@@ -39,7 +39,8 @@ export function useTuiController() {
         servicios,
         sesion: autenticacion.sesion,
         actualizarSesion: autenticacion.actualizarSesion,
-        mostrarMensaje: navegacion.mostrarMensaje
+        mostrarMensaje: navegacion.mostrarMensaje,
+        mostrarConfirmacion: navegacion.mostrarConfirmacion
     });
 
     const transferenciaInterbancaria = useTransferenciaInterbancariaController({
@@ -133,6 +134,15 @@ export function useTuiController() {
         navegacion.confirmarCancelacion(obtenerLimpiadorOperacionActual());
     }
 
+    function handleConfirmarCuentaDestinoSelect(item: ItemSeleccion): void {
+        if (item.value === "si") {
+            transferenciaLocal.confirmarCuentaDestino("si");
+            return;
+        }
+
+        transferenciaLocal.confirmarCuentaDestino("no");
+    }
+
     function obtenerLimpiadorOperacionActual(): () => void {
         switch (navegacion.pantallaPreviaCancelacion) {
             case "DEPOSITO":
@@ -202,6 +212,7 @@ export function useTuiController() {
         handleTipoTransferenciaSelect: transferencias.seleccionarTipo,
         handleTransferenciaLocalContinuar: transferenciaLocal.continuar,
         handleTransferenciaInterbancariaContinuar: transferenciaInterbancaria.continuar,
+        handleConfirmarCuentaDestinoSelect,
 
         handleDepositoSubmit: operaciones.ejecutarDeposito,
         handleRetiroSubmit: operaciones.ejecutarRetiro,
