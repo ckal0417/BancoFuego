@@ -56,15 +56,15 @@ Variables incluidas en .env.example:
 
 ```env
 
-DB_HOST (default: localhost)
-DB_PORT (default: 5432)
-DB_NAME (default: BancoFuego)
-DB_USER (default: postgres)
-DB_PASSWORD (default: Admin123456)
+DB_HOST = localhost
+DB_PORT = 5432
+DB_NAME = BancoFuego
+DB_USER = postgres
+DB_PASSWORD = Admin123456
 
-DB_POOL_MAX (default: 10)
-DB_IDLE_TIMEOUT_MS (default: 30000)
-DB_CONNECTION_TIMEOUT_MS (default: 5000)
+DB_POOL_MAX = 10
+DB_IDLE_TIMEOUT_MS = 30000
+DB_CONNECTION_TIMEOUT_MS = default: 5000
 
 JWT_SECRET = BancoFuego_clave_local_2026_cambiar_despues
 
