@@ -1,29 +1,45 @@
 import { Request, Response, NextFunction } from "express";
-import { RecibirTransferenciaInterbancariaRequestDto } from "../../../../../Application/DTOs/Transferencias/Interbancaria/RecibirTransferenciaInterbancaria";
-import { RecibirTransferenciaInterbancariaService } from "../../../../../Application/Services/Transferencias/Interbancaria/RecibirTransferenciaInterbancariaService";
+import { ProcesarTransferenciasEntrantesService } from "../../../../../Application/Services/Transferencias/Interbancaria/Entrante/ProcesarTransferenciasEntrantesService";
+import { TransferenciaInterbancariaEntranteWebhookRequest } from "../../../../Contracts/Api/Transferencias/TransferenciaInterbancariaEntranteWebhookContract";
+import { TransferenciaInterbancariaEntranteWebhookAdapter } from "./TransferenciaInterbancariaEntranteWebhookAdapter";
 
 export class TransferenciaInterbancariaEntranteController {
     constructor(
-        private readonly recibirService: RecibirTransferenciaInterbancariaService
+        private readonly procesarTransferenciasEntrantesService: ProcesarTransferenciasEntrantesService
     ) { }
 
     public recibir = async (
         req: Request<
             unknown,
             unknown,
-            RecibirTransferenciaInterbancariaRequestDto
+            TransferenciaInterbancariaEntranteWebhookRequest
         >,
         res: Response,
         next: NextFunction
     ): Promise<void> => {
         try {
+
+            const solicitud =
+                TransferenciaInterbancariaEntranteWebhookAdapter
+                    .aProcesarTransferenciaEntranteDto(
+                        req.body,
+                        req.header("Idempotency-Key") ?? undefined
+                    );
+
             const resultado =
-                await this.recibirService.recibir(req.body);
+                await this.procesarTransferenciasEntrantesService
+                    .procesarTransferenciaEntrante(
+                        solicitud
+                    );
 
             const codigoHttp =
-                resultado.estado === "ACEPTADA" ? 200 : 422;
+                resultado.operacionNueva ? 201 : 200;
 
-            res.status(codigoHttp).json(resultado);
+            res.status(codigoHttp).json({
+                ...resultado.respuesta,
+                operacionNueva:
+                    resultado.operacionNueva
+            });
         } catch (error) {
             next(error);
         }

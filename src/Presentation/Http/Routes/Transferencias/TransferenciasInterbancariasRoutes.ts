@@ -17,6 +17,7 @@ transferenciasInterbancariasRoutes.post(
 
 transferenciasInterbancariasRoutes.post(
     "/recibir",
+    ValidacionMiddleware.validarIdempotencyKey,
     transferenciaInterbancariaEntranteController.recibir
 );
 

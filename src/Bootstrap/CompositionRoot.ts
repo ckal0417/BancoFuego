@@ -7,7 +7,6 @@ import { AplicarResultadoInterbancarioService } from "../Application/Services/Tr
 import { ProcesarTransferenciaEntranteService } from "../Application/Services/Transferencias/Interbancaria/Entrante/ProcesarTransferenciaEntranteService";
 import { ProcesarTransferenciasEntrantesService } from "../Application/Services/Transferencias/Interbancaria/Entrante/ProcesarTransferenciasEntrantesService";
 import { ProcesarRespuestaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/ProcesarRespuestaInterbancariaService";
-import { RecibirTransferenciaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/RecibirTransferenciaInterbancariaService";
 import { TransferenciaInterbancariaEstadoService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaEstadoService";
 import { TransferenciaInterbancariaService } from "../Application/Services/Transferencias/Interbancaria/TransferenciaInterbancariaService";
 import { ConsultarTitularCuentaService } from "../Application/Services/ConsultarTitularCuentaService";
@@ -96,10 +95,6 @@ const procesarRespuestaInterbancariaService = new ProcesarRespuestaInterbancaria
     eventBus,
     aplicarResultadoInterbancarioService
 );
-const recibirTransferenciaInterbancariaService = new RecibirTransferenciaInterbancariaService(
-    unidadDeTrabajo,
-    eventBus
-);
 
 const procesarTransferenciaEntranteService =
     new ProcesarTransferenciaEntranteService(
@@ -136,7 +131,7 @@ export const transferenciaInterbancariaCallbackController =
     );
 export const transferenciaInterbancariaEntranteController =
     new TransferenciaInterbancariaEntranteController(
-        recibirTransferenciaInterbancariaService
+        procesarTransferenciasEntrantesService
     );
 export const authMiddleware = new AuthMiddleware(tokenService);
 const webhookSecret = process.env.INTERBANK_WEBHOOK_SECRET;

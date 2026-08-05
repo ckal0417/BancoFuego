@@ -345,7 +345,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"bancoOrigen\": \"BANCO_TEST\",\r\n    \"numeroCuentaDestino\": \"2200000008\",\r\n    \"monto\": 50,\r\n    \"concepto\": \"Prueba de transferencia entrante\",\r\n    \"referenciaExterna\": \"EXT-PRUEBA-002\"\r\n}",
+              "raw": "{\r\n    \"correlationId\": \"corr-entrante-001\",\r\n    \"codigoBancoOrigen\": \"BANCO_TEST\",\r\n    \"numeroCuentaOrigen\": \"2200000001\",\r\n    \"numeroCuentaDestino\": \"2200000008\",\r\n    \"monto\": 50,\r\n    \"concepto\": \"Prueba de transferencia entrante\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"

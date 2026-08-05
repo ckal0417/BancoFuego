@@ -15,6 +15,14 @@ export class ProcesarTransferenciasEntrantesService {
         private readonly procesarTransferenciaEntranteService: ProcesarTransferenciaEntranteService
     ) { }
 
+    public async procesarTransferenciaEntrante(
+        solicitud: ProcesarTransferenciaEntranteRequestDto
+    ) {
+        return this.procesarTransferenciaEntranteService.ejecutar(
+            solicitud
+        );
+    }
+
     public async ejecutar(): Promise<void> {
 
         const transferencias =
@@ -43,8 +51,9 @@ export class ProcesarTransferenciasEntrantesService {
                     concepto: transferencia.description
                 };
 
-                await this.procesarTransferenciaEntranteService
-                    .ejecutar(solicitud);
+                await this.procesarTransferenciaEntrante(
+                    solicitud
+                );
 
                 await this.redBancariaClient.confirmarTransferenciaEntrantesProcesada(
                     CorrelationId.desde(
