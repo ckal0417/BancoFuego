@@ -3,13 +3,15 @@ import { PostgresConnection } from "../PostgresConnection";
 import { AlinearEsquemaOperacionesMigration } from "./AlinearEsquemaOperacionesMigration";
 import { IdempotenciaMigration } from "./IdempotenciaMigration";
 import { IMigration } from "./IMigration";
+import { RegistrosTransferenciasEntrantesMigration } from "./RegistrosTransferenciasEntrantesMigration";
 
 
 export class MigrationRunner {
     private readonly migraciones:
         IMigration[] = [
             new IdempotenciaMigration(),
-            new AlinearEsquemaOperacionesMigration()
+            new AlinearEsquemaOperacionesMigration(),
+            new RegistrosTransferenciasEntrantesMigration()
         ];
 
     public async ejecutar():

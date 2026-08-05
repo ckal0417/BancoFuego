@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { ProcesarTransferenciaEntranteService } from "./ProcesarTransferenciaEntranteService";
+import { ProcesarTransferenciasEntrantesService } from "./ProcesarTransferenciasEntrantesService";
 import { IdempotenciaService } from "../../../IdempotenciaService";
 import {
     IUnidadDeTrabajo,
@@ -10,6 +11,7 @@ import {
     TipoOperacionIdempotente
 } from "../../../../Ports/IIdempotenciaRepository";
 import { Cuenta } from "../../../../../Domain/Entities/Cuenta";
+import { CorrelationId } from "../../../../../Domain/ValueObjects/CorrelationId";
 import { Dinero } from "../../../../../Domain/ValueObjects/Dinero";
 import { NumeroCuenta } from "../../../../../Domain/ValueObjects/NumeroCuenta";
 
@@ -363,5 +365,91 @@ describe("ProcesarTransferenciaEntranteService", () => {
                 .obtenerSaldo()
                 .toNumber()
         ).toBe(110);
+    });
+
+    it("webhook y polling con la misma correlationId comparten idempotencia y evitan doble abono", async () => {
+        const sut =
+            crearSut();
+
+        const redBancariaClient = {
+            enviarTransferencia: vi.fn(),
+            consultarEstado: vi.fn(),
+            obtenerTransferenciasEntrantesPendientes: vi.fn(async () => [
+                {
+                    id: "trx-red-1",
+                    correlationId: solicitudBase.correlationId,
+                    codigoBancoOrigen: solicitudBase.codigoBancoOrigen,
+                    numeroCuentaOrigen: solicitudBase.numeroCuentaOrigen,
+                    numeroCuentaDestino: solicitudBase.numeroCuentaDestino,
+                    operation: "transfer",
+                    type: "credit" as const,
+                    amount: solicitudBase.monto,
+                    state: "pending",
+                    description: solicitudBase.concepto,
+                    createdAt: new Date("2026-08-05T00:00:00.000Z")
+                }
+            ]),
+            confirmarTransferenciaEntrantesProcesada: vi.fn(async () => undefined)
+        };
+
+        const flujoCompartido =
+            new ProcesarTransferenciasEntrantesService(
+                redBancariaClient,
+                sut.servicio
+            );
+
+        const respuestaWebhook =
+            await flujoCompartido.procesarTransferenciaEntrante({
+                ...solicitudBase,
+                idempotencyKey: "header-webhook-distinto"
+            });
+
+        await flujoCompartido.ejecutar();
+
+        const respuestaPosterior =
+            await flujoCompartido.procesarTransferenciaEntrante(
+                solicitudBase
+            );
+
+        expect(
+            respuestaWebhook.operacionNueva
+        ).toBe(true);
+
+        expect(
+            respuestaPosterior.operacionNueva
+        ).toBe(false);
+
+        expect(
+            respuestaPosterior.respuesta
+        ).toEqual(
+            respuestaWebhook.respuesta
+        );
+
+        expect(
+            sut.transacciones.crear
+        ).toHaveBeenCalledTimes(1);
+
+        expect(
+            sut.movimientos.crear
+        ).toHaveBeenCalledTimes(1);
+
+        expect(
+            sut.idempotencia.iniciar
+        ).toHaveBeenNthCalledWith(
+            1,
+            77,
+            "TRANSFERENCIA",
+            solicitudBase.correlationId,
+            expect.any(String)
+        );
+
+        expect(
+            redBancariaClient
+                .confirmarTransferenciaEntrantesProcesada
+        ).toHaveBeenCalledWith(
+            CorrelationId.desde(
+                solicitudBase.correlationId
+            )
+        );
     });
 });

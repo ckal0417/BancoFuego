@@ -10,10 +10,9 @@ const puerto =
     );
 
 const pollingHabilitado =
-    (
-        process.env.INTERBANK_POLLING_ENABLED ??
-        "true"
-    ).toLowerCase() === "true";
+    resolverBanderaPolling(
+        process.env.INTERBANK_POLLING_ENABLED
+    );
 
 async function iniciarServidor():
     Promise<void> {
@@ -32,6 +31,13 @@ async function iniciarServidor():
                     if (pollingHabilitado) {
                         transferenciaInterbancariaPollingWorker.iniciar();
                         transferenciasEntrantesPollingWorker.iniciar();
+                        logger.info(
+                            "Polling interbancario habilitado"
+                        );
+                    } else {
+                        logger.info(
+                            "Polling interbancario deshabilitado por INTERBANK_POLLING_ENABLED"
+                        );
                     }
                 }
             );
@@ -43,8 +49,10 @@ async function iniciarServidor():
                 `Se recibió ${señal}. Cerrando BancoFuego...`
             );
 
-            transferenciaInterbancariaPollingWorker.detener();
-            transferenciasEntrantesPollingWorker.detener();
+            if (pollingHabilitado) {
+                transferenciaInterbancariaPollingWorker.detener();
+                transferenciasEntrantesPollingWorker.detener();
+            }
 
             servidor.close(
                 () => {
@@ -78,6 +86,38 @@ async function iniciarServidor():
 
         process.exitCode = 1;
     }
+}
+
+function resolverBanderaPolling(
+    valor: string | undefined
+): boolean {
+    if (valor === undefined) {
+        return true;
+    }
+
+    const limpio = valor
+        .trim()
+        .toLowerCase();
+
+    if (
+        limpio === "true" ||
+        limpio === "1"
+    ) {
+        return true;
+    }
+
+    if (
+        limpio === "false" ||
+        limpio === "0"
+    ) {
+        return false;
+    }
+
+    logger.warn(
+        `Valor no reconocido para INTERBANK_POLLING_ENABLED: ${valor}. Se usará 'true'.`
+    );
+
+    return true;
 }
 
 void iniciarServidor();

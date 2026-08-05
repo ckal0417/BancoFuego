@@ -17,7 +17,6 @@ export class RegistroTransferenciasEntrantesQueries {
         RETURNING id_transferencia_entrante;
     `;
 
-
     public static readonly BUSCAR_POR_CORRELATION_ID = `
         SELECT
             id_transferencia_entrante,
@@ -32,5 +31,4 @@ export class RegistroTransferenciasEntrantesQueries {
         FROM bancofuego.registros_transferencias_entrantes
         WHERE correlation_id = $1;
     `;
-
 }

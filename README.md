@@ -8,6 +8,7 @@ BancoFuego es un sistema bancario en TypeScript con arquitectura por capas (Appl
 - Operaciones bancarias: deposito, retiro y transferencias.
 - Transferencias interbancarias salientes y entrantes.
 - Idempotencia para operaciones criticas.
+- Flujo comun de procesamiento para transferencias entrantes por webhook HTTP y polling.
 - Historial de movimientos.
 - Swagger/OpenAPI para documentacion de API.
 - Pruebas unitarias con Vitest.
@@ -54,13 +55,21 @@ npm install
 Variables incluidas en .env.example:
 
 ```env
-PORT=3000
+DB_HOST (default: localhost)
+DB_PORT (default: 5432)
+DB_NAME (default: BancoFuego)
+DB_USER (default: postgres)
+DB_PASSWORD (default: Admin123456)
 
-DATABASE_URL=
+DB_POOL_MAX (default: 10)
+DB_IDLE_TIMEOUT_MS (default: 30000)
+DB_CONNECTION_TIMEOUT_MS (default: 5000)
 
-JWT_SECRET=
+JWT_SECRET = BancoFuego_clave_local_2026_cambiar_despues
 
-CORS_ORIGINS=http://localhost:4200
+CORS_ORIGINS = http://localhost:4200 , http://localhost:3000
+
+API_URL = http://localhost:3000/api
 
 INTERBANK_WEBHOOK_SECRET=
 INTERBANK_WEBHOOK_URL=http://localhost:3000/api/transferencias/interbancarias/callback
@@ -72,19 +81,6 @@ INTERBANK_POLLING_INTERVAL_MS=300000
 INTERBANK_POLLING_BATCH_SIZE=50
 ```
 
-Variables usadas actualmente por la conexion PostgreSQL:
-
-- DB_HOST (default: localhost)
-- DB_PORT (default: 5432)
-- DB_NAME (default: BancoFuego)
-- DB_USER (default: postgres)
-- DB_PASSWORD (default: Admin123456)
-- DB_POOL_MAX (default: 10)
-- DB_IDLE_TIMEOUT_MS (default: 30000)
-- DB_CONNECTION_TIMEOUT_MS (default: 5000)
-
-Nota: DATABASE_URL aparece en .env.example, pero la conexion activa usa DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD.
-
 ## Migraciones
 
 Ejecutar migraciones antes de iniciar API por primera vez:
@@ -92,6 +88,12 @@ Ejecutar migraciones antes de iniciar API por primera vez:
 ```bash
 npm run migrate
 ```
+
+Migraciones relevantes para transferencias entrantes:
+
+- 001_idempotencia_operaciones: base de idempotencia.
+- 002_alinear_esquema_operaciones: alineacion de esquema e indices operativos.
+- 003_registros_transferencias_entrantes: crea/normaliza registros entrantes, deduplica por correlation_id y agrega indice unico.
 
 ## Ejecucion
 
@@ -180,6 +182,12 @@ Para operaciones criticas, enviar header:
 
 El sistema detecta reintentos con misma clave y misma solicitud, y devuelve respuesta previa cuando corresponde.
 
+Regla especial en transferencias interbancarias entrantes:
+
+- La clave principal de idempotencia es correlationId para compartir el mismo nucleo entre webhook y polling.
+- Idempotency-Key se acepta como header opcional en HTTP, pero no reemplaza correlationId como identidad de negocio de la transferencia entrante.
+- Esto evita doble acreditacion cuando webhook y worker de polling observan la misma transferencia.
+
 ## Coleccion Postman
 
 El proyecto incluye:
@@ -188,10 +196,16 @@ El proyecto incluye:
 
 Importala en Postman para probar los endpoints principales.
 
+Actualizacion de hoy en la coleccion:
+
+- El request de POST /api/transferencias/interbancarias/recibir ahora usa correlationId explicito y campos canonicos de entrada.
+
 ## Notas operativas
 
 - Al iniciar la API, se verifica conexion a PostgreSQL.
-- Si INTERBANK_POLLING_ENABLED=true, se inician workers de polling para transferencias interbancarias.
+- INTERBANK_POLLING_ENABLED controla el arranque de workers interbancarios.
+- Valores admitidos para INTERBANK_POLLING_ENABLED: true/false y 1/0.
+- Si la variable tiene un valor invalido, se usa true por defecto y se registra advertencia en logs.
 - CORS se controla con CORS_ORIGINS (lista separada por comas).
 
 ## Licencia

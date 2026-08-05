@@ -5,7 +5,7 @@ import { NumeroCuenta } from "../../../Domain/ValueObjects/NumeroCuenta";
 import { Dinero } from "../../../Domain/ValueObjects/Dinero";
 import { PostgresConnection } from "../PostgresConnection";
 import { QueryExecutor } from "../QueryExecutor";
-import { RegistroTransferenciasEntrantesQueries } from "../Queries/TrnasferrenciasEntrantesQueries";
+import { RegistroTransferenciasEntrantesQueries } from "../Queries/TransferenciasEntrantesQueries";
 
 interface FilaRegistroTransferenciaEntrante {
     id_transferencia_entrante: number;
@@ -23,6 +23,11 @@ interface FilaRegistroCreado {
     id_transferencia_entrante: number;
 }
 
+interface ErrorPostgres {
+    code?: string;
+    constraint?: string;
+}
+
 export class RegistroTransferenciaEntranteRepositoryPostgres
 implements IRegistroTransferenciaEntranteRepository {
 
@@ -35,46 +40,75 @@ implements IRegistroTransferenciaEntranteRepository {
     public async guardar(
         registro: RegistroTransferenciaEntrante
     ): Promise<number> {
+        const correlationId =
+            registro
+                .obtenerCorrelationId()
+                .toString();
 
-        const resultado = await this.executor.query<FilaRegistroCreado>(
-            RegistroTransferenciasEntrantesQueries.CREAR,
-            [
-                registro
-                    .obtenerCorrelationId()
-                    .toString(),
+        const parametros = [
+            correlationId,
 
-                registro
-                    .obtenerCodigoBancoOrigen(),
+            registro
+                .obtenerCodigoBancoOrigen(),
 
-                registro
-                    .obtenerCuentaOrigen()
-                    .toString(),
+            registro
+                .obtenerCuentaOrigen()
+                .toString(),
 
-                registro
-                    .obtenerCuentaDestino()
-                    .toString(),
+            registro
+                .obtenerCuentaDestino()
+                .toString(),
 
-                registro
-                    .obtenerMonto()
-                    .toCentavos(),
+            registro
+                .obtenerMonto()
+                .toCentavos(),
 
-                registro
-                    .obtenerConcepto() ?? null,
+            registro
+                .obtenerConcepto() ?? null,
 
-                registro
-                    .obtenerIdCuentaDestino(),
+            registro
+                .obtenerIdCuentaDestino(),
 
-                registro
-                    .obtenerProcesadoEn()
-            ]
-        );
-        const fila = resultado.rows[0];
-        if (!fila) {
-            throw new Error(
-                "No se pudo registrar la transferencia entrante."
+            registro
+                .obtenerProcesadoEn()
+        ];
+
+        try {
+            const resultado = await this.executor.query<FilaRegistroCreado>(
+                RegistroTransferenciasEntrantesQueries.CREAR,
+                parametros
             );
+
+            const fila = resultado.rows[0];
+            if (!fila) {
+                throw new Error(
+                    "No se pudo registrar la transferencia entrante."
+                );
+            }
+
+            return fila.id_transferencia_entrante;
+        } catch (error) {
+            if (
+                !this.esDuplicadoPorCorrelationId(error)
+            ) {
+                throw error;
+            }
+
+            const existente = await this.buscarPorCorrelationId(
+                CorrelationId.desde(correlationId)
+            );
+
+            const idExistente =
+                existente?.obtenerId();
+
+            if (idExistente === undefined) {
+                throw new Error(
+                    "Existe una transferencia entrante con el mismo correlationId, pero no fue posible recuperar su id."
+                );
+            }
+
+            return idExistente;
         }
-        return fila.id_transferencia_entrante;
     }
 
     public async buscarPorCorrelationId(
@@ -117,5 +151,24 @@ implements IRegistroTransferenciaEntranteRepository {
             idCuentaDestino: fila.id_cuenta_destino,
             procesadoEn: fila.procesado_en
         });
+    }
+
+    private esDuplicadoPorCorrelationId(
+        error: unknown
+    ): boolean {
+        const errorPostgres =
+            error as ErrorPostgres;
+
+        if (errorPostgres.code !== "23505") {
+            return false;
+        }
+
+        if (!errorPostgres.constraint) {
+            return true;
+        }
+
+        return errorPostgres.constraint
+            .toLowerCase()
+            .includes("correlation");
     }
 }
