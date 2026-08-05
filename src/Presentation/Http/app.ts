@@ -112,6 +112,18 @@ app.use(
     cors(corsOptions)
 );
 
+/*
+app.post(
+    '/webhooks/interbank',
+    express.json({
+            verify: (req: express.Request, _res, buf: Buffer) => {
+            (req as any).rawBody = buf.toString('utf8');
+        }
+    }),
+    webhookSignatureMiddleware.verificar,
+    procesarTransferenciaEntranteController
+);*/
+
 app.use(
     express.json({
         limit: "100kb"

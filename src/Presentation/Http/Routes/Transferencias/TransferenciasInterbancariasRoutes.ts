@@ -20,6 +20,19 @@ transferenciasInterbancariasRoutes.post(
     transferenciaInterbancariaEntranteController.recibir
 );
 
+/*
+// Al montar la ruta del webhook, ANTES de cualquier parseo JSON estándar
+app.post(
+    '/webhooks/interbank',
+    express.json({
+        verify: (req: any, res, buf) => {
+            req.rawBody = buf.toString('utf8');
+        }
+    }),
+    webhookSignatureMiddleware.verificar,
+    procesarTransferenciaEntranteController
+);*/
+
 export {
     transferenciasInterbancariasRoutes
 };

@@ -60,12 +60,9 @@ export class WebhookSignatureMiddleware {
         next();
     };
 
-    private crearContenidoFirmado(
-        timestamp: string,
-        body: unknown
-    ): string {
-        return `${timestamp}.${JSON.stringify(body)}`;
-    }
+    private crearContenidoFirmado(timestamp: string, rawBody: string): string {
+        return `${timestamp}.${rawBody}`;
+    }   
 
     private generarFirma(
         contenido: string

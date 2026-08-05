@@ -156,6 +156,7 @@ function crearSut(opciones?: {
     const cuentas = {
         buscarPorId: vi.fn(async () => null),
         buscarPorIdParaActualizar: vi.fn(async () => null),
+        buscarPorNumeroCuenta: vi.fn(async () => null),
         buscarPorNumeroCuentaParaActualizar:
             vi.fn(async () => cuentaDestino),
         crear: vi.fn(async () => 1),
