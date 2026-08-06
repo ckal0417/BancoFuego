@@ -13,7 +13,7 @@ export class RegistrosTransferenciasEntrantesMigration
     ): Promise<void> {
         await cliente.query(`
             CREATE TABLE IF NOT EXISTS
-                BancoFuego.Registros_Transferencias_Entrantes (
+                BancoFuego.registros_transferencias_entrantes (
                     id_transferencia_entrante
                         SERIAL
                         PRIMARY KEY,
@@ -53,16 +53,29 @@ export class RegistrosTransferenciasEntrantesMigration
         `);
 
         await cliente.query(`
-            DELETE FROM BancoFuego.Registros_Transferencias_Entrantes r
-            USING BancoFuego.Registros_Transferencias_Entrantes d
-            WHERE r.id_transferencia_entrante < d.id_transferencia_entrante
-                AND r.correlation_id = d.correlation_id
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM pg_constraint
+                    WHERE conrelid = 'BancoFuego.registros_transferencias_entrantes'::regclass
+                        AND conname = 'fk_regidtro_transferencia_cuenta'
+                ) THEN
+                    ALTER TABLE BancoFuego.registros_transferencias_entrantes
+                    ADD CONSTRAINT fk_regidtro_transferencia_cuenta
+                    FOREIGN KEY (id_cuenta_destino)
+                    REFERENCES BancoFuego.Cuenta (id_cuenta)
+                    ON UPDATE CASCADE
+                    ON DELETE RESTRICT;
+                END IF;
+            END
+            $$;
         `);
 
         await cliente.query(`
             CREATE UNIQUE INDEX IF NOT EXISTS
                 uq_registros_transferencias_entrantes_correlation
-            ON BancoFuego.Registros_Transferencias_Entrantes (
+            ON BancoFuego.registros_transferencias_entrantes (
                 correlation_id
             )
         `);
@@ -70,7 +83,7 @@ export class RegistrosTransferenciasEntrantesMigration
         await cliente.query(`
             CREATE INDEX IF NOT EXISTS
                 idx_registros_transferencias_entrantes_procesado_en
-            ON BancoFuego.Registros_Transferencias_Entrantes (
+            ON BancoFuego.registros_transferencias_entrantes (
                 procesado_en DESC
             )
         `);

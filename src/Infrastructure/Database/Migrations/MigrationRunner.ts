@@ -1,6 +1,7 @@
 import { PoolClient } from "pg";
 import { PostgresConnection } from "../PostgresConnection";
 import { AlinearEsquemaOperacionesMigration } from "./AlinearEsquemaOperacionesMigration";
+import { EsquemaSqlMigration } from "./EsquemaSqlMigration";
 import { IdempotenciaMigration } from "./IdempotenciaMigration";
 import { IMigration } from "./IMigration";
 import { RegistrosTransferenciasEntrantesMigration } from "./RegistrosTransferenciasEntrantesMigration";
@@ -9,6 +10,7 @@ import { RegistrosTransferenciasEntrantesMigration } from "./RegistrosTransferen
 export class MigrationRunner {
     private readonly migraciones:
         IMigration[] = [
+            new EsquemaSqlMigration(),
             new IdempotenciaMigration(),
             new AlinearEsquemaOperacionesMigration(),
             new RegistrosTransferenciasEntrantesMigration()

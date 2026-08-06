@@ -12,11 +12,6 @@ export class IdempotenciaMigration
         cliente: PoolClient
     ): Promise<void> {
         await cliente.query(`
-            CREATE SCHEMA IF NOT EXISTS
-                BancoFuego
-        `);
-
-        await cliente.query(`
             CREATE TABLE IF NOT EXISTS
                 BancoFuego.IdempotenciaOperacion (
                     id_idempotencia
@@ -76,6 +71,26 @@ export class IdempotenciaMigration
                         idempotency_key
                     )
                 )
+        `);
+
+        await cliente.query(`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM pg_constraint
+                    WHERE conrelid = 'BancoFuego.IdempotenciaOperacion'::regclass
+                        AND conname = 'fk_idempotencia_cuenta'
+                ) THEN
+                    ALTER TABLE BancoFuego.IdempotenciaOperacion
+                    ADD CONSTRAINT fk_idempotencia_cuenta
+                    FOREIGN KEY (id_cuenta)
+                    REFERENCES BancoFuego.Cuenta (id_cuenta)
+                    ON UPDATE CASCADE
+                    ON DELETE RESTRICT;
+                END IF;
+            END
+            $$;
         `);
 
         await cliente.query(`
